@@ -1,4 +1,6 @@
+export { RaceClock } from "./RaceClock";
 export { RaceEngine } from "./RaceEngine";
+export { RaceSimulation } from "./RaceSimulation";
 export { assertTwoAthletes, requireTwoAthletes } from "./athletes";
 export { ConstantPaceModel } from "./ConstantPaceModel";
 export {
@@ -18,7 +20,13 @@ export {
   totalLaps,
   winnerIdFromFinishTimes,
 } from "./calculations";
-export { CANONICAL_LAP_M, METRES_PER_MILE, PHASE1_ATHLETE_COUNT } from "./constants";
+export {
+  CANONICAL_LAP_M,
+  DEFAULT_PLAYBACK_RATE,
+  MAX_FRAME_DELTA_MS,
+  METRES_PER_MILE,
+  PHASE1_ATHLETE_COUNT,
+} from "./constants";
 export { RACE_DISTANCES, raceDistanceById } from "./distances";
 export { raceResultFromPaceModels } from "./result";
 export { formatRaceTime, parseRaceTime } from "./time";
