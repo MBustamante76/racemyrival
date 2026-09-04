@@ -21,6 +21,14 @@ export function dot(a: Vec2, b: Vec2): number {
   return a.x * b.x + a.y * b.y;
 }
 
+export function scale(vector: Vec2, scalar: number): Vec2 {
+  return vec2(vector.x * scalar, vector.y * scalar);
+}
+
+export function add(a: Vec2, b: Vec2): Vec2 {
+  return vec2(a.x + b.x, a.y + b.y);
+}
+
 export function inwardNormal(tangent: Vec2): Vec2 {
   return normalize(vec2(-tangent.y, tangent.x));
 }

@@ -8,8 +8,8 @@ export default function Home() {
           Race My Rival
         </h1>
         <p className="max-w-xl text-center text-sm text-zinc-600 dark:text-zinc-400">
-          Phase C geometry preview. The 400m racing line is sampled from
-          StadiumTrackGeometry, not from an SVG path length.
+          Phase D preview. Inner and adjacent visual lanes share the same 400m
+          logical path. Lane choice does not change race distance.
         </p>
         <TrackGeometryPreview />
       </main>
