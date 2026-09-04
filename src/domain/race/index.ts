@@ -1,3 +1,4 @@
+export { RaceEngine } from "./RaceEngine";
 export { assertTwoAthletes, requireTwoAthletes } from "./athletes";
 export { ConstantPaceModel } from "./ConstantPaceModel";
 export {
@@ -7,6 +8,7 @@ export {
   currentLapProgress,
   currentLeadM,
   deriveAthleteState,
+  firstFinishTimeMs,
   isTie,
   pacePer100mMs,
   pacePer400mMs,
@@ -31,6 +33,7 @@ export type {
   AthleteInput,
   AthletePaceBinding,
   AthleteRaceState,
+  PaceCheckpoint,
   PaceModel,
   ParseRaceTimeError,
   ParseRaceTimeResult,

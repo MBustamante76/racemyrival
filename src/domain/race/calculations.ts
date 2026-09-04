@@ -68,6 +68,40 @@ export function pacePer400mMs(finishTimeMs: number, distanceM: number): number {
   return finishTimeMs * (400 / distanceM);
 }
 
+export function firstFinishTimeMs(pace: PaceModel): number {
+  const targetM = pace.totalDistanceM;
+  if (targetM <= 0 || pace.distanceAt(0) >= targetM) {
+    return 0;
+  }
+
+  let high = Math.max(pace.finishTimeMs, 1);
+  while (pace.distanceAt(high) < targetM) {
+    if (high >= Number.MAX_SAFE_INTEGER / 2) {
+      throw new Error("PaceModel never reaches race distance");
+    }
+    high *= 2;
+  }
+
+  let low = 0;
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2);
+    if (pace.distanceAt(mid) >= targetM) {
+      high = mid;
+    } else {
+      low = mid + 1;
+    }
+  }
+
+  return low;
+}
+
+function speedFromDistanceAt(pace: PaceModel, elapsedMs: number): number {
+  const deltaMs = 1;
+  const beforeM = pace.distanceAt(Math.max(0, elapsedMs - deltaMs));
+  const afterM = pace.distanceAt(elapsedMs + deltaMs);
+  return (afterM - beforeM) / ((2 * deltaMs) / 1000);
+}
+
 export function winnerIdFromFinishTimes(
   athletes: ReadonlyArray<{ id: AthleteId; finishTimeMs: number }>,
 ): AthleteId | null {
@@ -92,7 +126,9 @@ export function deriveAthleteState(
   elapsedMs: number,
 ): AthleteRaceState {
   const distanceCoveredM = pace.distanceAt(elapsedMs);
-  const speedMps = pace.speedAt?.(elapsedMs) ?? averageSpeedMps(pace.totalDistanceM, pace.finishTimeMs);
+  const resolvedFinishMs = firstFinishTimeMs(pace);
+  const speedMps =
+    pace.speedAt?.(elapsedMs) ?? speedFromDistanceAt(pace, elapsedMs);
 
   return {
     id: athlete.id,
@@ -103,8 +139,8 @@ export function deriveAthleteState(
     completedLaps: completedLaps(distanceCoveredM),
     currentLapProgress: currentLapProgress(distanceCoveredM),
     speedMps,
-    pacePer100mMs: pacePer100mMs(pace.finishTimeMs, pace.totalDistanceM),
-    pacePer400mMs: pacePer400mMs(pace.finishTimeMs, pace.totalDistanceM),
+    pacePer100mMs: pacePer100mMs(resolvedFinishMs, pace.totalDistanceM),
+    pacePer400mMs: pacePer400mMs(resolvedFinishMs, pace.totalDistanceM),
     finished: distanceCoveredM >= pace.totalDistanceM,
   };
 }

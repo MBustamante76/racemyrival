@@ -1,5 +1,5 @@
 import { assertTwoAthletes } from "./athletes";
-import { currentLeadM, isTie, timeGapMs, winnerIdFromFinishTimes } from "./calculations";
+import { currentLeadM, firstFinishTimeMs, isTie, timeGapMs, winnerIdFromFinishTimes } from "./calculations";
 import type { AthletePaceBinding, RaceResult, RaceSnapshot } from "./types";
 
 export function raceResultFromPaceModels(athletes: readonly AthletePaceBinding[]): RaceResult {
@@ -7,11 +7,11 @@ export function raceResultFromPaceModels(athletes: readonly AthletePaceBinding[]
   const pair = [first, second];
   const finishEntries = pair.map((athlete) => ({
     id: athlete.id,
-    finishTimeMs: athlete.pace.finishTimeMs,
+    finishTimeMs: firstFinishTimeMs(athlete.pace),
   }));
   const tied = isTie(finishEntries);
   const winnerId = winnerIdFromFinishTimes(finishEntries);
-  const winningTimeMs = Math.min(first.pace.finishTimeMs, second.pace.finishTimeMs);
+  const winningTimeMs = Math.min(finishEntries[0].finishTimeMs, finishEntries[1].finishTimeMs);
 
   const samples = pair.map((athlete) => ({
     id: athlete.id,
@@ -50,7 +50,7 @@ export function raceResultFromPaceModels(athletes: readonly AthletePaceBinding[]
     winnerId,
     isTie: false,
     winningTimeMs,
-    timeGapMs: timeGapMs([first.pace.finishTimeMs, second.pace.finishTimeMs]),
+    timeGapMs: timeGapMs(finishEntries.map((entry) => entry.finishTimeMs)),
     distanceGapAtWinnerFinishM: winner.pace.totalDistanceM - loser.pace.distanceAt(winningTimeMs),
     snapshot,
   };

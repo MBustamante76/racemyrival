@@ -13,6 +13,11 @@ export interface RaceConfiguration {
   athletes: AthleteInput[];
 }
 
+export interface PaceCheckpoint {
+  distanceM: number;
+  elapsedMs: number;
+}
+
 export interface PaceModel {
   readonly totalDistanceM: number;
   readonly finishTimeMs: number;
