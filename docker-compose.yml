@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    command: npm run dev:docker
+
+  test:
+    build: .
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    command: npm test
+    profiles:
+      - test
+
+volumes:
+  node_modules:
+  next_cache:
