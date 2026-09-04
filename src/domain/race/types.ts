@@ -69,6 +69,8 @@ export interface RaceTelemetry {
   raceTimeMs: number;
   status: RaceStatus;
   athletes: AthleteRaceState[];
+  winnerSnapshot: RaceSnapshot | null;
+  result: RaceResult | null;
 }
 
 export interface Vec2 {

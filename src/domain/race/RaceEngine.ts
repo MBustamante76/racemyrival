@@ -1,11 +1,12 @@
 import { assertTwoAthletes } from "./athletes";
-import { deriveAthleteState } from "./calculations";
+import { deriveAthleteState, firstFinishTimeMs } from "./calculations";
 import { raceResultFromPaceModels } from "./result";
 import type {
   AthletePaceBinding,
   PaceModel,
   RaceConfiguration,
   RaceResult,
+  RaceSnapshot,
   RaceStatus,
   RaceTelemetry,
 } from "./types";
@@ -29,20 +30,39 @@ export class RaceEngine {
   }
 
   telemetryAt(elapsedMs: number): RaceTelemetry {
+    const raceTimeMs = Math.max(0, elapsedMs);
     const athletes = this.configuration.athletes.map((athlete, index) =>
-      deriveAthleteState(athlete, this.bindings[index].pace, elapsedMs),
+      deriveAthleteState(athlete, this.bindings[index].pace, raceTimeMs),
     );
+    const projected = this.result();
+    const firstFinishMs = projected.winningTimeMs;
+    const allFinished = athletes.every((athlete) => athlete.finished);
 
     return {
-      raceTimeMs: Math.max(0, elapsedMs),
-      status: raceStatusFromAthletes(elapsedMs, athletes),
+      raceTimeMs,
+      status: raceStatusFromAthletes(raceTimeMs, athletes),
       athletes,
+      winnerSnapshot: raceTimeMs >= firstFinishMs ? freezeSnapshot(projected.snapshot) : null,
+      result: allFinished ? projected : null,
     };
   }
 
   result(): RaceResult {
     return raceResultFromPaceModels(this.bindings);
   }
+
+  firstFinishTimeMs(): number {
+    return Math.min(...this.bindings.map((binding) => firstFinishTimeMs(binding.pace)));
+  }
+}
+
+function freezeSnapshot(snapshot: RaceSnapshot): RaceSnapshot {
+  return {
+    raceTimeMs: snapshot.raceTimeMs,
+    leadM: snapshot.leadM,
+    winnerId: snapshot.winnerId,
+    athletes: snapshot.athletes.map((athlete) => ({ ...athlete })),
+  };
 }
 
 function raceStatusFromAthletes(
