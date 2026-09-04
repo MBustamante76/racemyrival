@@ -3,14 +3,24 @@ import {
   CANONICAL_LAP_M,
   ConstantPaceModel,
   METRES_PER_MILE,
+  PHASE1_ATHLETE_COUNT,
   RACE_DISTANCES,
   completedLaps,
   currentLapProgress,
   parseRaceTime,
   raceProgress,
   raceResultFromPaceModels,
+  requireTwoAthletes,
   totalLaps,
 } from "@/domain/race";
+import type { AthletePaceBinding, PaceModel } from "@/domain/race";
+
+function twoAthletes(first: PaceModel, second: PaceModel): AthletePaceBinding[] {
+  return [
+    { id: "A", pace: first },
+    { id: "B", pace: second },
+  ];
+}
 
 const EIGHT_HUNDRED_M = 800;
 const ATHLETE_A_MS = 124_000;
@@ -106,8 +116,10 @@ describe("Test gate A", () => {
 
   it("16. 12-second result gap fixture", () => {
     const result = raceResultFromPaceModels(
-      new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
-      new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_B_MS),
+      twoAthletes(
+        new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
+        new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_B_MS),
+      ),
     );
 
     expect(result.winnerId).toBe("B");
@@ -119,18 +131,20 @@ describe("Test gate A", () => {
   it("17. ~77.419m distance-gap fixture", () => {
     const paceA = new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS);
     const paceB = new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_B_MS);
-    const result = raceResultFromPaceModels(paceA, paceB);
+    const result = raceResultFromPaceModels(twoAthletes(paceA, paceB));
 
     expect(paceA.distanceAt(ATHLETE_B_MS)).toBeCloseTo(722.5806, 4);
     expect(result.distanceGapAtWinnerFinishM).toBeCloseTo(77.4194, 4);
-    expect(result.snapshot.athleteADistanceM).toBeCloseTo(722.5806, 4);
-    expect(result.snapshot.athleteBDistanceM).toBe(EIGHT_HUNDRED_M);
+    expect(result.snapshot.athletes[0]?.distanceM).toBeCloseTo(722.5806, 4);
+    expect(result.snapshot.athletes[1]?.distanceM).toBe(EIGHT_HUNDRED_M);
   });
 
   it("18. tie race", () => {
     const result = raceResultFromPaceModels(
-      new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
-      new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
+      twoAthletes(
+        new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
+        new ConstantPaceModel(EIGHT_HUNDRED_M, ATHLETE_A_MS),
+      ),
     );
 
     expect(result.winnerId).toBeNull();
@@ -172,5 +186,20 @@ describe("Test gate A", () => {
     expect(raceProgress(pace.distanceAt(ATHLETE_A_MS), EIGHT_HUNDRED_M)).toBe(1);
     expect(raceProgress(pace.distanceAt(ATHLETE_A_MS * 3), EIGHT_HUNDRED_M)).toBe(1);
     expect(raceProgress(EIGHT_HUNDRED_M + 50, EIGHT_HUNDRED_M)).toBe(1);
+  });
+
+  it("enforces exactly two athletes", () => {
+    expect(PHASE1_ATHLETE_COUNT).toBe(2);
+    expect(requireTwoAthletes([{ id: "A" }])).toEqual({
+      ok: false,
+      error: "expected_two_athletes",
+    });
+    expect(
+      requireTwoAthletes([{ id: "A" }, { id: "B" }, { id: "C" }]),
+    ).toEqual({ ok: false, error: "expected_two_athletes" });
+    expect(requireTwoAthletes([{ id: "A" }, { id: "B" }])).toEqual({
+      ok: true,
+      athletes: [{ id: "A" }, { id: "B" }],
+    });
   });
 });

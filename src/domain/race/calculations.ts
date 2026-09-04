@@ -1,3 +1,4 @@
+import { assertTwoAthletes } from "./athletes";
 import { CANONICAL_LAP_M } from "./constants";
 import type { AthleteId, AthleteInput, AthleteRaceState, PaceModel } from "./types";
 
@@ -38,12 +39,17 @@ export function totalLaps(
   return distanceCoveredM / lapM;
 }
 
-export function timeGapMs(finishTimeAMs: number, finishTimeBMs: number): number {
-  return Math.abs(finishTimeAMs - finishTimeBMs);
+export function timeGapMs(finishTimesMs: readonly number[]): number {
+  const [firstMs, secondMs] = assertTwoAthletes(finishTimesMs);
+  return Math.abs(firstMs - secondMs);
 }
 
-export function currentLeadM(distanceAM: number, distanceBM: number): number {
-  return Math.abs(distanceAM - distanceBM);
+export function currentLeadM(distancesM: readonly number[]): number {
+  if (distancesM.length === 0) {
+    return 0;
+  }
+
+  return Math.max(...distancesM) - Math.min(...distancesM);
 }
 
 export function relativeSpeed(speedAMps: number, speedBMps: number): number {
@@ -63,18 +69,21 @@ export function pacePer400mMs(finishTimeMs: number, distanceM: number): number {
 }
 
 export function winnerIdFromFinishTimes(
-  finishTimeAMs: number,
-  finishTimeBMs: number,
+  athletes: ReadonlyArray<{ id: AthleteId; finishTimeMs: number }>,
 ): AthleteId | null {
-  if (finishTimeAMs === finishTimeBMs) {
+  const [first, second] = assertTwoAthletes(athletes);
+  if (first.finishTimeMs === second.finishTimeMs) {
     return null;
   }
 
-  return finishTimeAMs < finishTimeBMs ? "A" : "B";
+  return first.finishTimeMs < second.finishTimeMs ? first.id : second.id;
 }
 
-export function isTie(finishTimeAMs: number, finishTimeBMs: number): boolean {
-  return finishTimeAMs === finishTimeBMs;
+export function isTie(
+  athletes: ReadonlyArray<{ finishTimeMs: number }>,
+): boolean {
+  const [first, second] = assertTwoAthletes(athletes);
+  return first.finishTimeMs === second.finishTimeMs;
 }
 
 export function deriveAthleteState(

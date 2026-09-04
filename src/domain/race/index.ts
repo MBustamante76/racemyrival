@@ -1,3 +1,4 @@
+export { assertTwoAthletes, requireTwoAthletes } from "./athletes";
 export { ConstantPaceModel } from "./ConstantPaceModel";
 export {
   averageSpeedMps,
@@ -15,13 +16,20 @@ export {
   totalLaps,
   winnerIdFromFinishTimes,
 } from "./calculations";
-export { CANONICAL_LAP_M, METRES_PER_MILE } from "./constants";
+export { CANONICAL_LAP_M, METRES_PER_MILE, PHASE1_ATHLETE_COUNT } from "./constants";
 export { RACE_DISTANCES, raceDistanceById } from "./distances";
 export { raceResultFromPaceModels } from "./result";
 export { formatRaceTime, parseRaceTime } from "./time";
 export type {
+  AthleteCountError,
+  RequireTwoAthletesResult,
+  TwoAthletes,
+} from "./athletes";
+export type {
+  AthleteDistanceSample,
   AthleteId,
   AthleteInput,
+  AthletePaceBinding,
   AthleteRaceState,
   PaceModel,
   ParseRaceTimeError,

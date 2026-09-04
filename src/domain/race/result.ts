@@ -1,23 +1,27 @@
+import { assertTwoAthletes } from "./athletes";
 import { currentLeadM, isTie, timeGapMs, winnerIdFromFinishTimes } from "./calculations";
-import type { AthleteId, PaceModel, RaceResult, RaceSnapshot } from "./types";
+import type { AthletePaceBinding, RaceResult, RaceSnapshot } from "./types";
 
-function distanceFor(id: AthleteId, paceA: PaceModel, paceB: PaceModel, elapsedMs: number): number {
-  return id === "A" ? paceA.distanceAt(elapsedMs) : paceB.distanceAt(elapsedMs);
-}
+export function raceResultFromPaceModels(athletes: readonly AthletePaceBinding[]): RaceResult {
+  const [first, second] = assertTwoAthletes(athletes);
+  const pair = [first, second];
+  const finishEntries = pair.map((athlete) => ({
+    id: athlete.id,
+    finishTimeMs: athlete.pace.finishTimeMs,
+  }));
+  const tied = isTie(finishEntries);
+  const winnerId = winnerIdFromFinishTimes(finishEntries);
+  const winningTimeMs = Math.min(first.pace.finishTimeMs, second.pace.finishTimeMs);
 
-export function raceResultFromPaceModels(paceA: PaceModel, paceB: PaceModel): RaceResult {
-  const tied = isTie(paceA.finishTimeMs, paceB.finishTimeMs);
-  const winnerId = winnerIdFromFinishTimes(paceA.finishTimeMs, paceB.finishTimeMs);
-  const winningTimeMs = Math.min(paceA.finishTimeMs, paceB.finishTimeMs);
-
-  const athleteADistanceM = paceA.distanceAt(winningTimeMs);
-  const athleteBDistanceM = paceB.distanceAt(winningTimeMs);
+  const samples = pair.map((athlete) => ({
+    id: athlete.id,
+    distanceM: athlete.pace.distanceAt(winningTimeMs),
+  }));
 
   const snapshot: RaceSnapshot = {
     raceTimeMs: winningTimeMs,
-    athleteADistanceM,
-    athleteBDistanceM,
-    leadM: currentLeadM(athleteADistanceM, athleteBDistanceM),
+    athletes: samples,
+    leadM: currentLeadM(samples.map((sample) => sample.distanceM)),
     winnerId,
   };
 
@@ -36,16 +40,18 @@ export function raceResultFromPaceModels(paceA: PaceModel, paceB: PaceModel): Ra
     };
   }
 
-  const loserId: AthleteId = winnerId === "A" ? "B" : "A";
-  const loserDistanceM = distanceFor(loserId, paceA, paceB, winningTimeMs);
-  const raceDistanceM = winnerId === "A" ? paceA.totalDistanceM : paceB.totalDistanceM;
+  const winner = pair.find((athlete) => athlete.id === winnerId);
+  const loser = pair.find((athlete) => athlete.id !== winnerId);
+  if (!winner || !loser) {
+    throw new Error("Winner and loser must both be present after a two-athlete result");
+  }
 
   return {
     winnerId,
     isTie: false,
     winningTimeMs,
-    timeGapMs: timeGapMs(paceA.finishTimeMs, paceB.finishTimeMs),
-    distanceGapAtWinnerFinishM: raceDistanceM - loserDistanceM,
+    timeGapMs: timeGapMs([first.pace.finishTimeMs, second.pace.finishTimeMs]),
+    distanceGapAtWinnerFinishM: winner.pace.totalDistanceM - loser.pace.distanceAt(winningTimeMs),
     snapshot,
   };
 }

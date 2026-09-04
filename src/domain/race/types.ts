@@ -1,4 +1,4 @@
-export type AthleteId = "A" | "B";
+export type AthleteId = string;
 
 export type RaceStatus = "idle" | "running" | "paused" | "finished";
 
@@ -10,7 +10,7 @@ export interface AthleteInput {
 
 export interface RaceConfiguration {
   distanceM: number;
-  athletes: [AthleteInput, AthleteInput];
+  athletes: AthleteInput[];
 }
 
 export interface PaceModel {
@@ -18,6 +18,16 @@ export interface PaceModel {
   readonly finishTimeMs: number;
   distanceAt(elapsedMs: number): number;
   speedAt?(elapsedMs: number): number;
+}
+
+export interface AthletePaceBinding {
+  id: AthleteId;
+  pace: PaceModel;
+}
+
+export interface AthleteDistanceSample {
+  id: AthleteId;
+  distanceM: number;
 }
 
 export interface AthleteRaceState {
@@ -36,8 +46,7 @@ export interface AthleteRaceState {
 
 export interface RaceSnapshot {
   raceTimeMs: number;
-  athleteADistanceM: number;
-  athleteBDistanceM: number;
+  athletes: AthleteDistanceSample[];
   leadM: number;
   winnerId: AthleteId | null;
 }
@@ -54,7 +63,7 @@ export interface RaceResult {
 export interface RaceTelemetry {
   raceTimeMs: number;
   status: RaceStatus;
-  athletes: [AthleteRaceState, AthleteRaceState];
+  athletes: AthleteRaceState[];
 }
 
 export interface Vec2 {
