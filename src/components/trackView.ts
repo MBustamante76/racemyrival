@@ -41,17 +41,21 @@ export interface AthleteMarkerLayout {
 }
 
 export function toSvgPoint(x: number, y: number): ScreenPoint {
-  return { x, y: -y };
+  return { x: svgNumber(x), y: svgNumber(-y) };
+}
+
+export function svgNumber(value: number): number {
+  return Number(value.toFixed(6));
 }
 
 export function trackViewBox(): { minX: number; minY: number; width: number; height: number; value: string } {
-  const halfWidth = STADIUM_STRAIGHT_M / 2 + STADIUM_BEND_RADIUS_M + PADDING_M;
-  const halfHeight = STADIUM_BEND_RADIUS_M + PADDING_M;
+  const halfWidth = svgNumber(STADIUM_STRAIGHT_M / 2 + STADIUM_BEND_RADIUS_M + PADDING_M);
+  const halfHeight = svgNumber(STADIUM_BEND_RADIUS_M + PADDING_M);
   return {
     minX: -halfWidth,
     minY: -halfHeight,
-    width: halfWidth * 2,
-    height: halfHeight * 2,
+    width: svgNumber(halfWidth * 2),
+    height: svgNumber(halfHeight * 2),
     value: `${-halfWidth} ${-halfHeight} ${halfWidth * 2} ${halfHeight * 2}`,
   };
 }
