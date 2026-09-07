@@ -9,6 +9,7 @@ import {
 import type { AthleteRaceState, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { ResultPanel } from "./ResultPanel";
 import { TrackRenderer } from "./TrackRenderer";
 import {
   DEFAULT_ATHLETE_DRAFTS,
@@ -220,6 +221,17 @@ export function RaceWorkspace({
           />
         </div>
       </div>
+
+      {telemetry?.result ? (
+        <ResultPanel
+          result={telemetry.result}
+          athletes={telemetry.athletes.map((athlete) => ({
+            id: athlete.id,
+            name: athlete.name,
+            finishTimeMs: athlete.finishTimeMs,
+          }))}
+        />
+      ) : null}
 
       <TrackRenderer raceDistanceM={distanceM} athletes={trackAthletes} />
     </div>
