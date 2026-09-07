@@ -39,7 +39,7 @@ export function TrackRenderer({
       viewBox={viewBox.value}
       preserveAspectRatio="xMidYMid meet"
       data-race-distance-m={raceDistanceM}
-      className="w-full max-w-3xl"
+      className="h-auto w-full max-w-3xl"
     >
       <rect
         x={viewBox.minX}

@@ -20,7 +20,7 @@ export function ResultPanel({
   return (
     <section
       aria-labelledby="race-complete-heading"
-      className="w-full rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+      className="w-full min-w-0 max-w-full rounded-lg border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-950"
       data-testid="result-panel"
       data-snapshot-race-time-ms={result.snapshot.raceTimeMs}
       data-snapshot-lead-m={result.snapshot.leadM}

@@ -120,9 +120,9 @@ export function RaceWorkspace({
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full min-w-0 flex-col gap-4 sm:gap-6">
       <form
-        className="grid w-full gap-4 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+        className="grid w-full min-w-0 gap-4 rounded-lg border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-950"
         onSubmit={(event) => {
           event.preventDefault();
           handleStart();
@@ -134,7 +134,7 @@ export function RaceWorkspace({
             value={distanceId}
             disabled={formLocked}
             onChange={(event) => setDistanceId(event.target.value)}
-            className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           >
             {RACE_DISTANCES.map((distance) => (
               <option key={distance.id} value={distance.id}>
@@ -164,7 +164,7 @@ export function RaceWorkspace({
             <button
               type="submit"
               disabled={!startEnabled}
-              className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
+              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
             >
               Start race
             </button>
@@ -173,7 +173,7 @@ export function RaceWorkspace({
             <button
               type="button"
               onClick={handlePause}
-              className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
             >
               Pause
             </button>
@@ -182,7 +182,7 @@ export function RaceWorkspace({
             <button
               type="button"
               onClick={handleResume}
-              className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
             >
               Resume
             </button>
@@ -191,7 +191,7 @@ export function RaceWorkspace({
             <button
               type="button"
               onClick={handleReset}
-              className="rounded border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
+              className="min-h-10 rounded border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
             >
               Reset
             </button>
@@ -201,7 +201,7 @@ export function RaceWorkspace({
 
       <div className="flex flex-col gap-3">
         <p
-          className="text-center text-3xl tabular-nums tracking-tight text-zinc-950 dark:text-zinc-50"
+          className="text-center text-2xl tabular-nums tracking-tight text-zinc-950 sm:text-3xl dark:text-zinc-50"
           data-testid="race-clock"
           aria-label="Race clock"
         >
@@ -267,7 +267,7 @@ function AthleteFields({
           aria-invalid={nameError !== null}
           aria-describedby={nameError ? `${nameId}-error` : undefined}
           onChange={(event) => onChange({ name: event.target.value })}
-          className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </label>
       {nameError ? (
@@ -287,7 +287,7 @@ function AthleteFields({
           aria-invalid={timeError !== null}
           aria-describedby={timeError ? `${timeId}-error` : undefined}
           onChange={(event) => onChange({ timeText: event.target.value })}
-          className="rounded border border-zinc-300 bg-white px-2 py-1 font-mono text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 font-mono text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </label>
       {timeError ? (
