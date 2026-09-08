@@ -28,6 +28,14 @@ export class RaceSimulation {
     return this.telemetry();
   }
 
+  setPlaybackRate(rate: number): void {
+    this.clock.setPlaybackRate(rate);
+  }
+
+  getPlaybackRate(): number {
+    return this.clock.getPlaybackRate();
+  }
+
   tick(wallMs: number): RaceTelemetry {
     this.clock.tick(wallMs);
     const telemetry = this.telemetry();

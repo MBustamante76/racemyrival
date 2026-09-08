@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  DEFAULT_PLAYBACK_RATE,
   RACE_DISTANCES,
   formatRaceTime,
   raceDistanceById,
 } from "@/domain/race";
-import type { AthleteRaceState, RaceStatus, RaceTelemetry } from "@/domain/race";
+import type { AthleteRaceState, PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import { FinishingTimeFields } from "./FinishingTimeFields";
+import { PlaybackSpeedControls } from "./PlaybackSpeedControls";
 import { ResultPanel } from "./ResultPanel";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -41,6 +43,7 @@ export function RaceWorkspace({
     { ...DEFAULT_ATHLETE_DRAFTS[1] },
   ]);
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
+  const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
 
   const draft = { distanceId, athletes };
@@ -109,7 +112,13 @@ export function RaceWorkspace({
     sessionRef.current?.reset();
     const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
     sessionRef.current = loop;
+    loop.setPlaybackRate(playbackRate);
     loop.start();
+  }
+
+  function handlePlaybackRate(rate: PlaybackRate): void {
+    setPlaybackRate(rate);
+    sessionRef.current?.setPlaybackRate(rate);
   }
 
   function handlePause(): void {
@@ -166,7 +175,7 @@ export function RaceWorkspace({
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {status === "idle" ? (
             <button
               type="submit"
@@ -203,6 +212,7 @@ export function RaceWorkspace({
               Reset
             </button>
           ) : null}
+          <PlaybackSpeedControls rate={playbackRate} onChange={handlePlaybackRate} />
         </div>
       </form>
 

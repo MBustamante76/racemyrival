@@ -26,10 +26,12 @@ export {
   MAX_FRAME_DELTA_MS,
   METRES_PER_MILE,
   PHASE1_ATHLETE_COUNT,
+  PLAYBACK_RATES,
 } from "./constants";
 export { RACE_DISTANCES, raceDistanceById } from "./distances";
 export { raceResultFromPaceModels } from "./result";
 export { formatRaceTime, parseRaceTime } from "./time";
+export type { PlaybackRate } from "./constants";
 export type {
   AthleteCountError,
   RequireTwoAthletesResult,
