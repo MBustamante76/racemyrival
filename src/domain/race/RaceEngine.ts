@@ -30,19 +30,20 @@ export class RaceEngine {
   }
 
   telemetryAt(elapsedMs: number): RaceTelemetry {
-    const raceTimeMs = Math.max(0, elapsedMs);
+    const elapsed = Math.max(0, elapsedMs);
     const athletes = this.configuration.athletes.map((athlete, index) =>
-      deriveAthleteState(athlete, this.bindings[index].pace, raceTimeMs),
+      deriveAthleteState(athlete, this.bindings[index].pace, elapsed),
     );
     const projected = this.result();
     const firstFinishMs = projected.winningTimeMs;
     const allFinished = athletes.every((athlete) => athlete.finished);
+    const raceTimeMs = allFinished ? this.lastFinishTimeMs() : elapsed;
 
     return {
       raceTimeMs,
-      status: raceStatusFromAthletes(raceTimeMs, athletes),
+      status: raceStatusFromAthletes(elapsed, athletes),
       athletes,
-      winnerSnapshot: raceTimeMs >= firstFinishMs ? freezeSnapshot(projected.snapshot) : null,
+      winnerSnapshot: elapsed >= firstFinishMs ? freezeSnapshot(projected.snapshot) : null,
       result: allFinished ? projected : null,
     };
   }
@@ -53,6 +54,10 @@ export class RaceEngine {
 
   firstFinishTimeMs(): number {
     return Math.min(...this.bindings.map((binding) => firstFinishTimeMs(binding.pace)));
+  }
+
+  lastFinishTimeMs(): number {
+    return Math.max(...this.bindings.map((binding) => firstFinishTimeMs(binding.pace)));
   }
 }
 

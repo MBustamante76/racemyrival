@@ -32,7 +32,7 @@ export class RaceSimulation {
     this.clock.tick(wallMs);
     const telemetry = this.telemetry();
     if (telemetry.status === "finished") {
-      this.clock.markFinished();
+      this.clock.markFinished(this.engine.lastFinishTimeMs());
     }
     return this.telemetry();
   }
