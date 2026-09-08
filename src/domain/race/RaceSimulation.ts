@@ -28,11 +28,19 @@ export class RaceSimulation {
     return this.telemetry();
   }
 
+  setPlaybackRate(rate: number): void {
+    this.clock.setPlaybackRate(rate);
+  }
+
+  getPlaybackRate(): number {
+    return this.clock.getPlaybackRate();
+  }
+
   tick(wallMs: number): RaceTelemetry {
     this.clock.tick(wallMs);
     const telemetry = this.telemetry();
     if (telemetry.status === "finished") {
-      this.clock.markFinished();
+      this.clock.markFinished(this.engine.lastFinishTimeMs());
     }
     return this.telemetry();
   }

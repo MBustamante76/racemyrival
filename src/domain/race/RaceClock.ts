@@ -59,7 +59,8 @@ export class RaceClock {
     this.lastWallMs = null;
   }
 
-  markFinished(): void {
+  markFinished(finalElapsedMs: number = this.elapsedMs): void {
+    this.elapsedMs = Math.max(0, finalElapsedMs);
     this.status = "finished";
     this.lastWallMs = null;
   }

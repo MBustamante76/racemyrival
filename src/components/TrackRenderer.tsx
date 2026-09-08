@@ -20,16 +20,20 @@ const MARKER_FILLS = ["fill-sky-600", "fill-amber-500"] as const;
 export function TrackRenderer({
   raceDistanceM,
   athletes,
+  ghosts = [],
   laneStrokeM = VISUAL_LANE_STROKE_M,
 }: {
   raceDistanceM: number;
   athletes: readonly TrackAthleteView[];
+  ghosts?: readonly TrackAthleteView[];
   laneStrokeM?: number;
 }) {
   const viewBox = trackViewBox();
   const finish = finishLineSegment();
   const start = startTickSegment(raceDistanceM);
+  const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = athleteMarkerLayouts(raceDistanceM, athletes);
+  const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
   const startIsFinish = start === null;
 
   return (
@@ -102,17 +106,70 @@ export function TrackRenderer({
         {startIsFinish ? "Start / Finish" : "Finish"}
       </text>
       {distanceMarkViews().map((mark) => (
-        <text
+        <g
           key={mark.label}
-          x={mark.x}
-          y={mark.y}
-          textAnchor="middle"
-          className="fill-zinc-500 dark:fill-zinc-400"
-          fontSize={2.8}
+          data-testid={`distance-mark-${mark.distanceM}`}
+          data-distance-around-m={mark.distanceM}
         >
-          {mark.label}
-        </text>
+          <line
+            x1={mark.tickSegment.x1}
+            y1={mark.tickSegment.y1}
+            x2={mark.tickSegment.x2}
+            y2={mark.tickSegment.y2}
+            stroke="currentColor"
+            strokeWidth={0.7}
+            className="text-zinc-500 dark:text-zinc-400"
+          />
+          <circle
+            cx={mark.tick.x}
+            cy={mark.tick.y}
+            r={0.7}
+            className="fill-zinc-600 dark:fill-zinc-300"
+            data-testid={`distance-mark-tick-${mark.distanceM}`}
+          />
+          <text
+            x={mark.labelPoint.x}
+            y={mark.labelPoint.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-zinc-500 dark:fill-zinc-400"
+            fontSize={2.8}
+          >
+            {mark.label}
+          </text>
+        </g>
       ))}
+      {ghostMarkers.map((marker) => {
+        const index = athletes.findIndex((athlete) => athlete.id === marker.id);
+        return (
+          <g
+            key={`ghost-${marker.id}`}
+            opacity={0.35}
+            data-athlete-id={`ghost-${marker.id}`}
+            data-distance-covered-m={marker.distanceCoveredM}
+            data-lane-number={marker.laneNumber}
+            data-testid={`athlete-ghost-${marker.id}`}
+          >
+            <circle
+              cx={marker.marker.x}
+              cy={marker.marker.y}
+              r={MARKER_RADIUS_M}
+              className={MARKER_FILLS[index] ?? "fill-zinc-700"}
+            />
+            <text
+              x={marker.label.x}
+              y={marker.label.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className={MARKER_FILLS[index] ?? "fill-zinc-700"}
+              fontSize={3}
+              fontWeight={600}
+            >
+              {`${marker.name} gap`}
+            </text>
+          </g>
+        );
+      })}
       {markers.map((marker, index) => (
         <g
           key={marker.id}

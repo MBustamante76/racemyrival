@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -50,19 +51,6 @@ async function renderWorkspace() {
   return { clock, user };
 }
 
-async function setFinishingTimes(
-  user: ReturnType<typeof userEvent.setup>,
-  timeA: string,
-  timeB: string,
-): Promise<void> {
-  const inputA = screen.getByLabelText("Athlete A finishing time");
-  const inputB = screen.getByLabelText("Athlete B finishing time");
-  await user.clear(inputA);
-  await user.type(inputA, timeA);
-  await user.clear(inputB);
-  await user.type(inputB, timeB);
-}
-
 function markerDistance(id: string): number {
   const group = document.querySelector(`[data-athlete-id="${id}"]`);
   return Number(group?.getAttribute("data-distance-covered-m"));
@@ -76,12 +64,17 @@ describe("Test gate H", () => {
 
   it("prevents start and shows an error for an invalid time", async () => {
     const { user } = await renderWorkspace();
-    const timeA = screen.getByLabelText("Athlete A finishing time");
-    await user.clear(timeA);
-    await user.type(timeA, "1:60.00");
+    const minutes = screen.getByLabelText("Athlete A minutes");
+    const seconds = screen.getByLabelText("Athlete A seconds");
+    const hundredths = screen.getByLabelText("Athlete A hundredths");
+    await user.clear(minutes);
+    await user.type(minutes, "0");
+    await user.clear(seconds);
+    await user.type(seconds, "0");
+    await user.clear(hundredths);
+    await user.type(hundredths, "0");
 
-    expect(timeA).toHaveValue("1:60.00");
-    expect(screen.getByRole("alert")).toHaveTextContent("Seconds must be below 60");
+    expect(screen.getByRole("alert")).toHaveTextContent("Time must be greater than zero");
     expect(screen.getByRole("button", { name: "Start race" })).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "Start race" }));
@@ -148,7 +141,7 @@ describe("Test gate H", () => {
     expect(screen.getByTestId("race-clock")).toHaveTextContent("0.00");
     expect(markerDistance("A")).toBe(0);
     expect(screen.getByLabelText("Race distance")).toBeEnabled();
-    expect(screen.getByLabelText("Athlete A finishing time")).toBeEnabled();
+    expect(screen.getByLabelText("Athlete A minutes")).toBeEnabled();
 
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "1.00", "1.00");

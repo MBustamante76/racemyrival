@@ -65,6 +65,9 @@ export function createRaceLoop(
       onFrame(telemetry);
       return telemetry;
     },
+    setPlaybackRate(rate: number): void {
+      simulation.setPlaybackRate(rate);
+    },
     handleVisibility(state: VisibilityState): void {
       if (state === "hidden" && simulation.telemetry().status === "running") {
         this.pause();

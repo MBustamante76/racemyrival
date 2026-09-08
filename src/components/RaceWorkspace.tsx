@@ -2,15 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  DEFAULT_PLAYBACK_RATE,
   RACE_DISTANCES,
   formatRaceTime,
   raceDistanceById,
 } from "@/domain/race";
-import type { AthleteRaceState, RaceStatus, RaceTelemetry } from "@/domain/race";
+import type { AthleteRaceState, PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { FinishingTimeFields } from "./FinishingTimeFields";
+import { PlaybackSpeedControls } from "./PlaybackSpeedControls";
 import { ResultPanel } from "./ResultPanel";
 import { TrackRenderer } from "./TrackRenderer";
+import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
 import {
   DEFAULT_ATHLETE_DRAFTS,
   DEFAULT_DISTANCE_ID,
@@ -39,6 +43,7 @@ export function RaceWorkspace({
     { ...DEFAULT_ATHLETE_DRAFTS[1] },
   ]);
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
+  const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
 
   const draft = { distanceId, athletes };
@@ -63,6 +68,11 @@ export function RaceWorkspace({
       distanceCoveredM: 0,
     }));
   }, [athletes, telemetry]);
+
+  const ghostAthletes = useMemo(
+    () => ghostAthletesFromSnapshot(trackAthletes, telemetry?.winnerSnapshot ?? null),
+    [trackAthletes, telemetry?.winnerSnapshot],
+  );
 
   useEffect(() => {
     return () => {
@@ -102,7 +112,13 @@ export function RaceWorkspace({
     sessionRef.current?.reset();
     const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
     sessionRef.current = loop;
+    loop.setPlaybackRate(playbackRate);
     loop.start();
+  }
+
+  function handlePlaybackRate(rate: PlaybackRate): void {
+    setPlaybackRate(rate);
+    sessionRef.current?.setPlaybackRate(rate);
   }
 
   function handlePause(): void {
@@ -159,7 +175,7 @@ export function RaceWorkspace({
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {status === "idle" ? (
             <button
               type="submit"
@@ -196,6 +212,7 @@ export function RaceWorkspace({
               Reset
             </button>
           ) : null}
+          <PlaybackSpeedControls rate={playbackRate} onChange={handlePlaybackRate} />
         </div>
       </form>
 
@@ -233,7 +250,11 @@ export function RaceWorkspace({
         />
       ) : null}
 
-      <TrackRenderer raceDistanceM={distanceM} athletes={trackAthletes} />
+      <TrackRenderer
+        raceDistanceM={distanceM}
+        athletes={trackAthletes}
+        ghosts={ghostAthletes}
+      />
     </div>
   );
 }
@@ -250,9 +271,8 @@ function AthleteFields({
   onChange: (patch: Partial<AthleteDraft>) => void;
 }) {
   const nameError = nameFieldError(athlete.name);
-  const timeError = timeFieldError(athlete.timeText);
+  const timeError = timeFieldError(athlete.time);
   const nameId = `${athlete.id}-name`;
-  const timeId = `${athlete.id}-time`;
 
   return (
     <fieldset className="flex flex-col gap-2">
@@ -275,26 +295,14 @@ function AthleteFields({
           {nameError}
         </p>
       ) : null}
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300" htmlFor={timeId}>
-        {`${label} finishing time`}
-        <input
-          id={timeId}
-          value={athlete.timeText}
-          disabled={locked}
-          autoComplete="off"
-          spellCheck={false}
-          placeholder="M:SS.ff"
-          aria-invalid={timeError !== null}
-          aria-describedby={timeError ? `${timeId}-error` : undefined}
-          onChange={(event) => onChange({ timeText: event.target.value })}
-          className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 font-mono text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-        />
-      </label>
-      {timeError ? (
-        <p id={`${timeId}-error`} role="alert" className="text-sm text-rose-700 dark:text-rose-400">
-          {timeError}
-        </p>
-      ) : null}
+      <FinishingTimeFields
+        athleteId={athlete.id}
+        label={`${label} finishing time`}
+        time={athlete.time}
+        locked={locked}
+        error={timeError}
+        onChange={(time) => onChange({ time })}
+      />
     </fieldset>
   );
 }
