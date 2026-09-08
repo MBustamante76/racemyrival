@@ -102,11 +102,13 @@ export function distanceMarkViews(): Array<ScreenPoint & { label: string }> {
 export function athleteMarkerLayouts(
   raceDistanceM: number,
   athletes: readonly TrackAthleteView[],
+  laneOrderIds: readonly string[] = athletes.map((athlete) => athlete.id),
 ): AthleteMarkerLayout[] {
-  const assignments = lanes.assign(athletes.map((athlete) => athlete.id));
+  const assignments = lanes.assign(laneOrderIds);
 
-  return athletes.map((athlete, index) => {
-    const lane = assignments[index]?.lane ?? COMPARISON_INNER_LANE;
+  return athletes.map((athlete) => {
+    const assigned = assignments.find((entry) => entry.athleteId === athlete.id);
+    const lane = assigned?.lane ?? COMPARISON_INNER_LANE;
     const sample = stadiumTrack.sampleForRace(raceDistanceM, athlete.distanceCoveredM);
     const position = lanes.visualPosition(sample, lane);
     const labelOffsetM =

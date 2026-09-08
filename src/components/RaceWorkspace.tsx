@@ -11,6 +11,7 @@ import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import { ResultPanel } from "./ResultPanel";
 import { TrackRenderer } from "./TrackRenderer";
+import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
 import {
   DEFAULT_ATHLETE_DRAFTS,
   DEFAULT_DISTANCE_ID,
@@ -63,6 +64,11 @@ export function RaceWorkspace({
       distanceCoveredM: 0,
     }));
   }, [athletes, telemetry]);
+
+  const ghostAthletes = useMemo(
+    () => ghostAthletesFromSnapshot(trackAthletes, telemetry?.winnerSnapshot ?? null),
+    [trackAthletes, telemetry?.winnerSnapshot],
+  );
 
   useEffect(() => {
     return () => {
@@ -233,7 +239,11 @@ export function RaceWorkspace({
         />
       ) : null}
 
-      <TrackRenderer raceDistanceM={distanceM} athletes={trackAthletes} />
+      <TrackRenderer
+        raceDistanceM={distanceM}
+        athletes={trackAthletes}
+        ghosts={ghostAthletes}
+      />
     </div>
   );
 }

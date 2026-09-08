@@ -20,16 +20,20 @@ const MARKER_FILLS = ["fill-sky-600", "fill-amber-500"] as const;
 export function TrackRenderer({
   raceDistanceM,
   athletes,
+  ghosts = [],
   laneStrokeM = VISUAL_LANE_STROKE_M,
 }: {
   raceDistanceM: number;
   athletes: readonly TrackAthleteView[];
+  ghosts?: readonly TrackAthleteView[];
   laneStrokeM?: number;
 }) {
   const viewBox = trackViewBox();
   const finish = finishLineSegment();
   const start = startTickSegment(raceDistanceM);
+  const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = athleteMarkerLayouts(raceDistanceM, athletes);
+  const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
   const startIsFinish = start === null;
 
   return (
@@ -113,6 +117,37 @@ export function TrackRenderer({
           {mark.label}
         </text>
       ))}
+      {ghostMarkers.map((marker) => {
+        const index = athletes.findIndex((athlete) => athlete.id === marker.id);
+        return (
+          <g
+            key={`ghost-${marker.id}`}
+            opacity={0.35}
+            data-athlete-id={`ghost-${marker.id}`}
+            data-distance-covered-m={marker.distanceCoveredM}
+            data-lane-number={marker.laneNumber}
+            data-testid={`athlete-ghost-${marker.id}`}
+          >
+            <circle
+              cx={marker.marker.x}
+              cy={marker.marker.y}
+              r={MARKER_RADIUS_M}
+              className={MARKER_FILLS[index] ?? "fill-zinc-700"}
+            />
+            <text
+              x={marker.label.x}
+              y={marker.label.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className={MARKER_FILLS[index] ?? "fill-zinc-700"}
+              fontSize={3}
+              fontWeight={600}
+            >
+              {`${marker.name} gap`}
+            </text>
+          </g>
+        );
+      })}
       {markers.map((marker, index) => (
         <g
           key={marker.id}
