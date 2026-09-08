@@ -16,7 +16,9 @@ export const START_TICK_M = 7;
 export const MARKER_RADIUS_M = 2.2;
 export const LABEL_INFIELD_M = 6.5;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
-export const DISTANCE_LABEL_INFIELD_M = 4;
+export const DISTANCE_LABEL_INFIELD_M = 5;
+export const DISTANCE_TICK_M = 3;
+export const DISTANCE_MARKS_M = [100, 200, 300] as const;
 
 const lanes = createLaneModel("comparison");
 
@@ -88,14 +90,40 @@ export function startTickSegment(raceDistanceM: number): {
   return crossTrackSegment(startAroundM, START_TICK_M);
 }
 
-export function distanceMarkViews(): Array<ScreenPoint & { label: string }> {
-  return [0, 100, 200, 300].map((distanceM) => {
-    const sample = stadiumTrack.sampleAtDistanceAroundLap(distanceM);
-    const position = toSvgPoint(
-      sample.position.x + sample.normal.x * DISTANCE_LABEL_INFIELD_M,
-      sample.position.y + sample.normal.y * DISTANCE_LABEL_INFIELD_M,
+export interface DistanceMarkView {
+  distanceM: number;
+  label: string;
+  tick: ScreenPoint;
+  labelPoint: ScreenPoint;
+  tickSegment: { x1: number; y1: number; x2: number; y2: number };
+}
+
+export function distanceMarkViews(): DistanceMarkView[] {
+  return DISTANCE_MARKS_M.map((distanceM) => {
+    const sample = stadiumTrack.sampleForRace(CANONICAL_LAP_M, distanceM);
+    const tickWorld = lanes.visualPosition(sample, COMPARISON_INNER_LANE);
+    const tick = toSvgPoint(tickWorld.x, tickWorld.y);
+    const half = DISTANCE_TICK_M / 2;
+    const start = toSvgPoint(
+      tickWorld.x - sample.normal.x * half,
+      tickWorld.y - sample.normal.y * half,
     );
-    return { ...position, label: `${distanceM}m` };
+    const end = toSvgPoint(
+      tickWorld.x + sample.normal.x * half,
+      tickWorld.y + sample.normal.y * half,
+    );
+    const labelWorld = {
+      x: tickWorld.x + sample.normal.x * DISTANCE_LABEL_INFIELD_M,
+      y: tickWorld.y + sample.normal.y * DISTANCE_LABEL_INFIELD_M,
+    };
+
+    return {
+      distanceM,
+      label: `${distanceM}m`,
+      tick,
+      labelPoint: toSvgPoint(labelWorld.x, labelWorld.y),
+      tickSegment: { x1: start.x, y1: start.y, x2: end.x, y2: end.y },
+    };
   });
 }
 

@@ -106,16 +106,38 @@ export function TrackRenderer({
         {startIsFinish ? "Start / Finish" : "Finish"}
       </text>
       {distanceMarkViews().map((mark) => (
-        <text
+        <g
           key={mark.label}
-          x={mark.x}
-          y={mark.y}
-          textAnchor="middle"
-          className="fill-zinc-500 dark:fill-zinc-400"
-          fontSize={2.8}
+          data-testid={`distance-mark-${mark.distanceM}`}
+          data-distance-around-m={mark.distanceM}
         >
-          {mark.label}
-        </text>
+          <line
+            x1={mark.tickSegment.x1}
+            y1={mark.tickSegment.y1}
+            x2={mark.tickSegment.x2}
+            y2={mark.tickSegment.y2}
+            stroke="currentColor"
+            strokeWidth={0.7}
+            className="text-zinc-500 dark:text-zinc-400"
+          />
+          <circle
+            cx={mark.tick.x}
+            cy={mark.tick.y}
+            r={0.7}
+            className="fill-zinc-600 dark:fill-zinc-300"
+            data-testid={`distance-mark-tick-${mark.distanceM}`}
+          />
+          <text
+            x={mark.labelPoint.x}
+            y={mark.labelPoint.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-zinc-500 dark:fill-zinc-400"
+            fontSize={2.8}
+          >
+            {mark.label}
+          </text>
+        </g>
       ))}
       {ghostMarkers.map((marker) => {
         const index = athletes.findIndex((athlete) => athlete.id === marker.id);
