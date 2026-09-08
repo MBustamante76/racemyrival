@@ -8,8 +8,8 @@ export default function Home() {
           Race My Rival
         </h1>
         <p className="max-w-xl text-center text-sm text-balance text-zinc-600 dark:text-zinc-400">
-          Enter two performances and start. Invalid times are rejected, not
-          corrected. Live controls stay on one shared clock.
+          Enter two performances and start. Finishing times use minutes, seconds
+          and hundredths. Live controls stay on one shared clock.
         </p>
         <RaceWorkspace />
       </main>

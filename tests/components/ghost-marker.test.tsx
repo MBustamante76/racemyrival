@@ -6,6 +6,7 @@ import { TrackRenderer } from "@/components/TrackRenderer";
 import { ghostAthletesFromSnapshot } from "@/components/ghostFromSnapshot";
 import { athleteMarkerLayouts } from "@/components/trackView";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 const field = [
   { id: "A", name: "Marcelo", distanceCoveredM: 200 },
@@ -43,19 +44,6 @@ function createFakeLoopClock() {
       });
     },
   };
-}
-
-async function setFinishingTimes(
-  user: ReturnType<typeof userEvent.setup>,
-  timeA: string,
-  timeB: string,
-): Promise<void> {
-  const inputA = screen.getByLabelText("Athlete A finishing time");
-  const inputB = screen.getByLabelText("Athlete B finishing time");
-  await user.clear(inputA);
-  await user.type(inputA, timeA);
-  await user.clear(inputB);
-  await user.type(inputB, timeB);
 }
 
 describe("winner-gap ghost marker", () => {

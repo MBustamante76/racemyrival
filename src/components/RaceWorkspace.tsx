@@ -9,6 +9,7 @@ import {
 import type { AthleteRaceState, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { FinishingTimeFields } from "./FinishingTimeFields";
 import { ResultPanel } from "./ResultPanel";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -260,9 +261,8 @@ function AthleteFields({
   onChange: (patch: Partial<AthleteDraft>) => void;
 }) {
   const nameError = nameFieldError(athlete.name);
-  const timeError = timeFieldError(athlete.timeText);
+  const timeError = timeFieldError(athlete.time);
   const nameId = `${athlete.id}-name`;
-  const timeId = `${athlete.id}-time`;
 
   return (
     <fieldset className="flex flex-col gap-2">
@@ -285,26 +285,14 @@ function AthleteFields({
           {nameError}
         </p>
       ) : null}
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300" htmlFor={timeId}>
-        {`${label} finishing time`}
-        <input
-          id={timeId}
-          value={athlete.timeText}
-          disabled={locked}
-          autoComplete="off"
-          spellCheck={false}
-          placeholder="M:SS.ff"
-          aria-invalid={timeError !== null}
-          aria-describedby={timeError ? `${timeId}-error` : undefined}
-          onChange={(event) => onChange({ timeText: event.target.value })}
-          className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 font-mono text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-        />
-      </label>
-      {timeError ? (
-        <p id={`${timeId}-error`} role="alert" className="text-sm text-rose-700 dark:text-rose-400">
-          {timeError}
-        </p>
-      ) : null}
+      <FinishingTimeFields
+        athleteId={athlete.id}
+        label={`${label} finishing time`}
+        time={athlete.time}
+        locked={locked}
+        error={timeError}
+        onChange={(time) => onChange({ time })}
+      />
     </fieldset>
   );
 }

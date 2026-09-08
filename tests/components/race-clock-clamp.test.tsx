@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -55,19 +56,6 @@ async function renderWorkspace() {
   const user = userEvent.setup();
   render(<RaceWorkspace loopDependencies={clock.dependencies} />);
   return { clock, user };
-}
-
-async function setFinishingTimes(
-  user: ReturnType<typeof userEvent.setup>,
-  timeA: string,
-  timeB: string,
-): Promise<void> {
-  const inputA = screen.getByLabelText("Athlete A finishing time");
-  const inputB = screen.getByLabelText("Athlete B finishing time");
-  await user.clear(inputA);
-  await user.type(inputA, timeA);
-  await user.clear(inputB);
-  await user.type(inputB, timeB);
 }
 
 describe("master race clock display", () => {
