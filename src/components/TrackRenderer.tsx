@@ -16,7 +16,7 @@ import {
   laneLinePoints,
   sprintChuteView,
   startTickSegment,
-  trackSurfacePoints,
+  trackSurfacePath,
   trackViewBox,
   visualLaneLinePoints,
 } from "./trackView";
@@ -76,8 +76,13 @@ export function TrackRenderer({
           data-testid="sprint-chute"
         />
       ) : null}
-      <polygon points={trackSurfacePoints()} className="fill-track" data-testid="track-surface" />
-      <polygon points={trackSurfacePoints()} fill="url(#track-shade)" />
+      <path
+        d={trackSurfacePath()}
+        className="fill-track"
+        fillRule="evenodd"
+        data-testid="track-surface"
+      />
+      <path d={trackSurfacePath()} fill="url(#track-shade)" fillRule="evenodd" />
       <polygon
         points={infieldPolygonPoints()}
         className="fill-infield"
@@ -89,7 +94,8 @@ export function TrackRenderer({
           points={visualLaneLinePoints(offsetM)}
           fill="none"
           stroke="var(--rmr-lane-line)"
-          strokeWidth={0.45}
+          strokeWidth={0.35}
+          strokeLinejoin="round"
         />
       ))}
       <polyline
@@ -97,6 +103,7 @@ export function TrackRenderer({
         fill="none"
         stroke="var(--rmr-lane-line)"
         strokeWidth={laneStrokeM}
+        opacity={0}
         data-testid="lane-inner"
       />
       <polyline
@@ -104,6 +111,7 @@ export function TrackRenderer({
         fill="none"
         stroke="var(--rmr-lane-line)"
         strokeWidth={laneStrokeM}
+        opacity={0}
         data-testid="lane-adjacent"
       />
       <line

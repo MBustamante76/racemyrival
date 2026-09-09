@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { TrackRenderer } from "@/components/TrackRenderer";
-import { athleteMarkerLayouts, distanceMarkViews } from "@/components/trackView";
+import { athleteMarkerLayouts, distanceMarkViews, trackSurfacePath } from "@/components/trackView";
 
 const twoAthletes = [
   { id: "A", name: "Marcelo", distanceCoveredM: 0 },
@@ -47,6 +47,14 @@ describe("Phase 2D track polish", () => {
     expect(flipped[0]?.marker).toEqual(base[0]?.marker);
     expect(flipped[1]?.marker).toEqual(base[1]?.marker);
     expect(flipped[0]?.label).not.toEqual(base[0]?.label);
+  });
+
+  it("fills the track as an even-odd ring instead of a single shredded polygon", () => {
+    render(<TrackRenderer raceDistanceM={800} athletes={twoAthletes} />);
+    const surface = screen.getByTestId("track-surface");
+    expect(surface.tagName.toLowerCase()).toBe("path");
+    expect(surface.getAttribute("fill-rule")).toBe("evenodd");
+    expect((trackSurfacePath().match(/M /g) ?? []).length).toBe(2);
   });
 
   it("does not move oval 300m marks when 100m athletes start on the chute", () => {

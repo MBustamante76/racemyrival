@@ -88,13 +88,41 @@ export function visualLaneLinePoints(offsetM: number): string {
 }
 
 export function infieldPolygonPoints(): string {
-  return visualLaneLinePoints(COMPARISON_INNER_LANE.visualOffsetM + 2.2);
+  return closedRingPoints(COMPARISON_INNER_LANE.visualOffsetM + 2.2)
+    .map((point) => `${point.x},${point.y}`)
+    .join(" ");
 }
 
 export function trackSurfacePoints(): string {
-  const outer = sampleOffsetPoints(-11);
-  const inner = sampleOffsetPoints(2.6);
-  return [...outer, ...inner.slice().reverse()].map((point) => `${point.x},${point.y}`).join(" ");
+  return trackSurfacePath();
+}
+
+export function trackSurfacePath(): string {
+  return `${ringPath(closedRingPoints(-11))} ${ringPath(closedRingPoints(2.6))}`;
+}
+
+function closedRingPoints(offsetM: number): ScreenPoint[] {
+  const points = sampleOffsetPoints(offsetM);
+  if (points.length < 2) {
+    return points;
+  }
+
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (first.x === last.x && first.y === last.y) {
+    return points.slice(0, -1);
+  }
+
+  return points;
+}
+
+function ringPath(points: ScreenPoint[]): string {
+  if (points.length === 0) {
+    return "";
+  }
+
+  const [first, ...rest] = points;
+  return `M ${first.x} ${first.y} ${rest.map((point) => `L ${point.x} ${point.y}`).join(" ")} Z`;
 }
 
 export function finishLineSegment(): { x1: number; y1: number; x2: number; y2: number } {
