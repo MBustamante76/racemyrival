@@ -8,6 +8,7 @@ import { athleteColors, colors } from "@/styles/tokens";
 import { athleteInitials } from "./athleteDisplay";
 import {
   MARKER_RADIUS_M,
+  PIN_STEM_M,
   athleteMarkerLayouts,
   distanceMarkViews,
   finishLineSegment,
@@ -25,6 +26,64 @@ import {
 import type { TrackAthleteView } from "./trackView";
 
 const MARKER_FILLS = [athleteColors.A, athleteColors.B] as const;
+
+function markerPinPath(x: number, y: number): string {
+  const headCy = y - PIN_STEM_M;
+  const joinY = headCy + MARKER_RADIUS_M * 0.32;
+  const spread = MARKER_RADIUS_M * 0.56;
+  return `M ${x} ${y} L ${x - spread} ${joinY} L ${x + spread} ${joinY} Z`;
+}
+
+function MarkerPin({
+  x,
+  y,
+  fill,
+  initials,
+  testId,
+}: {
+  x: number;
+  y: number;
+  fill: string;
+  initials?: string;
+  testId?: string;
+}) {
+  const headCy = y - PIN_STEM_M;
+  return (
+    <>
+      <circle cx={x} cy={y} r={0.55} fill={fill} data-testid={testId} />
+      <g filter="url(#marker-pin-shadow)">
+        <path
+          d={markerPinPath(x, y)}
+          fill={fill}
+          stroke="white"
+          strokeWidth={0.4}
+          strokeLinejoin="round"
+        />
+        <circle
+          cx={x}
+          cy={headCy}
+          r={MARKER_RADIUS_M}
+          fill={fill}
+          stroke="white"
+          strokeWidth={0.45}
+        />
+      </g>
+      {initials ? (
+        <text
+          x={x}
+          y={headCy}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="white"
+          fontSize={2.9}
+          fontWeight={700}
+        >
+          {initials}
+        </text>
+      ) : null}
+    </>
+  );
+}
 
 export function TrackRenderer({
   raceDistanceM,
@@ -117,6 +176,9 @@ export function TrackRenderer({
           <stop offset="55%" stopColor="var(--rmr-track)" stopOpacity="0" />
           <stop offset="100%" stopColor="var(--rmr-track-dark)" stopOpacity="0.28" />
         </linearGradient>
+        <filter id="marker-pin-shadow" x="-70%" y="-50%" width="240%" height="260%">
+          <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
+        </filter>
       </defs>
       <rect
         x={viewBox.minX}
@@ -247,20 +309,7 @@ export function TrackRenderer({
             data-lane-number={marker.laneNumber}
             data-testid={`athlete-ghost-${marker.id}`}
           >
-            <circle
-              cx={marker.marker.x}
-              cy={marker.marker.y}
-              r={MARKER_RADIUS_M + 0.7}
-              fill="none"
-              stroke={fill}
-              strokeWidth={0.55}
-            />
-            <circle
-              cx={marker.marker.x}
-              cy={marker.marker.y}
-              r={MARKER_RADIUS_M}
-              fill={fill}
-            />
+            <MarkerPin x={marker.marker.x} y={marker.marker.y} fill={fill} initials={athleteInitials(marker.name)} />
             <rect
               x={marker.label.x - 10}
               y={marker.label.y - 2.4}
@@ -293,30 +342,13 @@ export function TrackRenderer({
             data-distance-covered-m={marker.distanceCoveredM}
             data-lane-number={marker.laneNumber}
           >
-            <circle
-              cx={marker.marker.x}
-              cy={marker.marker.y}
-              r={MARKER_RADIUS_M + 0.55}
-              fill="white"
-            />
-            <circle
-              cx={marker.marker.x}
-              cy={marker.marker.y}
-              r={MARKER_RADIUS_M}
-              fill={fill}
-              data-testid={`athlete-marker-${marker.id}`}
-            />
-            <text
+            <MarkerPin
               x={marker.marker.x}
               y={marker.marker.y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="white"
-              fontSize={2.1}
-              fontWeight={700}
-            >
-              {athleteInitials(marker.name)}
-            </text>
+              fill={fill}
+              initials={athleteInitials(marker.name)}
+              testId={`athlete-marker-${marker.id}`}
+            />
             <rect
               x={marker.label.x - 9}
               y={marker.label.y - 2.3}
