@@ -3,16 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_PLAYBACK_RATE,
-  RACE_DISTANCES,
   formatRaceTime,
   raceDistanceById,
 } from "@/domain/race";
-import type { AthleteRaceState, PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
+import type { PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
-import { FinishingTimeFields } from "./FinishingTimeFields";
-import { PlaybackSpeedControls } from "./PlaybackSpeedControls";
+import { formatLapLabel } from "./lapLabel";
 import { ResultPanel } from "./ResultPanel";
+import { SetupCard } from "./SetupCard";
+import { TelemetryStrip } from "./TelemetryStrip";
+import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
 import {
@@ -20,9 +21,7 @@ import {
   DEFAULT_DISTANCE_ID,
   canStartRace,
   createConfiguredRace,
-  nameFieldError,
   parseRaceForm,
-  timeFieldError,
 } from "./raceSession";
 import type { AthleteDraft } from "./raceSession";
 
@@ -52,6 +51,14 @@ export function RaceWorkspace({
   const status: RaceStatus = telemetry?.status ?? "idle";
   const formLocked = status !== "idle";
   const startEnabled = status === "idle" && canStartRace(draft);
+  const leader = telemetry?.athletes.reduce((current, athlete) =>
+    athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
+  );
+  const lapText = formatLapLabel(
+    distanceM,
+    leader?.completedLaps ?? 0,
+    leader?.progress ?? 0,
+  );
 
   const trackAthletes = useMemo(() => {
     if (telemetry) {
@@ -135,109 +142,68 @@ export function RaceWorkspace({
     setTelemetry(null);
   }
 
+  function handleReplay(): void {
+    if (!parsed) {
+      return;
+    }
+
+    sessionRef.current?.reset();
+    const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
+    sessionRef.current = loop;
+    loop.setPlaybackRate(playbackRate);
+    loop.start();
+  }
+
+  function handleRaceAgain(): void {
+    sessionRef.current?.reset();
+    sessionRef.current = null;
+    setTelemetry(null);
+  }
+
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 sm:gap-6">
-      <form
-        className="grid w-full min-w-0 gap-4 rounded-lg border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-950"
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleStart();
-        }}
-      >
-        <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-          Race distance
-          <select
-            value={distanceId}
-            disabled={formLocked}
-            onChange={(event) => setDistanceId(event.target.value)}
-            className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-          >
-            {RACE_DISTANCES.map((distance) => (
-              <option key={distance.id} value={distance.id}>
-                {distance.label}
-              </option>
-            ))}
-          </select>
-        </label>
+    <div className="flex w-full min-w-0 flex-col gap-3 md:gap-4">
+      <SetupCard
+        distanceId={distanceId}
+        athletes={athletes}
+        status={status}
+        formLocked={formLocked}
+        startEnabled={startEnabled}
+        playbackRate={playbackRate}
+        onDistanceChange={setDistanceId}
+        onAthleteChange={updateAthlete}
+        onStart={handleStart}
+        onPause={handlePause}
+        onResume={handleResume}
+        onReset={handleReset}
+        onPlaybackRate={handlePlaybackRate}
+      />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AthleteFields
-            athlete={athletes[0]}
-            label="Athlete A"
-            locked={formLocked}
-            onChange={(patch) => updateAthlete(0, patch)}
-          />
-          <AthleteFields
-            athlete={athletes[1]}
-            label="Athlete B"
-            locked={formLocked}
-            onChange={(patch) => updateAthlete(1, patch)}
-          />
-        </div>
+      <p className="sr-only" data-testid="race-status" aria-live="polite">
+        {status}
+      </p>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {status === "idle" ? (
-            <button
-              type="submit"
-              disabled={!startEnabled}
-              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
-            >
-              Start race
-            </button>
-          ) : null}
-          {status === "running" ? (
-            <button
-              type="button"
-              onClick={handlePause}
-              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-            >
-              Pause
-            </button>
-          ) : null}
-          {status === "paused" ? (
-            <button
-              type="button"
-              onClick={handleResume}
-              className="min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-            >
-              Resume
-            </button>
-          ) : null}
-          {status !== "idle" ? (
-            <button
-              type="button"
-              onClick={handleReset}
-              className="min-h-10 rounded border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
-            >
-              Reset
-            </button>
-          ) : null}
-          <PlaybackSpeedControls rate={playbackRate} onChange={handlePlaybackRate} />
-        </div>
-      </form>
+      <TrackStage
+        clock={
+          <RaceClockReadout
+            timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
+            lapText={lapText}
+          />
+        }
+        track={
+          <TrackRenderer
+            raceDistanceM={distanceM}
+            athletes={trackAthletes}
+            ghosts={ghostAthletes}
+          />
+        }
+      />
 
-      <div className="flex flex-col gap-3">
-        <p
-          className="text-center text-2xl tabular-nums tracking-tight text-zinc-950 sm:text-3xl dark:text-zinc-50"
-          data-testid="race-clock"
-          aria-label="Race clock"
-        >
-          {formatRaceTime(telemetry?.raceTimeMs ?? 0)}
-        </p>
-        <p className="sr-only" data-testid="race-status">
-          {status}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <AthleteReadout
-            draft={athletes[0]}
-            state={telemetry?.athletes[0] ?? null}
-          />
-          <AthleteReadout
-            draft={athletes[1]}
-            state={telemetry?.athletes[1] ?? null}
-          />
-        </div>
-      </div>
+      <TelemetryStrip
+        raceDistanceM={distanceM}
+        athletes={telemetry?.athletes}
+        drafts={athletes}
+        winnerSnapshot={telemetry?.winnerSnapshot ?? null}
+      />
 
       {telemetry?.result ? (
         <ResultPanel
@@ -247,92 +213,9 @@ export function RaceWorkspace({
             name: athlete.name,
             finishTimeMs: athlete.finishTimeMs,
           }))}
+          onReplay={handleReplay}
+          onRaceAgain={handleRaceAgain}
         />
-      ) : null}
-
-      <TrackRenderer
-        raceDistanceM={distanceM}
-        athletes={trackAthletes}
-        ghosts={ghostAthletes}
-      />
-    </div>
-  );
-}
-
-function AthleteFields({
-  athlete,
-  label,
-  locked,
-  onChange,
-}: {
-  athlete: AthleteDraft;
-  label: string;
-  locked: boolean;
-  onChange: (patch: Partial<AthleteDraft>) => void;
-}) {
-  const nameError = nameFieldError(athlete.name);
-  const timeError = timeFieldError(athlete.time);
-  const nameId = `${athlete.id}-name`;
-
-  return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{label}</legend>
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300" htmlFor={nameId}>
-        {`${label} name`}
-        <input
-          id={nameId}
-          value={athlete.name}
-          disabled={locked}
-          autoComplete="off"
-          aria-invalid={nameError !== null}
-          aria-describedby={nameError ? `${nameId}-error` : undefined}
-          onChange={(event) => onChange({ name: event.target.value })}
-          className="w-full min-w-0 rounded border border-zinc-300 bg-white px-2 py-2 text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-        />
-      </label>
-      {nameError ? (
-        <p id={`${nameId}-error`} role="alert" className="text-sm text-rose-700 dark:text-rose-400">
-          {nameError}
-        </p>
-      ) : null}
-      <FinishingTimeFields
-        athleteId={athlete.id}
-        label={`${label} finishing time`}
-        time={athlete.time}
-        locked={locked}
-        error={timeError}
-        onChange={(time) => onChange({ time })}
-      />
-    </fieldset>
-  );
-}
-
-function AthleteReadout({
-  draft,
-  state,
-}: {
-  draft: AthleteDraft;
-  state: AthleteRaceState | null;
-}) {
-  const name = state?.name ?? draft.name;
-  const progress = state?.progress ?? 0;
-  const completedLaps = state?.completedLaps ?? 0;
-
-  return (
-    <div
-      className="rounded border border-zinc-200 px-3 py-2 text-sm text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
-      data-testid={`athlete-readout-${draft.id}`}
-    >
-      <p className="font-medium text-zinc-950 dark:text-zinc-50">{name}</p>
-      <p className="tabular-nums">
-        Laps {completedLaps}
-        <span className="mx-2">·</span>
-        {Math.round(progress * 100)}%
-      </p>
-      {state?.finished ? (
-        <p data-testid={`athlete-finished-time-${draft.id}`}>
-          Finished {formatRaceTime(state.finishTimeMs)}
-        </p>
       ) : null}
     </div>
   );

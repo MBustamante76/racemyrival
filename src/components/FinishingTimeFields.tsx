@@ -79,7 +79,7 @@ export function FinishingTimeFields({
       className="flex flex-col gap-1"
       aria-describedby={error ? errorId : undefined}
     >
-      <legend className="text-sm text-zinc-700 dark:text-zinc-300">{label}</legend>
+      <legend className="sr-only">{label}</legend>
       <div className="flex flex-wrap items-end gap-1">
         <TimePartInput
           id={`${athleteId}-minutes`}
@@ -93,7 +93,7 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("minutes", value)}
           onKeyDown={(event) => handleKeyDown("minutes", event)}
         />
-        <span aria-hidden="true" className="pb-2 text-lg text-zinc-500">
+        <span aria-hidden="true" className="pb-2 text-lg text-muted">
           :
         </span>
         <TimePartInput
@@ -108,7 +108,7 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("seconds", value)}
           onKeyDown={(event) => handleKeyDown("seconds", event)}
         />
-        <span aria-hidden="true" className="pb-2 text-lg text-zinc-500">
+        <span aria-hidden="true" className="pb-2 text-lg text-muted">
           .
         </span>
         <TimePartInput
@@ -125,7 +125,7 @@ export function FinishingTimeFields({
         />
       </div>
       {error ? (
-        <p id={errorId} role="alert" className="text-sm text-rose-700 dark:text-rose-400">
+        <p id={errorId} role="alert" className="text-sm text-brand-red">
           {error}
         </p>
       ) : null}
@@ -157,7 +157,7 @@ function TimePartInput({
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-zinc-500 dark:text-zinc-400" htmlFor={id}>
+    <label className="flex flex-col gap-1 text-xs text-muted" htmlFor={id}>
       <span className="sr-only">{fieldLabel}</span>
       <input
         ref={inputRef}
@@ -172,7 +172,7 @@ function TimePartInput({
         aria-invalid={invalid}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="w-14 rounded border border-zinc-300 bg-white px-2 py-2 text-center font-mono text-base tabular-nums text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        className="h-11 w-10 min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-0.5 text-center text-sm tabular-nums text-brand-navy sm:w-12 sm:text-base"
       />
       <span aria-hidden="true">{caption}</span>
     </label>

@@ -27,8 +27,8 @@ export function PlaybackSpeedControls({
             onClick={() => onChange(option)}
             className={
               selected
-                ? "min-h-10 rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "min-h-10 rounded border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
+                ? "ui-transition min-h-11 rounded-[var(--rmr-radius-control)] bg-brand-navy px-3 py-2 text-sm font-semibold text-white"
+                : "ui-transition min-h-11 rounded-[var(--rmr-radius-control)] border border-input-border px-3 py-2 text-sm font-semibold text-brand-navy"
             }
           >
             {`${option}x`}
