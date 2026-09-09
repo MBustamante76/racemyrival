@@ -1,8 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { TrackRenderer } from "@/components/TrackRenderer";
-import { athleteMarkerLayouts, distanceMarkViews, trackViewBox } from "@/components/trackView";
-import { hypot, sprintStraight } from "@/domain/track";
+import {
+  athleteMarkerLayouts,
+  distanceMarkViews,
+  sprintChuteSegment,
+  trackViewBox,
+} from "@/components/trackView";
+import {
+  COMPARISON_ADJACENT_LANE,
+  COMPARISON_INNER_LANE,
+  homeStraightLeftTangentX,
+  hypot,
+  sprintStraight,
+} from "@/domain/track";
 
 const two = [
   { id: "A", name: "Marcelo", distanceCoveredM: 0 },
@@ -27,6 +38,7 @@ describe("100m sprint chute view", () => {
     expect(screen.getByTestId("distance-mark-100")).toHaveTextContent("100m");
     expect(screen.getByTestId("finish-label")).toHaveTextContent("Finish");
     expect(screen.getByTestId("sprint-chute-inner")).toBeInTheDocument();
+    expect(screen.getByTestId("sprint-chute-adjacent")).toBeInTheDocument();
     expect(screen.queryByTestId("start-line")).not.toBeInTheDocument();
 
     const startLine = screen.getByTestId("sprint-start-line");
@@ -119,6 +131,56 @@ describe("100m sprint chute view", () => {
     render(<TrackRenderer raceDistanceM={400} athletes={two} />);
     expect(screen.getByRole("img")).toHaveAttribute("data-course-type", "oval");
     expect(screen.queryByTestId("sprint-start-line")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sprint-chute-inner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sprint-chute-adjacent")).not.toBeInTheDocument();
     expect(screen.getByTestId("finish-label")).toHaveTextContent("Start / Finish");
+  });
+});
+
+describe("sprint chute visibility", () => {
+  it("draws the 100m chute from the sprint start to the home-straight tangent", () => {
+    render(<TrackRenderer raceDistanceM={100} athletes={two} />);
+
+    const inner = screen.getByTestId("sprint-chute-inner");
+    const adjacent = screen.getByTestId("sprint-chute-adjacent");
+    const expectedInner = sprintChuteSegment(COMPARISON_INNER_LANE);
+    const expectedAdjacent = sprintChuteSegment(COMPARISON_ADJACENT_LANE);
+    const start = sprintStraight.sampleAtDistance(0);
+
+    expect(Number(inner.getAttribute("x1"))).toBeCloseTo(expectedInner.x1, 6);
+    expect(Number(inner.getAttribute("y1"))).toBeCloseTo(expectedInner.y1, 6);
+    expect(Number(inner.getAttribute("x2"))).toBeCloseTo(expectedInner.x2, 6);
+    expect(Number(inner.getAttribute("y2"))).toBeCloseTo(expectedInner.y2, 6);
+    expect(Number(adjacent.getAttribute("x1"))).toBeCloseTo(expectedAdjacent.x1, 6);
+    expect(Number(adjacent.getAttribute("y1"))).toBeCloseTo(expectedAdjacent.y1, 6);
+
+    expect(Number(inner.getAttribute("x1"))).toBeCloseTo(start.position.x, 6);
+    expect(Number(inner.getAttribute("x2"))).toBeCloseTo(homeStraightLeftTangentX(), 6);
+    expect(Number(inner.getAttribute("y1"))).toBeCloseTo(Number(inner.getAttribute("y2")), 6);
+    expect(Number(adjacent.getAttribute("y1"))).not.toBeCloseTo(Number(inner.getAttribute("y1")), 4);
+  });
+
+  it("hides the chute when leaving 100m for an oval event", () => {
+    const { rerender } = render(<TrackRenderer raceDistanceM={100} athletes={two} />);
+    expect(screen.getByTestId("sprint-chute-inner")).toBeInTheDocument();
+    expect(screen.getByTestId("sprint-start-line")).toBeInTheDocument();
+
+    rerender(<TrackRenderer raceDistanceM={800} athletes={two} />);
+    expect(screen.getByRole("img")).toHaveAttribute("data-course-type", "oval");
+    expect(screen.queryByTestId("sprint-chute-inner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sprint-chute-adjacent")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sprint-start-line")).not.toBeInTheDocument();
+  });
+
+  it("does not draw the chute for oval events", () => {
+    for (const distanceM of [200, 400, 800, 1500, 3000, 5000]) {
+      const { unmount } = render(<TrackRenderer raceDistanceM={distanceM} athletes={two} />);
+      expect(screen.getByRole("img")).toHaveAttribute("data-course-type", "oval");
+      expect(screen.getByRole("img")).toHaveAttribute("data-race-distance-m", String(distanceM));
+      expect(screen.queryByTestId("sprint-chute-inner")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("sprint-chute-adjacent")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("sprint-start-line")).not.toBeInTheDocument();
+      unmount();
+    }
   });
 });

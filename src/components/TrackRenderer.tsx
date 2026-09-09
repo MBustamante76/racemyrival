@@ -39,8 +39,8 @@ export function TrackRenderer({
   const courseType = courseTypeForView(raceDistanceM);
   const sprintStart = courseType === "sprint-straight" ? sprintStartSegment() : null;
   const sprintStartLabel = courseType === "sprint-straight" ? sprintStartLabelPoint() : null;
-  const chuteInner = sprintChuteSegment(COMPARISON_INNER_LANE);
-  const chuteAdjacent = sprintChuteSegment(COMPARISON_ADJACENT_LANE);
+  const chuteInner = courseType === "sprint-straight" ? sprintChuteSegment(COMPARISON_INNER_LANE) : null;
+  const chuteAdjacent = courseType === "sprint-straight" ? sprintChuteSegment(COMPARISON_ADJACENT_LANE) : null;
   const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = athleteMarkerLayouts(raceDistanceM, athletes);
   const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
@@ -84,26 +84,30 @@ export function TrackRenderer({
         className="text-zinc-500 dark:text-zinc-400"
         data-testid="lane-adjacent"
       />
-      <line
-        x1={chuteInner.x1}
-        y1={chuteInner.y1}
-        x2={chuteInner.x2}
-        y2={chuteInner.y2}
-        stroke="currentColor"
-        strokeWidth={laneStrokeM}
-        className="text-zinc-800 dark:text-zinc-100"
-        data-testid="sprint-chute-inner"
-      />
-      <line
-        x1={chuteAdjacent.x1}
-        y1={chuteAdjacent.y1}
-        x2={chuteAdjacent.x2}
-        y2={chuteAdjacent.y2}
-        stroke="currentColor"
-        strokeWidth={laneStrokeM}
-        className="text-zinc-500 dark:text-zinc-400"
-        data-testid="sprint-chute-adjacent"
-      />
+      {chuteInner ? (
+        <line
+          x1={chuteInner.x1}
+          y1={chuteInner.y1}
+          x2={chuteInner.x2}
+          y2={chuteInner.y2}
+          stroke="currentColor"
+          strokeWidth={laneStrokeM}
+          className="text-zinc-800 dark:text-zinc-100"
+          data-testid="sprint-chute-inner"
+        />
+      ) : null}
+      {chuteAdjacent ? (
+        <line
+          x1={chuteAdjacent.x1}
+          y1={chuteAdjacent.y1}
+          x2={chuteAdjacent.x2}
+          y2={chuteAdjacent.y2}
+          stroke="currentColor"
+          strokeWidth={laneStrokeM}
+          className="text-zinc-500 dark:text-zinc-400"
+          data-testid="sprint-chute-adjacent"
+        />
+      ) : null}
       <line
         x1={finish.x1}
         y1={finish.y1}
