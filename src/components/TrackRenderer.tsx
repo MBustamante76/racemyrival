@@ -6,10 +6,15 @@ import {
 import {
   MARKER_RADIUS_M,
   athleteMarkerLayouts,
+  courseTypeForView,
   distanceMarkViews,
   finishLineSegment,
   infieldPolygonPoints,
   laneLinePoints,
+  SPRINT_START_LABEL,
+  sprintChuteSegment,
+  sprintStartLabelPoint,
+  sprintStartSegment,
   startTickSegment,
   trackViewBox,
 } from "./trackView";
@@ -31,10 +36,15 @@ export function TrackRenderer({
   const viewBox = trackViewBox();
   const finish = finishLineSegment();
   const start = startTickSegment(raceDistanceM);
+  const courseType = courseTypeForView(raceDistanceM);
+  const sprintStart = courseType === "sprint-straight" ? sprintStartSegment() : null;
+  const sprintStartLabel = courseType === "sprint-straight" ? sprintStartLabelPoint() : null;
+  const chuteInner = sprintChuteSegment(COMPARISON_INNER_LANE);
+  const chuteAdjacent = sprintChuteSegment(COMPARISON_ADJACENT_LANE);
   const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = athleteMarkerLayouts(raceDistanceM, athletes);
   const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
-  const startIsFinish = start === null;
+  const startIsFinish = start === null && sprintStart === null;
 
   return (
     <svg
@@ -43,6 +53,7 @@ export function TrackRenderer({
       viewBox={viewBox.value}
       preserveAspectRatio="xMidYMid meet"
       data-race-distance-m={raceDistanceM}
+      data-course-type={courseType}
       className="h-auto w-full max-w-3xl"
     >
       <rect
@@ -74,6 +85,26 @@ export function TrackRenderer({
         data-testid="lane-adjacent"
       />
       <line
+        x1={chuteInner.x1}
+        y1={chuteInner.y1}
+        x2={chuteInner.x2}
+        y2={chuteInner.y2}
+        stroke="currentColor"
+        strokeWidth={laneStrokeM}
+        className="text-zinc-800 dark:text-zinc-100"
+        data-testid="sprint-chute-inner"
+      />
+      <line
+        x1={chuteAdjacent.x1}
+        y1={chuteAdjacent.y1}
+        x2={chuteAdjacent.x2}
+        y2={chuteAdjacent.y2}
+        stroke="currentColor"
+        strokeWidth={laneStrokeM}
+        className="text-zinc-500 dark:text-zinc-400"
+        data-testid="sprint-chute-adjacent"
+      />
+      <line
         x1={finish.x1}
         y1={finish.y1}
         x2={finish.x2}
@@ -94,6 +125,32 @@ export function TrackRenderer({
           className="text-emerald-600"
           data-testid="start-line"
         />
+      ) : null}
+      {sprintStart && sprintStartLabel ? (
+        <g data-testid="sprint-start">
+          <line
+            x1={sprintStart.x1}
+            y1={sprintStart.y1}
+            x2={sprintStart.x2}
+            y2={sprintStart.y2}
+            stroke="currentColor"
+            strokeWidth={1.4}
+            className="text-emerald-600"
+            data-testid="sprint-start-line"
+          />
+          <text
+            x={sprintStartLabel.x}
+            y={sprintStartLabel.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-emerald-700 dark:fill-emerald-400"
+            fontSize={2.8}
+            fontWeight={700}
+            data-testid="sprint-start-label"
+          >
+            {SPRINT_START_LABEL}
+          </text>
+        </g>
       ) : null}
       <text
         x={(finish.x1 + finish.x2) / 2}

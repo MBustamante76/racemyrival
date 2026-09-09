@@ -2,10 +2,14 @@
 
 Phase 1 prototype for an interactive athletics race comparison visualiser.
 
-A user will enter two finishing times for a race distance. START will move two
-markers around a 400m SVG track at each athlete's constant average pace so the
-physical gap is visible. This repository is currently the toolchain scaffold
-only; race maths, track geometry, and the wireframe UI are not implemented yet.
+Enter two finishing times for a race distance. Start moves two markers around a
+400m SVG track at each athlete's constant average pace so the physical gap is
+visible. Phase 1 (two athletes, shared clock, comparison lanes, result panel) is
+complete. Client follow-ups on this branch include path-accurate 100/200/300m
+marks, a clock that clamps to the last finish, split min/sec/100ths time fields,
+1x–8x playback, and a winner-gap ghost marker.
+
+See `PROTOTYPE_TEST_REPORT.md` for the current test status and deferred V1 work.
 
 ## Stack
 
