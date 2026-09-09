@@ -1,7 +1,9 @@
 import {
   add,
   CANONICAL_LAP_M,
+  COMPARISON_ADJACENT_LANE,
   COMPARISON_INNER_LANE,
+  COMPARISON_LANE_SEPARATION_M,
   STADIUM_BEND_RADIUS_M,
   STADIUM_STRAIGHT_M,
   STANDARD_LANE_WIDTH_M,
@@ -12,21 +14,19 @@ import {
   startOffsetM,
   stadiumTrack,
 } from "@/domain/track";
-import type { LaneDefinition } from "@/domain/track";
+import type { LaneAssignment, LaneDefinition } from "@/domain/track";
 
 export const SAMPLE_STEP_M = 2;
 export const PADDING_M = 12;
 export const PRESENTATION_ASPECT = 3;
-export const FINISH_LINE_M = 10;
-export const START_TICK_M = 7;
 export const MARKER_RADIUS_M = 2.2;
 export const LABEL_INFIELD_M = 6.5;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 export const DISTANCE_LABEL_INFIELD_M = 5;
 export const DISTANCE_TICK_M = 3;
 export const DISTANCE_MARKS_M = [100, 200, 300] as const;
-export const VISUAL_LANE_OFFSETS_M = [2.4, 0, -2.4, -4.8, -7.2, -9.6] as const;
 export const SPRINT_CHUTE_M = 100;
+export const LANE_HALF_WIDTH_M = COMPARISON_LANE_SEPARATION_M / 2;
 
 const lanes = createLaneModel("comparison");
 const offsetPointCache = new Map<number, ScreenPoint[]>();
@@ -87,18 +87,66 @@ export function visualLaneLinePoints(offsetM: number): string {
   return value;
 }
 
+export function visualLaneCount(athleteCount: number): number {
+  return Math.max(1, athleteCount);
+}
+
+export function visualLaneCenterOffsetM(laneIndex: number): number {
+  return -laneIndex * COMPARISON_LANE_SEPARATION_M;
+}
+
+export function visualLaneDefinition(laneIndex: number): LaneDefinition {
+  if (laneIndex === 0) {
+    return COMPARISON_INNER_LANE;
+  }
+  if (laneIndex === 1) {
+    return COMPARISON_ADJACENT_LANE;
+  }
+
+  return {
+    laneNumber: laneIndex + 1,
+    widthM: STANDARD_LANE_WIDTH_M,
+    visualOffsetM: visualLaneCenterOffsetM(laneIndex),
+  };
+}
+
+export function visualLaneAssignments(athleteIds: readonly string[]): LaneAssignment[] {
+  return athleteIds.map((athleteId, index) => ({
+    athleteId,
+    lane: visualLaneDefinition(index),
+  }));
+}
+
+export function trackInnerOffsetM(): number {
+  return LANE_HALF_WIDTH_M;
+}
+
+export function trackOuterOffsetM(laneCount = 2): number {
+  return visualLaneCenterOffsetM(visualLaneCount(laneCount) - 1) - LANE_HALF_WIDTH_M;
+}
+
+export function visualLaneBoundaryOffsetsM(laneCount = 2): number[] {
+  const count = visualLaneCount(laneCount);
+  return Array.from({ length: count + 1 }, (_, index) => LANE_HALF_WIDTH_M - index * COMPARISON_LANE_SEPARATION_M);
+}
+
 export function infieldPolygonPoints(): string {
-  return closedRingPoints(COMPARISON_INNER_LANE.visualOffsetM + 2.2)
+  return closedRingPoints(trackInnerOffsetM() + 0.15)
     .map((point) => `${point.x},${point.y}`)
     .join(" ");
 }
 
-export function trackSurfacePoints(): string {
-  return trackSurfacePath();
+export function trackSurfacePoints(laneCount = 2): string {
+  return trackSurfacePath(laneCount);
 }
 
-export function trackSurfacePath(): string {
-  return `${ringPath(closedRingPoints(-11))} ${ringPath(closedRingPoints(2.6))}`;
+export function trackSurfacePath(laneCount = 2): string {
+  return `${ringPath(closedRingPoints(trackOuterOffsetM(laneCount)))} ${ringPath(closedRingPoints(trackInnerOffsetM()))}`;
+}
+
+export function runnerLanePath(laneIndex: number): string {
+  const center = visualLaneCenterOffsetM(laneIndex);
+  return `${ringPath(closedRingPoints(center - LANE_HALF_WIDTH_M))} ${ringPath(closedRingPoints(center + LANE_HALF_WIDTH_M))}`;
 }
 
 function closedRingPoints(offsetM: number): ScreenPoint[] {
@@ -125,11 +173,14 @@ function ringPath(points: ScreenPoint[]): string {
   return `M ${first.x} ${first.y} ${rest.map((point) => `L ${point.x} ${point.y}`).join(" ")} Z`;
 }
 
-export function finishLineSegment(): { x1: number; y1: number; x2: number; y2: number } {
-  return crossTrackSegment(0, FINISH_LINE_M);
+export function finishLineSegment(laneCount = 2): { x1: number; y1: number; x2: number; y2: number } {
+  return crossTrackFromOffsets(0, trackInnerOffsetM(), trackOuterOffsetM(laneCount));
 }
 
-export function startTickSegment(raceDistanceM: number): {
+export function startTickSegment(
+  raceDistanceM: number,
+  laneCount = 2,
+): {
   x1: number;
   y1: number;
   x2: number;
@@ -144,7 +195,16 @@ export function startTickSegment(raceDistanceM: number): {
     return null;
   }
 
-  return crossTrackSegment(startAroundM, START_TICK_M);
+  return crossTrackFromOffsets(
+    startAroundM,
+    trackInnerOffsetM(),
+    trackOuterOffsetM(laneCount),
+  );
+}
+
+export interface SprintChuteLaneLine {
+  offsetM: number;
+  points: string;
 }
 
 export interface SprintChuteView {
@@ -152,27 +212,39 @@ export interface SprintChuteView {
   startSegment: { x1: number; y1: number; x2: number; y2: number };
   label: ScreenPoint;
   start: ScreenPoint;
+  laneLines: SprintChuteLaneLine[];
 }
 
-export function sprintChuteView(): SprintChuteView {
+export function sprintChuteView(laneCount = 2): SprintChuteView {
   const finish = stadiumTrack.sampleAtDistanceAroundLap(0);
   const startWorld = add(finish.position, scale(finish.tangent, -SPRINT_CHUTE_M));
-  const half = 6;
+  const innerOffset = trackInnerOffsetM();
+  const outerOffset = trackOuterOffsetM(laneCount);
   const corners = [
-    add(startWorld, scale(finish.normal, -half)),
-    add(finish.position, scale(finish.normal, -half)),
-    add(finish.position, scale(finish.normal, half)),
-    add(startWorld, scale(finish.normal, half)),
+    add(startWorld, scale(finish.normal, outerOffset)),
+    add(finish.position, scale(finish.normal, outerOffset)),
+    add(finish.position, scale(finish.normal, innerOffset)),
+    add(startWorld, scale(finish.normal, innerOffset)),
   ];
   const startInner = toSvgPoint(
-    startWorld.x - finish.normal.x * half,
-    startWorld.y - finish.normal.y * half,
+    startWorld.x + finish.normal.x * innerOffset,
+    startWorld.y + finish.normal.y * innerOffset,
   );
   const startOuter = toSvgPoint(
-    startWorld.x + finish.normal.x * half,
-    startWorld.y + finish.normal.y * half,
+    startWorld.x + finish.normal.x * outerOffset,
+    startWorld.y + finish.normal.y * outerOffset,
   );
-  const labelWorld = add(startWorld, scale(finish.normal, -half - 4));
+  const labelWorld = add(startWorld, scale(finish.tangent, -12));
+  const laneLines = visualLaneBoundaryOffsetsM(laneCount).map((offsetM) => {
+    const from = add(startWorld, scale(finish.normal, offsetM));
+    const to = add(finish.position, scale(finish.normal, offsetM));
+    const start = toSvgPoint(from.x, from.y);
+    const end = toSvgPoint(to.x, to.y);
+    return {
+      offsetM,
+      points: `${start.x},${start.y} ${end.x},${end.y}`,
+    };
+  });
 
   return {
     surfacePoints: corners.map((point) => {
@@ -182,6 +254,7 @@ export function sprintChuteView(): SprintChuteView {
     startSegment: { x1: startInner.x, y1: startInner.y, x2: startOuter.x, y2: startOuter.y },
     label: toSvgPoint(labelWorld.x, labelWorld.y),
     start: toSvgPoint(startWorld.x, startWorld.y),
+    laneLines,
   };
 }
 
@@ -228,7 +301,7 @@ export function athleteMarkerLayouts(
   laneOrderIds: readonly string[] = athletes.map((athlete) => athlete.id),
   options: { flipLabels?: boolean } = {},
 ): AthleteMarkerLayout[] {
-  const assignments = lanes.assign(laneOrderIds);
+  const assignments = visualLaneAssignments(laneOrderIds);
   const course = courseForRace(raceDistanceM);
 
   return athletes.map((athlete) => {
@@ -278,19 +351,19 @@ function sampleOffsetPoints(offsetM: number): ScreenPoint[] {
   return points;
 }
 
-function crossTrackSegment(
+function crossTrackFromOffsets(
   distanceAroundLapM: number,
-  lengthM: number,
+  innerOffsetM: number,
+  outerOffsetM: number,
 ): { x1: number; y1: number; x2: number; y2: number } {
   const sample = stadiumTrack.sampleAtDistanceAroundLap(distanceAroundLapM);
-  const half = lengthM / 2;
   const start = toSvgPoint(
-    sample.position.x - sample.normal.x * half,
-    sample.position.y - sample.normal.y * half,
+    sample.position.x + sample.normal.x * innerOffsetM,
+    sample.position.y + sample.normal.y * innerOffsetM,
   );
   const end = toSvgPoint(
-    sample.position.x + sample.normal.x * half,
-    sample.position.y + sample.normal.y * half,
+    sample.position.x + sample.normal.x * outerOffsetM,
+    sample.position.y + sample.normal.y * outerOffsetM,
   );
   return { x1: start.x, y1: start.y, x2: end.x, y2: end.y };
 }

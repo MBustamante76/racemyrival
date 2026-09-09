@@ -8,16 +8,18 @@ import { athleteColors, colors } from "@/styles/tokens";
 import { athleteInitials } from "./athleteDisplay";
 import {
   MARKER_RADIUS_M,
-  VISUAL_LANE_OFFSETS_M,
   athleteMarkerLayouts,
   distanceMarkViews,
   finishLineSegment,
   infieldPolygonPoints,
   laneLinePoints,
+  runnerLanePath,
   sprintChuteView,
   startTickSegment,
   trackSurfacePath,
   trackViewBox,
+  visualLaneBoundaryOffsetsM,
+  visualLaneCount,
   visualLaneLinePoints,
 } from "./trackView";
 import type { TrackAthleteView } from "./trackView";
@@ -36,59 +38,40 @@ export function TrackRenderer({
   laneStrokeM?: number;
 }) {
   const viewBox = trackViewBox();
-  const finish = finishLineSegment();
-  const start = startTickSegment(raceDistanceM);
+  const laneCount = visualLaneCount(athletes.length);
+  const finish = finishLineSegment(laneCount);
+  const start = startTickSegment(raceDistanceM, laneCount);
   const courseType = courseTypeForRace(raceDistanceM);
-  const chute = courseType === "sprint-straight" ? sprintChuteView() : null;
+  const chute = courseType === "sprint-straight" ? sprintChuteView(laneCount) : null;
   const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = athleteMarkerLayouts(raceDistanceM, athletes);
   const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
   const startIsFinish = start === null && chute === null;
-
-  return (
-    <svg
-      role="img"
-      aria-label="400 metre stadium race track"
-      viewBox={viewBox.value}
-      preserveAspectRatio="xMidYMid meet"
-      data-race-distance-m={raceDistanceM}
-      data-course-type={courseType}
-      className="h-auto w-full"
-    >
-      <defs>
-        <linearGradient id="track-shade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--rmr-track-light)" stopOpacity="0.35" />
-          <stop offset="55%" stopColor="var(--rmr-track)" stopOpacity="0" />
-          <stop offset="100%" stopColor="var(--rmr-track-dark)" stopOpacity="0.28" />
-        </linearGradient>
-      </defs>
-      <rect
-        x={viewBox.minX}
-        y={viewBox.minY}
-        width={viewBox.width}
-        height={viewBox.height}
-        className="fill-page"
-      />
-      {chute ? (
-        <polygon
-          points={chute.surfacePoints}
-          className="fill-track"
-          data-testid="sprint-chute"
-        />
-      ) : null}
+  const surfacePath = trackSurfacePath(laneCount);
+  const ovalScenery = (
+    <>
       <path
-        d={trackSurfacePath()}
+        d={surfacePath}
         className="fill-track"
         fillRule="evenodd"
         data-testid="track-surface"
       />
-      <path d={trackSurfacePath()} fill="url(#track-shade)" fillRule="evenodd" />
+      <path d={surfacePath} fill="url(#track-shade)" fillRule="evenodd" />
+      {athletes.map((athlete, index) => (
+        <path
+          key={athlete.id}
+          d={runnerLanePath(index)}
+          fill="none"
+          data-testid={`runner-track-${athlete.id}`}
+          data-lane-number={index + 1}
+        />
+      ))}
       <polygon
         points={infieldPolygonPoints()}
         className="fill-infield"
         data-testid="track-infield"
       />
-      {VISUAL_LANE_OFFSETS_M.map((offsetM) => (
+      {visualLaneBoundaryOffsetsM(laneCount).map((offsetM) => (
         <polyline
           key={offsetM}
           points={visualLaneLinePoints(offsetM)}
@@ -114,6 +97,56 @@ export function TrackRenderer({
         opacity={0}
         data-testid="lane-adjacent"
       />
+    </>
+  );
+
+  return (
+    <svg
+      role="img"
+      aria-label="400 metre stadium race track"
+      viewBox={viewBox.value}
+      preserveAspectRatio="xMidYMid meet"
+      data-race-distance-m={raceDistanceM}
+      data-course-type={courseType}
+      data-runner-count={laneCount}
+      className="h-auto w-full"
+    >
+      <defs>
+        <linearGradient id="track-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--rmr-track-light)" stopOpacity="0.35" />
+          <stop offset="55%" stopColor="var(--rmr-track)" stopOpacity="0" />
+          <stop offset="100%" stopColor="var(--rmr-track-dark)" stopOpacity="0.28" />
+        </linearGradient>
+      </defs>
+      <rect
+        x={viewBox.minX}
+        y={viewBox.minY}
+        width={viewBox.width}
+        height={viewBox.height}
+        className="fill-page"
+      />
+      {chute ? <g opacity={0.34}>{ovalScenery}</g> : ovalScenery}
+      {chute ? (
+        <>
+          <polygon
+            points={chute.surfacePoints}
+            className="fill-track"
+            data-testid="sprint-chute"
+          />
+          <polygon points={chute.surfacePoints} fill="url(#track-shade)" />
+          {chute.laneLines.map((line) => (
+            <polyline
+              key={line.offsetM}
+              points={line.points}
+              fill="none"
+              stroke="var(--rmr-lane-line)"
+              strokeWidth={0.35}
+              strokeLinejoin="round"
+              data-testid={`sprint-chute-lane-${line.offsetM}`}
+            />
+          ))}
+        </>
+      ) : null}
       <line
         x1={finish.x1}
         y1={finish.y1}
@@ -149,6 +182,7 @@ export function TrackRenderer({
             x={chute.label.x}
             y={chute.label.y}
             textAnchor="middle"
+            dominantBaseline="middle"
             className="fill-brand-navy"
             fontSize={3}
             fontWeight={700}
