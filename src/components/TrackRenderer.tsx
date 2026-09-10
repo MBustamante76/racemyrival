@@ -18,6 +18,7 @@ import {
   sprintChuteView,
   startTickSegment,
   trackInnerOffsetM,
+  trackOuterDiskPath,
   trackSurfacePath,
   trackViewBox,
   visualLaneBoundaryOffsetsM,
@@ -110,6 +111,13 @@ export function TrackRenderer({
   const surfacePath = trackSurfacePath(laneCount);
   const ovalScenery = (
     <>
+      <g mask="url(#track-outer-shadow-mask)">
+        <path
+          d={trackOuterDiskPath(laneCount)}
+          className="fill-track"
+          filter="url(#track-outer-shadow)"
+        />
+      </g>
       <path
         d={surfacePath}
         className="fill-track"
@@ -117,6 +125,14 @@ export function TrackRenderer({
         data-testid="track-surface"
       />
       <path d={surfacePath} fill="url(#track-shade)" fillRule="evenodd" />
+      <path
+        d={surfacePath}
+        fill="none"
+        fillRule="evenodd"
+        stroke="white"
+        strokeWidth={0.8}
+        strokeLinejoin="round"
+      />
       {athletes.map((athlete, index) => (
         <path
           key={athlete.id}
@@ -225,6 +241,38 @@ export function TrackRenderer({
         <filter id="infield-kerb-shadow" x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="1.15" />
         </filter>
+        <linearGradient
+          id="track-outer-shadow-fade"
+          gradientUnits="userSpaceOnUse"
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={viewBox.minY + viewBox.height}
+        >
+          <stop offset="0" stopColor="black" />
+          <stop offset="0.42" stopColor="black" />
+          <stop offset="0.72" stopColor="white" />
+          <stop offset="1" stopColor="white" />
+        </linearGradient>
+        <mask
+          id="track-outer-shadow-mask"
+          maskUnits="userSpaceOnUse"
+          x={viewBox.minX}
+          y={viewBox.minY}
+          width={viewBox.width}
+          height={viewBox.height}
+        >
+          <rect
+            x={viewBox.minX}
+            y={viewBox.minY}
+            width={viewBox.width}
+            height={viewBox.height}
+            fill="url(#track-outer-shadow-fade)"
+          />
+        </mask>
+        <filter id="track-outer-shadow" x="-8%" y="-4%" width="116%" height="128%">
+          <feDropShadow dx="0" dy="2.6" stdDeviation="1.6" floodColor="#1A1F14" floodOpacity="0.28" />
+        </filter>
       </defs>
       <rect
         x={viewBox.minX}
@@ -239,9 +287,21 @@ export function TrackRenderer({
           <polygon
             points={chute.surfacePoints}
             className="fill-track"
+            filter="url(#track-outer-shadow)"
+          />
+          <polygon
+            points={chute.surfacePoints}
+            className="fill-track"
             data-testid="sprint-chute"
           />
           <polygon points={chute.surfacePoints} fill="url(#track-shade)" />
+          <polygon
+            points={chute.surfacePoints}
+            fill="none"
+            stroke="white"
+            strokeWidth={0.8}
+            strokeLinejoin="round"
+          />
           {chute.laneLines.map((line) => (
             <polyline
               key={line.offsetM}

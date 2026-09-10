@@ -145,6 +145,10 @@ export function trackSurfacePath(laneCount = 2): string {
   return `${ringPath(closedRingPoints(trackOuterOffsetM(laneCount)))} ${ringPath(closedRingPoints(trackInnerOffsetM()))}`;
 }
 
+export function trackOuterDiskPath(laneCount = 2): string {
+  return ringPath(closedRingPoints(trackOuterOffsetM(laneCount)));
+}
+
 export function runnerLanePath(laneIndex: number): string {
   const center = visualLaneCenterOffsetM(laneIndex);
   return `${ringPath(closedRingPoints(center - LANE_HALF_WIDTH_M))} ${ringPath(closedRingPoints(center + LANE_HALF_WIDTH_M))}`;
