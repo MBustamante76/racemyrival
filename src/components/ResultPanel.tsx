@@ -10,6 +10,15 @@ export interface ResultAthleteView {
 const ACTION_BUTTON =
   "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-input-border bg-card px-4 py-2 font-sans text-sm font-extrabold tracking-[-0.02em] text-near-black";
 
+function athleteAccent(id: string | undefined) {
+  return id === "B" ? "text-athlete-b" : id === "A" ? "text-athlete-a" : "text-near-black";
+}
+
+function formatFullRaceTime(milliseconds: number): string {
+  const formatted = formatRaceTime(milliseconds);
+  return formatted.includes(":") ? formatted : `0:${formatted.padStart(5, "0")}`;
+}
+
 export function ResultPanel({
   result,
   athletes,
@@ -40,44 +49,48 @@ export function ResultPanel({
       <h2 id="race-complete-heading" className="sr-only">
         Race complete
       </h2>
-      <div className="grid items-center gap-5 text-center md:grid-cols-3 md:text-left">
+      <div className="grid items-center gap-5 md:grid-cols-3">
         <div className="flex flex-col items-center gap-5 md:col-span-2 md:flex-row md:items-center">
-          <TrophyIcon />
-          <div className="min-w-0">
-            <p
-              className={`font-sans text-2xl font-extrabold uppercase tracking-[-0.02em] sm:text-3xl ${winnerAccent}`}
-              data-testid="result-winner"
-            >
-              {result.isTie || !winner ? "Dead heat" : `${winner.name} wins`}
-            </p>
-            <p className="mt-2 font-sans text-lg font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-xl">
-              {result.isTie ? (
-                <span data-testid="result-winning-time">
+          <div className="hidden shrink-0 md:flex md:justify-start">
+            <TrophyIcon />
+          </div>
+          <div className="min-w-0 w-full text-center">
+          <p
+            className={`font-sans text-lg font-extrabold uppercase tracking-[-0.02em] sm:text-xl ${winnerAccent}`}
+            data-testid="result-winner"
+          >
+            {result.isTie || !winner ? "Dead heat" : `${winner.name} wins`}
+          </p>
+          <p className="mt-2 font-sans text-lg font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-xl">
+            {result.isTie ? (
+              <span data-testid="result-winning-time">
+                Winning time {formatRaceTime(result.winningTimeMs)}
+              </span>
+            ) : (
+              <>
+                <span data-testid="result-times-vs">
+                  <span className={athleteAccent(winner?.id)}>{formatFullRaceTime(result.winningTimeMs)}</span>
+                  {" "}
+                  <span className="text-xs font-bold lowercase tracking-[0.12em] text-near-black">VS</span>
+                  {" "}
+                  <span className={athleteAccent(loser?.id)}>
+                    {loser ? formatFullRaceTime(loser.finishTimeMs) : "—"}
+                  </span>
+                </span>
+                <span className="sr-only" data-testid="result-winning-time">
                   Winning time {formatRaceTime(result.winningTimeMs)}
                 </span>
-              ) : (
-                <>
-                  <span data-testid="result-times-vs">
-                    <span className={winnerAccent}>{formatRaceTime(result.winningTimeMs)}</span>
-                    {" "}
-                    <span className="text-xs font-bold lowercase tracking-[0.12em] text-near-black">VS</span>
-                    {" "}
-                    <span>{loser ? formatRaceTime(loser.finishTimeMs) : "—"}</span>
-                  </span>
-                  <span className="sr-only" data-testid="result-winning-time">
-                    Winning time {formatRaceTime(result.winningTimeMs)}
-                  </span>
-                </>
-              )}
-            </p>
-            {result.isTie ? null : (
-              <p
-                className="mt-2 font-sans text-[11px] font-extrabold uppercase tracking-[0.16em] text-near-black"
-                data-testid="result-time-gap"
-              >
-                {formatRaceTime(result.timeGapMs)} seconds faster
-              </p>
+              </>
             )}
+          </p>
+          {result.isTie ? null : (
+            <p
+              className="mt-2 font-sans text-[11px] font-extrabold uppercase tracking-[0.16em] text-near-black"
+              data-testid="result-time-gap"
+            >
+              {formatRaceTime(result.timeGapMs)} seconds faster
+            </p>
+          )}
           </div>
         </div>
         {result.isTie ? (
@@ -87,14 +100,11 @@ export function ResultPanel({
             className="min-w-0 text-center font-sans text-sm font-medium leading-snug text-near-black"
             data-testid="result-distance-gap"
           >
-            <span className={`block font-sans text-2xl font-extrabold uppercase tracking-[-0.02em] sm:text-3xl ${winnerAccent}`}>
-              {winnerName}
-            </span>
-            Approximately{" "}
+            <span className={winnerAccent}>{winnerName}</span> was approximately{" "}
             <span className={`block font-sans text-xl font-extrabold uppercase tracking-[-0.02em] sm:text-2xl ${winnerAccent}`}>
               {distanceGapM} metres ahead
             </span>{" "}
-            when {winnerName} crossed the finish line
+            when they crossed the finish line
           </p>
         )}
       </div>
@@ -134,7 +144,7 @@ function TrophyIcon() {
     <svg
       aria-hidden="true"
       viewBox="0 0 32 32"
-      className="mx-auto hidden h-12 w-12 shrink-0 text-gold md:mx-0 md:block"
+      className="h-12 w-12 shrink-0 text-gold"
       data-testid="result-trophy"
     >
       <path

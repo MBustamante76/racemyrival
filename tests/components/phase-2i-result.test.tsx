@@ -21,7 +21,7 @@ describe("Phase 2I result card", () => {
     expect(screen.getByTestId("result-times-vs")).toHaveTextContent("1:52.00 VS 2:04.00");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("12.00 seconds faster");
     expect(screen.getByTestId("result-distance-gap")).toHaveTextContent(
-      "Approximately 77 metres ahead when Josh crossed the finish line",
+      "Josh was approximately 77 metres ahead when they crossed the finish line",
     );
     expect(screen.getByTestId("result-trophy")).toBeInTheDocument();
     expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
