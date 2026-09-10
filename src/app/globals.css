@@ -42,6 +42,7 @@
   --color-background: var(--rmr-page);
   --color-foreground: var(--rmr-navy);
   --color-brand-navy: var(--rmr-navy);
+  --color-near-black: var(--rmr-near-black);
   --color-brand-red: var(--rmr-red);
   --color-brand-red-hover: var(--rmr-red-hover);
   --color-brand-red-tint: var(--rmr-red-tint);
