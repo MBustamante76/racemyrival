@@ -320,8 +320,8 @@ export function athleteMarkerLayouts(
         ? LABEL_INFIELD_M
         : lane.visualOffsetM - LABEL_OUTFIELD_EXTRA_M;
     const label = {
-      x: sample.position.x + sample.normal.x * labelOffsetM,
-      y: sample.position.y + sample.normal.y * labelOffsetM,
+      x: sample.position.x + sample.tangent.x * alongLabelM + sample.normal.x * labelOffsetM,
+      y: sample.position.y + sample.tangent.y * alongLabelM + sample.normal.y * labelOffsetM,
     };
 
     return {
