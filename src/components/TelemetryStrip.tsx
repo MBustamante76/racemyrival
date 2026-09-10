@@ -92,12 +92,9 @@ function AthleteReadout({
       className="flex min-w-0 flex-col items-start gap-2 rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-3 text-left shadow-card"
       data-testid={`athlete-readout-${draftId}`}
     >
-      <div className="flex items-center gap-2">
-        <RunningIcon className={`h-5 w-5 shrink-0 ${accentColor}`} />
-        <p className={`truncate font-sans text-sm font-extrabold tracking-[-0.02em] ${accentColor}`}>
-          {athlete.name}
-        </p>
-      </div>
+      <p className="truncate font-sans text-sm font-extrabold tracking-[-0.02em] text-near-black">
+        {athlete.name}
+      </p>
       <div className="flex gap-8">
         <Stat
           value={formatMetres(athlete.distanceM)}
@@ -144,17 +141,5 @@ function Stat({
         {label}
       </p>
     </div>
-  );
-}
-
-function RunningIcon({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}>
-      <circle cx="14.5" cy="4.2" r="1.7" fill="currentColor" />
-      <path
-        fill="currentColor"
-        d="M9.2 8.1 12 9.4l1.4-1.6c.3-.4.8-.6 1.3-.6h2.1c.4 0 .7.3.7.7s-.3.7-.7.7h-1.8l-1.7 2 1.6 1.3c.3.3.5.7.5 1.1v2.1c0 .4-.3.7-.7.7s-.7-.3-.7-.7v-1.7l-1.8-1.5-1.2 4.3 2.6 1.6c.3.2.4.6.2 1s-.6.4-1 .2l-3.1-1.9c-.3-.2-.4-.5-.3-.8l1.4-5.1-1.8-.8-1.6 1.7c-.3.3-.7.3-1 .1s-.3-.7-.1-1l2.1-2.2c.2-.2.5-.3.8-.2Z"
-      />
-    </svg>
   );
 }
