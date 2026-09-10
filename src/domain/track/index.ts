@@ -1,4 +1,7 @@
 export { StadiumTrackGeometry, stadiumTrack } from "./StadiumTrackGeometry";
+export { SprintStraightGeometry, SPRINT_STRAIGHT_M, sprintStraight } from "./SprintStraightGeometry";
+export { courseForRace, courseTypeForRace } from "./courses";
+export type { RaceCourseType } from "./courses";
 export {
   SprintStraightGeometry,
   homeStraightLeftTangentX,

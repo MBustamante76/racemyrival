@@ -1,27 +1,140 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --rmr-navy: #0f182f;
+  --rmr-near-black: #111318;
+  --rmr-red: #e10a1f;
+  --rmr-red-hover: #c9081b;
+  --rmr-red-tint: #fdecee;
+  --rmr-athlete-a: #0470fc;
+  --rmr-athlete-a-dark: #005bd6;
+  --rmr-athlete-a-tint: #eaf3ff;
+  --rmr-athlete-b: #fb5a03;
+  --rmr-athlete-b-dark: #dc4800;
+  --rmr-athlete-b-tint: #fff0e7;
+  --rmr-track: #e15b56;
+  --rmr-track-dark: #c94d4f;
+  --rmr-track-light: #ed7771;
+  --rmr-track-highlight: #f3a09b;
+  --rmr-track-edge: #f4d7d5;
+  --rmr-lane-line: #ffffff;
+  --rmr-infield: #c9d2a1;
+  --rmr-infield-light: #d5ddb5;
+  --rmr-infield-dark: #bcc68d;
+  --rmr-page: #fefefe;
+  --rmr-card: #ffffff;
+  --rmr-surface-alt: #fafbfc;
+  --rmr-border: #eef0f3;
+  --rmr-divider: #e2e4e7;
+  --rmr-input-border: #e6e8ec;
+  --rmr-muted: #667085;
+  --rmr-metadata: #8a9099;
+  --rmr-label: #a4a9b1;
+  --rmr-gold: #d99800;
+  --rmr-gold-highlight: #f4b51a;
+  --rmr-shadow-card: 0 3px 12px rgba(15, 24, 47, 0.06);
+  --rmr-shadow-raised: 0 4px 18px rgba(15, 24, 47, 0.07);
+  --rmr-radius-card: 8px;
+  --rmr-radius-control: 6px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--rmr-page);
+  --color-foreground: var(--rmr-navy);
+  --color-brand-navy: var(--rmr-navy);
+  --color-near-black: var(--rmr-near-black);
+  --color-brand-red: var(--rmr-red);
+  --color-brand-red-hover: var(--rmr-red-hover);
+  --color-brand-red-tint: var(--rmr-red-tint);
+  --color-athlete-a: var(--rmr-athlete-a);
+  --color-athlete-a-dark: var(--rmr-athlete-a-dark);
+  --color-athlete-a-tint: var(--rmr-athlete-a-tint);
+  --color-athlete-b: var(--rmr-athlete-b);
+  --color-athlete-b-dark: var(--rmr-athlete-b-dark);
+  --color-athlete-b-tint: var(--rmr-athlete-b-tint);
+  --color-track: var(--rmr-track);
+  --color-track-dark: var(--rmr-track-dark);
+  --color-infield: var(--rmr-infield);
+  --color-page: var(--rmr-page);
+  --color-card: var(--rmr-card);
+  --color-surface-alt: var(--rmr-surface-alt);
+  --color-border: var(--rmr-border);
+  --color-divider: var(--rmr-divider);
+  --color-input-border: var(--rmr-input-border);
+  --color-muted: var(--rmr-muted);
+  --color-metadata: var(--rmr-metadata);
+  --color-label: var(--rmr-label);
+  --color-gold: var(--rmr-gold);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+  --font-mono: var(--font-inter);
+  --shadow-card: var(--rmr-shadow-card);
+  --shadow-raised: var(--rmr-shadow-raised);
+  --radius-card: var(--rmr-radius-card);
+  --radius-control: var(--rmr-radius-control);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--rmr-page);
+  color: var(--rmr-navy);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
+}
+
+.tabular-data {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--rmr-athlete-a);
+  outline-offset: 2px;
+}
+
+.ui-transition {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.result-reveal {
+  animation: result-reveal 220ms ease-out;
+}
+
+@keyframes result-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-presentation="wireframe"] {
+  --rmr-navy: #18181b;
+  --rmr-red: #18181b;
+  --rmr-red-hover: #27272a;
+  --rmr-track: #3f3f46;
+  --rmr-track-dark: #27272a;
+  --rmr-track-light: #52525b;
+  --rmr-infield: #e4e4e7;
+  --rmr-page: #fafafa;
+  --rmr-card: #ffffff;
+  --rmr-athlete-a: #0284c7;
+  --rmr-athlete-b: #f59e0b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-transition {
+    transition: none;
+  }
+
+  .result-reveal {
+    animation: none;
+  }
 }
