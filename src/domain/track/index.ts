@@ -3,18 +3,6 @@ export { SprintStraightGeometry, SPRINT_STRAIGHT_M, sprintStraight } from "./Spr
 export { courseForRace, courseTypeForRace } from "./courses";
 export type { RaceCourseType } from "./courses";
 export {
-  SprintStraightGeometry,
-  homeStraightLeftTangentX,
-  sprintStraight,
-} from "./SprintStraightGeometry";
-export {
-  OvalRaceCourse,
-  SprintStraightCourse,
-  courseTypeForRace,
-  createRaceCourse,
-} from "./courses";
-export type { CourseType, RaceCourse } from "./courses";
-export {
   CANONICAL_LAP_M,
   STADIUM_BEND_M,
   STADIUM_BEND_RADIUS_M,
@@ -23,8 +11,6 @@ export {
   STANDARD_LANE_WIDTH_M,
   COMPARISON_LANE_SEPARATION_M,
   VISUAL_LANE_STROKE_M,
-  SPRINT_STRAIGHT_M,
-  SPRINT_CHUTE_EXTENSION_M,
 } from "./constants";
 export {
   COMPARISON_ADJACENT_LANE,

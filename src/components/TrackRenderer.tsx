@@ -10,7 +10,6 @@ import {
   MARKER_RADIUS_M,
   PIN_STEM_M,
   athleteMarkerLayouts,
-  courseTypeForView,
   distanceMarkViews,
   finishLineSegment,
   infieldPolygonPoints,
