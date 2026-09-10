@@ -56,17 +56,23 @@ export function RaceApp({
             : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-3 px-4 py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
         }
       >
-        <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-col items-center gap-2 text-center">
           <h1
             className={
               mode === "wireframe"
                 ? "text-center text-xl font-semibold tracking-tight text-zinc-950"
-                : "font-display text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl"
+                : "font-display text-4xl font-extrabold uppercase tracking-tight text-brand-navy sm:text-5xl"
             }
           >
-            Race My Rival
+            {mode === "wireframe" ? (
+              "Race My Rival"
+            ) : (
+              <>
+                Race <span className="text-brand-red">My</span> Rival
+              </>
+            )}
           </h1>
-          <p className={mode === "wireframe" ? "max-w-xl text-sm text-zinc-600" : "max-w-xl text-sm text-balance text-muted"}>
+          <p className={mode === "wireframe" ? "max-w-xl text-sm text-zinc-600" : "max-w-xl text-balance font-display text-base font-light text-brand-navy"}>
             {mode === "wireframe"
               ? "Enter two performances and start. Finishing times use minutes, seconds and hundredths. Live controls stay on one shared clock."
               : "See what the difference really looks like."}

@@ -80,7 +80,7 @@ export function FinishingTimeFields({
       aria-describedby={error ? errorId : undefined}
     >
       <legend className="sr-only">{label}</legend>
-      <div className="flex flex-wrap items-end gap-1">
+      <div className="flex w-full max-w-[11rem] items-center rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2">
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}
@@ -93,7 +93,7 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("minutes", value)}
           onKeyDown={(event) => handleKeyDown("minutes", event)}
         />
-        <span aria-hidden="true" className="pb-2 text-lg text-muted">
+        <span aria-hidden="true" className="pb-px text-sm text-muted">
           :
         </span>
         <TimePartInput
@@ -108,7 +108,7 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("seconds", value)}
           onKeyDown={(event) => handleKeyDown("seconds", event)}
         />
-        <span aria-hidden="true" className="pb-2 text-lg text-muted">
+        <span aria-hidden="true" className="pb-px text-sm text-muted">
           .
         </span>
         <TimePartInput
@@ -157,7 +157,7 @@ function TimePartInput({
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-muted" htmlFor={id}>
+    <label className="flex min-w-0 flex-1 flex-col" htmlFor={id}>
       <span className="sr-only">{fieldLabel}</span>
       <input
         ref={inputRef}
@@ -172,9 +172,9 @@ function TimePartInput({
         aria-invalid={invalid}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="h-11 w-10 min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-0.5 text-center text-sm tabular-nums text-brand-navy sm:w-12 sm:text-base"
+        className="h-9 w-full min-w-0 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-brand-navy outline-none sm:text-base"
       />
-      <span aria-hidden="true">{caption}</span>
+      <span className="sr-only">{caption}</span>
     </label>
   );
 }

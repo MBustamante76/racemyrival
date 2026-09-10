@@ -316,15 +316,14 @@ export function TrackRenderer({
               width={20}
               height={4.8}
               rx={1.4}
-              fill="white"
-              opacity={0.75}
+              fill={fill}
             />
             <text
               x={marker.label.x}
               y={marker.label.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={fill}
+              fill="white"
               fontSize={2.6}
               fontWeight={600}
             >
@@ -355,14 +354,14 @@ export function TrackRenderer({
               width={18}
               height={4.6}
               rx={1.4}
-              fill="white"
+              fill={fill}
             />
             <text
               x={marker.label.x}
               y={marker.label.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={fill}
+              fill="white"
               fontSize={3}
               fontWeight={700}
               data-testid={`athlete-label-${marker.id}`}
