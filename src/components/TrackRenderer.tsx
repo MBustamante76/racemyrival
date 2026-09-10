@@ -17,6 +17,7 @@ import {
   runnerLanePath,
   sprintChuteView,
   startTickSegment,
+  trackInnerOffsetM,
   trackSurfacePath,
   trackViewBox,
   visualLaneBoundaryOffsetsM,
@@ -130,6 +131,17 @@ export function TrackRenderer({
         className="fill-infield"
         data-testid="track-infield"
       />
+      <g clipPath="url(#infield-clip)" mask="url(#infield-shadow-mask)">
+        <polyline
+          points={visualLaneLinePoints(trackInnerOffsetM() + 0.85)}
+          fill="none"
+          stroke="#2C3418"
+          strokeWidth={2.2}
+          strokeLinejoin="round"
+          opacity={0.2}
+          filter="url(#infield-kerb-shadow)"
+        />
+      </g>
       {visualLaneBoundaryOffsetsM(laneCount).map((offsetM) => (
         <polyline
           key={offsetM}
@@ -178,6 +190,40 @@ export function TrackRenderer({
         </linearGradient>
         <filter id="marker-pin-shadow" x="-70%" y="-50%" width="240%" height="260%">
           <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
+        </filter>
+        <clipPath id="infield-clip">
+          <polygon points={infieldPolygonPoints()} />
+        </clipPath>
+        <linearGradient
+          id="infield-shadow-fade"
+          gradientUnits="userSpaceOnUse"
+          x1={0}
+          y1={viewBox.minY}
+          x2={0}
+          y2={0}
+        >
+          <stop offset="0" stopColor="white" />
+          <stop offset="0.72" stopColor="white" />
+          <stop offset="1" stopColor="black" />
+        </linearGradient>
+        <mask
+          id="infield-shadow-mask"
+          maskUnits="userSpaceOnUse"
+          x={viewBox.minX}
+          y={viewBox.minY}
+          width={viewBox.width}
+          height={viewBox.height}
+        >
+          <rect
+            x={viewBox.minX}
+            y={viewBox.minY}
+            width={viewBox.width}
+            height={viewBox.height}
+            fill="url(#infield-shadow-fade)"
+          />
+        </mask>
+        <filter id="infield-kerb-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="1.15" />
         </filter>
       </defs>
       <rect
