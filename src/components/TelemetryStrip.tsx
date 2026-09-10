@@ -49,6 +49,7 @@ export function TelemetryStrip({
         athlete={view.athletes[0]}
         draftId={drafts[0].id}
         accent="athlete-a"
+        align="start"
       />
       <div className="flex flex-col items-center px-3 text-center">
         <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.18em] text-near-black">
@@ -71,6 +72,7 @@ export function TelemetryStrip({
         athlete={view.athletes[1]}
         draftId={drafts[1].id}
         accent="athlete-b"
+        align="end"
       />
     </div>
   );
@@ -80,33 +82,42 @@ function AthleteReadout({
   athlete,
   draftId,
   accent,
+  align,
 }: {
   athlete: { id: string; name: string; distanceM: number; speedMps: number; finished: boolean; finishTimeMs: number };
   draftId: string;
   accent: "athlete-a" | "athlete-b";
+  align: "start" | "end";
 }) {
   const accentColor = accent === "athlete-a" ? "text-athlete-a" : "text-athlete-b";
+  const dividerColor = accent === "athlete-a" ? "via-athlete-a/40" : "via-athlete-b/40";
 
   return (
     <div
-      className="flex min-w-0 flex-col items-start gap-2 rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-3 text-left shadow-card"
+      className={`flex w-[88%] min-w-0 flex-col items-start gap-2 rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-3 text-left shadow-card ${align === "end" ? "justify-self-end" : "justify-self-start"}`}
       data-testid={`athlete-readout-${draftId}`}
     >
       <p className="truncate font-sans text-sm font-extrabold tracking-[-0.02em] text-near-black">
         {athlete.name}
       </p>
-      <div className="flex gap-8">
+      <div className="relative grid w-full grid-cols-2">
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-y-0.5 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent ${dividerColor} to-transparent`}
+        />
         <Stat
           value={formatMetres(athlete.distanceM)}
           label="Distance covered"
           testId={`athlete-distance-${draftId}`}
           valueClass={accentColor}
+          className="pr-3"
         />
         <Stat
           value={formatSpeedMps(athlete.speedMps)}
           label="Avg speed"
           testId={`athlete-speed-${draftId}`}
           valueClass={accentColor}
+          className="pl-3"
         />
       </div>
       {athlete.finished ? (
@@ -123,14 +134,16 @@ function Stat({
   label,
   testId,
   valueClass,
+  className = "",
 }: {
   value: string;
   label: string;
   testId: string;
   valueClass: string;
+  className?: string;
 }) {
   return (
-    <div className="min-w-0 text-left">
+    <div className={`min-w-0 w-full text-left ${className}`}>
       <p
         className={`font-sans text-xl font-extrabold tabular-nums tracking-[-0.02em] sm:text-2xl ${valueClass}`}
         data-testid={testId}
