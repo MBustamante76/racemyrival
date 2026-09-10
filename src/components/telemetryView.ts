@@ -71,13 +71,13 @@ function safeNumber(value: number, fallback = 0): number {
 }
 
 export function formatMetres(distanceM: number): string {
-  return `${safeNumber(distanceM).toFixed(1)}m`;
+  return `${Math.round(safeNumber(distanceM))}m`;
 }
 
 export function formatSpeedMps(speedMps: number): string {
-  return `${safeNumber(speedMps).toFixed(2)} m/s`;
+  return `${safeNumber(speedMps).toFixed(2)}m/s`;
 }
 
 export function formatGapM(leadM: number): string {
-  return `${safeNumber(leadM).toFixed(1)}m`;
+  return `${Math.round(safeNumber(leadM))}m`;
 }

@@ -5,9 +5,9 @@ import { formatGapM, formatMetres, formatSpeedMps } from "@/components/telemetry
 
 describe("Phase 2M hardening", () => {
   it("never formats NaN into the telemetry strip", () => {
-    expect(formatMetres(Number.NaN)).toBe("0.0m");
-    expect(formatSpeedMps(Number.POSITIVE_INFINITY)).toBe("0.00 m/s");
-    expect(formatGapM(Number.NaN)).toBe("0.0m");
+    expect(formatMetres(Number.NaN)).toBe("0m");
+    expect(formatSpeedMps(Number.POSITIVE_INFINITY)).toBe("0.00m/s");
+    expect(formatGapM(Number.NaN)).toBe("0m");
   });
 
   it("keeps the clock client-owned and cancels frames on reset", () => {

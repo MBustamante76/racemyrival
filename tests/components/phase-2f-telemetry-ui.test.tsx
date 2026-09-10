@@ -48,14 +48,14 @@ describe("Phase 2F telemetry strip UI", () => {
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_000);
 
-    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("200.0m");
-    expect(screen.getByTestId("athlete-distance-B")).toHaveTextContent("200.0m");
-    expect(screen.getByTestId("telemetry-gap")).toHaveTextContent("0.0m");
+    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("200m");
+    expect(screen.getByTestId("athlete-distance-B")).toHaveTextContent("200m");
+    expect(screen.getByTestId("telemetry-gap")).toHaveTextContent("0m");
 
     await user.click(screen.getByRole("button", { name: "Pause" }));
-    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("200.0m");
+    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("200m");
     await user.click(screen.getByRole("button", { name: "Resume" }));
     clock.advance(1_000);
-    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("400.0m");
+    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("400m");
   });
 });

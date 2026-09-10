@@ -1,6 +1,5 @@
 import { formatRaceTime } from "@/domain/race";
 import type { AthleteRaceState, RaceSnapshot } from "@/domain/race";
-import { athleteInitials } from "./athleteDisplay";
 import type { AthleteDraft } from "./raceSession";
 import {
   formatGapM,
@@ -44,20 +43,28 @@ export function TelemetryStrip({
   return (
     <div
       data-testid="telemetry-strip"
-      className="grid gap-2 rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card md:grid-cols-[1fr_auto_1fr] md:items-center"
+      className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-center"
     >
       <AthleteReadout
         athlete={view.athletes[0]}
         draftId={drafts[0].id}
         accent="athlete-a"
       />
-      <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">Gap</p>
-        <p className="font-display text-lg font-extrabold tabular-nums text-brand-navy" data-testid="telemetry-gap">
+      <div className="flex flex-col items-center px-3 text-center">
+        <p className="font-sans text-[11px] font-extrabold uppercase tracking-[0.18em] text-near-black">
+          Gap
+        </p>
+        <p
+          className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-3xl"
+          data-testid="telemetry-gap"
+        >
           {formatGapM(view.displayLeadM)}
         </p>
-        <p className="text-xs text-muted" data-testid="telemetry-leader">
-          {view.isTie ? "Level" : `${view.leaderName ?? "—"} leads`}
+        <p
+          className="font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-near-black"
+          data-testid="telemetry-leader"
+        >
+          Behind
         </p>
       </div>
       <AthleteReadout
@@ -78,32 +85,76 @@ function AthleteReadout({
   draftId: string;
   accent: "athlete-a" | "athlete-b";
 }) {
-  const ring = accent === "athlete-a" ? "bg-athlete-a" : "bg-athlete-b";
+  const accentColor = accent === "athlete-a" ? "text-athlete-a" : "text-athlete-b";
 
   return (
     <div
-      className="flex min-w-0 items-center gap-3 rounded-[var(--rmr-radius-control)] bg-surface-alt px-3 py-2"
+      className="flex min-w-0 flex-col items-start gap-2 rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-3 text-left shadow-card"
       data-testid={`athlete-readout-${draftId}`}
     >
-      <span
-        aria-hidden="true"
-        className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${ring} font-display text-[11px] font-bold text-white`}
-      >
-        {athleteInitials(athlete.name)}
-      </span>
-      <div className="min-w-0">
-        <p className="truncate font-display text-sm font-bold text-brand-navy">{athlete.name}</p>
-        <p className="tabular-nums text-xs text-muted">
-          <span data-testid={`athlete-distance-${draftId}`}>{formatMetres(athlete.distanceM)}</span>
-          <span className="mx-1.5">·</span>
-          <span data-testid={`athlete-speed-${draftId}`}>{formatSpeedMps(athlete.speedMps)}</span>
+      <div className="flex items-center gap-2">
+        <RunningIcon className={`h-5 w-5 shrink-0 ${accentColor}`} />
+        <p className={`truncate font-sans text-sm font-extrabold tracking-[-0.02em] ${accentColor}`}>
+          {athlete.name}
         </p>
-        {athlete.finished ? (
-          <p data-testid={`athlete-finished-time-${draftId}`}>
-            Finished {formatRaceTime(athlete.finishTimeMs)}
-          </p>
-        ) : null}
       </div>
+      <div className="flex gap-8">
+        <Stat
+          value={formatMetres(athlete.distanceM)}
+          label="Distance covered"
+          testId={`athlete-distance-${draftId}`}
+          valueClass={accentColor}
+        />
+        <Stat
+          value={formatSpeedMps(athlete.speedMps)}
+          label="Avg speed"
+          testId={`athlete-speed-${draftId}`}
+          valueClass={accentColor}
+        />
+      </div>
+      {athlete.finished ? (
+        <p data-testid={`athlete-finished-time-${draftId}`} className="text-[10px] font-bold uppercase tracking-[0.14em] text-near-black">
+          Finished {formatRaceTime(athlete.finishTimeMs)}
+        </p>
+      ) : null}
     </div>
+  );
+}
+
+function Stat({
+  value,
+  label,
+  testId,
+  valueClass,
+}: {
+  value: string;
+  label: string;
+  testId: string;
+  valueClass: string;
+}) {
+  return (
+    <div className="min-w-0 text-left">
+      <p
+        className={`font-sans text-xl font-extrabold tabular-nums tracking-[-0.02em] sm:text-2xl ${valueClass}`}
+        data-testid={testId}
+      >
+        {value}
+      </p>
+      <p className="font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-near-black">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function RunningIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}>
+      <circle cx="14.5" cy="4.2" r="1.7" fill="currentColor" />
+      <path
+        fill="currentColor"
+        d="M9.2 8.1 12 9.4l1.4-1.6c.3-.4.8-.6 1.3-.6h2.1c.4 0 .7.3.7.7s-.3.7-.7.7h-1.8l-1.7 2 1.6 1.3c.3.3.5.7.5 1.1v2.1c0 .4-.3.7-.7.7s-.7-.3-.7-.7v-1.7l-1.8-1.5-1.2 4.3 2.6 1.6c.3.2.4.6.2 1s-.6.4-1 .2l-3.1-1.9c-.3-.2-.4-.5-.3-.8l1.4-5.1-1.8-.8-1.6 1.7c-.3.3-.7.3-1 .1s-.3-.7-.1-1l2.1-2.2c.2-.2.5-.3.8-.2Z"
+      />
+    </svg>
   );
 }
