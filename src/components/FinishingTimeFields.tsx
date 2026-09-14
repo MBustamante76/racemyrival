@@ -80,7 +80,7 @@ export function FinishingTimeFields({
       aria-describedby={error ? errorId : undefined}
     >
       <legend className="sr-only">{label}</legend>
-      <div className="flex w-full min-w-[10.5rem] max-w-[13rem] items-end gap-0.5 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2 py-1">
+      <div className="flex w-full min-w-0 max-w-none items-end gap-0.5 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2 py-1">
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}

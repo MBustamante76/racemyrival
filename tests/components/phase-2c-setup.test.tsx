@@ -72,7 +72,8 @@ describe("Phase 2C setup card", () => {
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(screen.getByTestId("setup-athlete-A")).toBeInTheDocument();
     expect(screen.getByTestId("setup-athlete-B")).toBeInTheDocument();
-    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-2");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-1");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("sm:grid-cols-2");
   });
 
   it("stacks finishing times under the athlete identity row", () => {
@@ -81,6 +82,8 @@ describe("Phase 2C setup card", () => {
     expectSetupCardControls();
     expect(screen.getByTestId("setup-athlete-A").className).toContain("flex-col");
     expect(screen.getByTestId("setup-athlete-B").className).toContain("flex-col");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-1");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("sm:grid-cols-2");
     expect(screen.getAllByText("M")).toHaveLength(2);
     expect(screen.getAllByText("S")).toHaveLength(2);
     expect(screen.getAllByText("100THS")).toHaveLength(2);

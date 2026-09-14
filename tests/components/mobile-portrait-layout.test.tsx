@@ -52,7 +52,8 @@ describe("mobile portrait layout regressions", () => {
 
     const minutes = within(athleteA).getByLabelText("Athlete A minutes");
     const timeGroup = minutes.closest("div");
-    expect(timeGroup?.className).toContain("min-w-[10.5rem]");
+    expect(timeGroup?.className).toContain("w-full");
+    expect(timeGroup?.className).toContain("min-w-0");
     expect(athleteA.contains(timeGroup)).toBe(true);
 
     const identityRow = athleteA.querySelector(":scope > div");
@@ -64,7 +65,8 @@ describe("mobile portrait layout regressions", () => {
     render(<RaceWorkspace />);
     expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
     expect(screen.getByTestId("setup-card").className).not.toMatch(/(?:^|\s)md:grid-cols-/);
-    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-2");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-1");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("sm:grid-cols-2");
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("lg:contents");
   });
 
