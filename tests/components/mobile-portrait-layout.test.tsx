@@ -112,14 +112,20 @@ describe("mobile portrait layout regressions", () => {
     expect(clock.className).toContain("md:text-5xl");
 
     const clockShell = clock.parentElement;
-    expect(clockShell?.className).toContain("pt-3");
     expect(clockShell?.parentElement?.className).toContain("absolute");
-    expect(clockShell?.parentElement?.className).toContain("top-[18%]");
+    expect(clockShell?.parentElement?.className).toContain("inset-0");
+    expect(clockShell?.parentElement?.className).toContain("items-center");
+    expect(clockShell?.textContent ?? "").not.toMatch(/seconds/i);
 
     const trackSource = readFileSync(resolve("src/components/TrackStage.tsx"), "utf8");
-    expect(trackSource).toContain('w-[148%]');
-    expect(trackSource).toContain("md:w-full");
+    expect(trackSource).toContain("py-6");
+    expect(trackSource).not.toContain("w-[132%]");
+    expect(trackSource).not.toContain("w-[140%]");
+    expect(trackSource).not.toContain("w-[148%]");
     expect(trackSource).not.toContain("scale(");
-    expect(trackSource).toContain("pt-3");
+    expect(trackSource).not.toContain(">seconds<");
+
+    const trackViewSource = readFileSync(resolve("src/components/trackView.ts"), "utf8");
+    expect(trackViewSource).toContain("MARKER_CLEARANCE_M");
   });
 });

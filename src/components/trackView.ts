@@ -21,6 +21,8 @@ export const PADDING_M = 12;
 export const PRESENTATION_ASPECT = 3;
 export const MARKER_RADIUS_M = 3.4;
 export const PIN_STEM_M = 7;
+/** Extra vertical viewBox room so pins and name labels are not clipped at the bends. */
+export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 16;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 export const DISTANCE_LABEL_INFIELD_M = 5;
@@ -63,8 +65,10 @@ export function svgNumber(value: number): number {
 
 export function trackViewBox(): { minX: number; minY: number; width: number; height: number; value: string } {
   const contentHalfWidth = STADIUM_STRAIGHT_M / 2 + STADIUM_BEND_RADIUS_M + PADDING_M;
-  const halfHeight = svgNumber(STADIUM_BEND_RADIUS_M + PADDING_M);
-  const halfWidth = svgNumber(Math.max(contentHalfWidth, halfHeight * PRESENTATION_ASPECT));
+  const contentHalfHeight = STADIUM_BEND_RADIUS_M + PADDING_M;
+  const halfHeight = svgNumber(contentHalfHeight + MARKER_CLEARANCE_M);
+  // Keep the wide presentation width from the track content, not the taller marker box.
+  const halfWidth = svgNumber(Math.max(contentHalfWidth, contentHalfHeight * PRESENTATION_ASPECT));
   return {
     minX: -halfWidth,
     minY: -halfHeight,

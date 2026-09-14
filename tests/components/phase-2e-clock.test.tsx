@@ -82,8 +82,9 @@ describe("Phase 2E infield clock", () => {
     const clock = screen.getByTestId("race-clock");
     expect(stage.contains(clock)).toBe(true);
     expect(clock.parentElement?.parentElement?.className).toContain("absolute");
+    expect(clock.parentElement?.parentElement?.className).toContain("items-center");
     expect(clock.className).toContain("text-2xl");
     expect(clock.className).toContain("md:text-5xl");
-    expect(clock.parentElement?.className).toContain("pt-3");
+    expect(clock.parentElement?.textContent ?? "").not.toMatch(/seconds/i);
   });
 });
