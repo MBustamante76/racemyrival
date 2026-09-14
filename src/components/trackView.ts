@@ -25,6 +25,10 @@ export const PIN_STEM_M = 7;
 export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 16;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
+/** Race-distance gap (m) under which labels switch to opposite sides of the markers. */
+export const LABEL_CLOSE_GAP_M = 28;
+/** Screen-space gap from pin tip / head used when staggering close labels. */
+export const LABEL_CLOSE_STAGGER_M = 5.5;
 export const DISTANCE_LABEL_INFIELD_M = 5;
 export const DISTANCE_TICK_M = 3;
 export const DISTANCE_MARKS_M = [100, 200, 300] as const;
@@ -53,6 +57,7 @@ export interface AthleteMarkerLayout {
   laneNumber: number;
   marker: ScreenPoint;
   label: ScreenPoint;
+  labelSide: "infield" | "outfield" | "above" | "below";
 }
 
 export function toSvgPoint(x: number, y: number): ScreenPoint {
@@ -313,16 +318,19 @@ export function athleteMarkerLayouts(
   const assignments = visualLaneAssignments(laneOrderIds);
   const course = courseForRace(raceDistanceM);
 
-  return athletes.map((athlete) => {
+  const layouts = athletes.map((athlete) => {
     const assigned = assignments.find((entry) => entry.athleteId === athlete.id);
     const lane = assigned?.lane ?? COMPARISON_INNER_LANE;
     const sample = course.sampleForRace(raceDistanceM, athlete.distanceCoveredM);
     const position = lanes.visualPosition(sample, lane);
+    const labelSide: AthleteMarkerLayout["labelSide"] = options.flipLabels
+      ? "outfield"
+      : lane.visualOffsetM === 0
+        ? "infield"
+        : "outfield";
     const labelOffsetM = options.flipLabels
       ? -(lane.visualOffsetM === 0 ? LABEL_INFIELD_M : Math.abs(lane.visualOffsetM) + LABEL_OUTFIELD_EXTRA_M)
-      : lane.visualOffsetM === 0
-        ? LABEL_INFIELD_M
-        : lane.visualOffsetM - LABEL_OUTFIELD_EXTRA_M;
+      : labelOffsetForSide(labelSide, lane);
     const label = {
       x: sample.position.x + sample.normal.x * labelOffsetM,
       y: sample.position.y + sample.normal.y * labelOffsetM,
@@ -335,7 +343,65 @@ export function athleteMarkerLayouts(
       laneNumber: lane.laneNumber,
       marker: toSvgPoint(position.x, position.y),
       label: toSvgPoint(label.x, label.y),
+      labelSide,
     };
+  });
+
+  if (options.flipLabels || !athletesAreClose(athletes) || layouts.length < 2) {
+    return layouts;
+  }
+
+  return staggerCloseLabels(layouts);
+}
+
+function athletesAreClose(athletes: readonly TrackAthleteView[]): boolean {
+  for (let i = 0; i < athletes.length; i += 1) {
+    for (let j = i + 1; j < athletes.length; j += 1) {
+      if (Math.abs(athletes[i].distanceCoveredM - athletes[j].distanceCoveredM) <= LABEL_CLOSE_GAP_M) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function labelOffsetForSide(side: "infield" | "outfield", lane: LaneDefinition): number {
+  if (side === "infield") {
+    return lane.visualOffsetM === 0 ? LABEL_INFIELD_M : Math.abs(lane.visualOffsetM) + LABEL_INFIELD_M;
+  }
+
+  return lane.visualOffsetM === 0 ? -LABEL_INFIELD_M : lane.visualOffsetM - LABEL_OUTFIELD_EXTRA_M;
+}
+
+/** When runners bunch up, put one name above the pins and one below so both stay readable. */
+function staggerCloseLabels(layouts: AthleteMarkerLayout[]): AthleteMarkerLayout[] {
+  const ordered = [...layouts].sort((a, b) => {
+    if (a.marker.y !== b.marker.y) {
+      return a.marker.y - b.marker.y;
+    }
+    return a.id.localeCompare(b.id);
+  });
+
+  const sideById = new Map<string, "above" | "below">();
+  ordered.forEach((layout, index) => {
+    sideById.set(layout.id, index % 2 === 0 ? "above" : "below");
+  });
+
+  return layouts.map((layout) => {
+    const side = sideById.get(layout.id) ?? "above";
+    const label =
+      side === "above"
+        ? {
+            x: layout.marker.x,
+            y: svgNumber(layout.marker.y - PIN_STEM_M - MARKER_RADIUS_M - LABEL_CLOSE_STAGGER_M),
+          }
+        : {
+            x: layout.marker.x,
+            y: svgNumber(layout.marker.y + LABEL_CLOSE_STAGGER_M),
+          };
+
+    return { ...layout, label, labelSide: side };
   });
 }
 

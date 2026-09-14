@@ -446,6 +446,7 @@ export function TrackRenderer({
             data-athlete-id={marker.id}
             data-distance-covered-m={marker.distanceCoveredM}
             data-lane-number={marker.laneNumber}
+            data-label-side={marker.labelSide}
           >
             <MarkerPin
               x={marker.marker.x}
