@@ -55,8 +55,8 @@ describe("Phase 2B page shell", () => {
 
     expect(screen.getByTestId("playback-speed-1x")).toBeInTheDocument();
     expect(screen.getByTestId("playback-speed-2x")).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-4x")).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-8x")).toBeInTheDocument();
+    expect(screen.getByTestId("playback-speed-5x")).toBeInTheDocument();
+    expect(screen.getByTestId("playback-speed-10x")).toBeInTheDocument();
     expect(screen.getByText("YOU")).toBeInTheDocument();
     expect(screen.getByText("RIVAL")).toBeInTheDocument();
   });

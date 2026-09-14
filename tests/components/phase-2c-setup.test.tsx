@@ -97,6 +97,6 @@ describe("Phase 2C setup card", () => {
     expect(screen.getByLabelText("Athlete A minutes")).toBeDisabled();
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-4x")).toBeEnabled();
+    expect(screen.getByTestId("playback-speed-5x")).toBeEnabled();
   });
 });

@@ -57,7 +57,7 @@ describe("Phase 2K viewport and injected journey", () => {
     expect(`${page}\n${workspace}`).not.toContain("scale(");
   });
 
-  it("runs an injected-time 800m journey through pause, 4x, finish, and replay", async () => {
+  it("runs an injected-time 800m journey through pause, 5x, finish, and replay", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
@@ -71,8 +71,8 @@ describe("Phase 2K viewport and injected journey", () => {
     expect(screen.getByTestId("race-clock")).toHaveTextContent("2.00");
 
     await user.click(screen.getByRole("button", { name: "Resume" }));
-    await user.click(screen.getByTestId("playback-speed-4x"));
-    clock.advance(30_500);
+    await user.click(screen.getByTestId("playback-speed-5x"));
+    clock.advance(24_400);
 
     expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("12.00 seconds faster");

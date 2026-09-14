@@ -48,28 +48,28 @@ async function renderWorkspace() {
 }
 
 describe("playback speed controls", () => {
-  it("defaults to 1x and can switch to 4x before start", async () => {
+  it("defaults to 1x and can switch to 5x before start", async () => {
     const { clock, user } = await renderWorkspace();
     expect(screen.getByTestId("playback-speed-1x")).toHaveAttribute("aria-checked", "true");
 
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
-    await user.click(screen.getByTestId("playback-speed-4x"));
-    expect(screen.getByTestId("playback-speed-4x")).toHaveAttribute("aria-checked", "true");
+    await user.click(screen.getByTestId("playback-speed-5x"));
+    expect(screen.getByTestId("playback-speed-5x")).toHaveAttribute("aria-checked", "true");
 
     await user.click(screen.getByRole("button", { name: "Start race" }));
-    clock.advance(250);
+    clock.advance(200);
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
   });
 
-  it("can drop from 4x to 1x during the race", async () => {
+  it("can drop from 5x to 1x during the race", async () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
-    await user.click(screen.getByTestId("playback-speed-4x"));
+    await user.click(screen.getByTestId("playback-speed-5x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));
-    clock.advance(250);
+    clock.advance(200);
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");
 
     await user.click(screen.getByTestId("playback-speed-1x"));
@@ -78,13 +78,13 @@ describe("playback speed controls", () => {
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
   });
 
-  it("leaves finishing times and the result on real race time at 8x", async () => {
+  it("leaves finishing times and the result on real race time at 10x", async () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
-    await user.click(screen.getByTestId("playback-speed-8x"));
+    await user.click(screen.getByTestId("playback-speed-10x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));
-    clock.advance(130);
+    clock.advance(100);
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");

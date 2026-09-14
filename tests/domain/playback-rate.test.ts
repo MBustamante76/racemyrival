@@ -38,11 +38,11 @@ function advance(race: RaceSimulation, fromWallMs: number, addElapsedMs: number)
 }
 
 describe("playback speed", () => {
-  it("accelerates visual time at 4x without changing finish maths", () => {
+  it("accelerates visual time at 5x without changing finish maths", () => {
     const race = simulation(10_000, 10_500);
-    race.setPlaybackRate(4);
+    race.setPlaybackRate(5);
     race.start(0);
-    advance(race, 0, 250);
+    advance(race, 0, 200);
 
     expect(race.telemetry().raceTimeMs).toBe(1_000);
     expect(race.telemetry().athletes[0]?.finishTimeMs).toBe(10_000);
@@ -56,20 +56,20 @@ describe("playback speed", () => {
     advance(race, 0, 1_000);
     expect(race.telemetry().raceTimeMs).toBe(1_000);
 
-    race.setPlaybackRate(4);
-    advance(race, 1_000, 250);
+    race.setPlaybackRate(5);
+    advance(race, 1_000, 200);
     expect(race.telemetry().raceTimeMs).toBe(2_000);
 
     race.setPlaybackRate(1);
-    advance(race, 1_250, 500);
+    advance(race, 1_200, 500);
     expect(race.telemetry().raceTimeMs).toBe(2_500);
   });
 
-  it("keeps results and the clamped clock on the real finish times at 8x", () => {
+  it("keeps results and the clamped clock on the real finish times at 10x", () => {
     const race = simulation(10_000, 10_500);
-    race.setPlaybackRate(8);
+    race.setPlaybackRate(10);
     race.start(0);
-    advance(race, 0, 1_320);
+    advance(race, 0, 1_100);
 
     expect(race.telemetry().status).toBe("finished");
     expect(race.telemetry().raceTimeMs).toBe(10_500);
