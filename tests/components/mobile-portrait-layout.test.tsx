@@ -48,7 +48,7 @@ describe("mobile portrait layout regressions", () => {
     expect(athleteA.className).toContain("flex-col");
     expect(within(athleteA).getByText("M")).toBeVisible();
     expect(within(athleteA).getByText("S")).toBeVisible();
-    expect(within(athleteA).getByText("10ths")).toBeVisible();
+    expect(within(athleteA).getByText("100THS")).toBeVisible();
 
     const minutes = within(athleteA).getByLabelText("Athlete A minutes");
     const timeGroup = minutes.closest("div");

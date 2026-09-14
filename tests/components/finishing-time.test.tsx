@@ -49,7 +49,7 @@ describe("finishing time fields", () => {
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(screen.getAllByText("M")).toHaveLength(2);
     expect(screen.getAllByText("S")).toHaveLength(2);
-    expect(screen.getAllByText("10ths")).toHaveLength(2);
+    expect(screen.getAllByText("100THS")).toHaveLength(2);
     expect(screen.queryByText("Use SS.ff or M:SS.ff")).not.toBeInTheDocument();
   });
 

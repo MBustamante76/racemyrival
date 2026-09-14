@@ -83,7 +83,7 @@ describe("Phase 2C setup card", () => {
     expect(screen.getByTestId("setup-athlete-B").className).toContain("flex-col");
     expect(screen.getAllByText("M")).toHaveLength(2);
     expect(screen.getAllByText("S")).toHaveLength(2);
-    expect(screen.getAllByText("10ths")).toHaveLength(2);
+    expect(screen.getAllByText("100THS")).toHaveLength(2);
   });
 
   it("locks the form while running and exposes Pause and Reset", async () => {

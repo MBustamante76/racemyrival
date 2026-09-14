@@ -115,7 +115,7 @@ export function FinishingTimeFields({
           id={`${athleteId}-hundredths`}
           inputRef={hundredthsRef}
           fieldLabel={`${label.replace(/ finishing time$/, "")} hundredths`}
-          caption="10ths"
+          caption="100THS"
           value={time.hundredths}
           locked={locked}
           invalid={error !== null}
