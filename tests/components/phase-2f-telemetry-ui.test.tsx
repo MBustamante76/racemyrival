@@ -58,4 +58,20 @@ describe("Phase 2F telemetry strip UI", () => {
     clock.advance(1_000);
     expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("400m");
   });
+
+  it("shows ahead and behind status once one athlete leads", async () => {
+    const clock = createFakeLoopClock();
+    const user = userEvent.setup();
+    render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await setFinishingTimes(user, "2.00", "1.00");
+    await user.click(screen.getByRole("button", { name: "Start race" }));
+    clock.advance(500);
+
+    expect(screen.getByTestId("telemetry-gap")).toHaveTextContent("100m");
+    expect(screen.getByTestId("athlete-readout-A")).toHaveTextContent("Behind");
+    expect(screen.getByTestId("athlete-readout-B")).toHaveTextContent("Ahead");
+    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("100m");
+    expect(screen.getByTestId("athlete-distance-B")).toHaveTextContent("200m");
+  });
 });

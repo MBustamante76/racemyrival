@@ -75,4 +75,15 @@ describe("Phase 2E infield clock", () => {
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 0.50");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("0.50 seconds faster");
   });
+
+  it("keeps the clock overlaid on the track with a smaller mobile type scale", () => {
+    render(<RaceWorkspace />);
+    const stage = screen.getByTestId("track-stage");
+    const clock = screen.getByTestId("race-clock");
+    expect(stage.contains(clock)).toBe(true);
+    expect(clock.parentElement?.parentElement?.className).toContain("absolute");
+    expect(clock.className).toContain("text-2xl");
+    expect(clock.className).toContain("md:text-5xl");
+    expect(clock.parentElement?.className).toContain("pt-3");
+  });
 });
