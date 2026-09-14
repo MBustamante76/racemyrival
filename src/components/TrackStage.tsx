@@ -12,11 +12,13 @@ export function TrackStage({
       data-testid="track-stage"
       className="relative w-full min-w-0 overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card"
     >
-      <div className="flex flex-col">
-        <div className="order-1 px-3 pt-3 md:absolute md:inset-x-0 md:top-[calc(42%-30px)] md:z-10 md:order-none md:px-0 md:pt-0">
-          {clock}
+      <div className="absolute inset-x-0 top-[18%] z-10 px-3 md:top-[calc(42%-30px)] md:px-0">
+        {clock}
+      </div>
+      <div className="w-full overflow-hidden px-1 py-2 md:overflow-visible md:px-0 md:py-0">
+        <div className="relative left-1/2 w-[148%] max-w-none -translate-x-1/2 md:left-0 md:w-full md:translate-x-0">
+          {track}
         </div>
-        <div className="order-2 w-full md:order-none">{track}</div>
       </div>
     </section>
   );
@@ -30,12 +32,12 @@ export function RaceClockReadout({
   lapText: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 text-center md:pointer-events-none">
-      <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-near-black">
+    <div className="pointer-events-none flex flex-col items-center gap-0.5 pt-3 text-center sm:gap-1 sm:pt-1 md:pt-0">
+      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px]">
         Race clock
       </p>
       <p
-        className="font-sans text-4xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-5xl"
+        className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-4xl md:text-5xl"
         data-testid="race-clock"
         aria-label="Race clock"
         aria-live="polite"
@@ -43,10 +45,10 @@ export function RaceClockReadout({
       >
         {timeText}
       </p>
-      <p className="-mt-0.5 font-sans text-[11px] font-bold tracking-[0.18em] text-near-black">
+      <p className="-mt-0.5 font-sans text-[9px] font-bold tracking-[0.18em] text-near-black sm:text-[11px]">
         seconds
       </p>
-      <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-near-black" data-testid="race-lap">
+      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px]" data-testid="race-lap">
         {lapText}
       </p>
     </div>
