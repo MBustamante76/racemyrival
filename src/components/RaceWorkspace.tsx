@@ -9,6 +9,13 @@ import {
 import type { PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import {
+  trackPlaybackSpeed,
+  trackRaceAgain,
+  trackRaceCompleted,
+  trackRaceStarted,
+  trackReplay,
+} from "./analytics";
 import { formatLapLabel } from "./lapLabel";
 import { ResultPanel } from "./ResultPanel";
 import { SetupCard } from "./SetupCard";
@@ -44,10 +51,12 @@ export function RaceWorkspace({
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
+  const completedRaceKeyRef = useRef<string | null>(null);
 
   const draft = { distanceId, athletes };
   const parsed = parseRaceForm(draft);
   const distanceM = raceDistanceById(distanceId)?.distanceM ?? 800;
+  const analyticsRace = useMemo(() => ({ distanceId, distanceM }), [distanceId, distanceM]);
   const status: RaceStatus = telemetry?.status ?? "idle";
   const formLocked = status !== "idle";
   const startEnabled = status === "idle" && canStartRace(draft);
@@ -99,6 +108,20 @@ export function RaceWorkspace({
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, []);
 
+  useEffect(() => {
+    if (status !== "finished" || !telemetry?.result) {
+      return;
+    }
+
+    const key = `${distanceId}:${telemetry.result.winningTimeMs}:${telemetry.result.timeGapMs}`;
+    if (completedRaceKeyRef.current === key) {
+      return;
+    }
+
+    completedRaceKeyRef.current = key;
+    trackRaceCompleted({ ...analyticsRace, playbackRate });
+  }, [analyticsRace, distanceId, playbackRate, status, telemetry?.result]);
+
   function updateAthlete(index: 0 | 1, patch: Partial<AthleteDraft>): void {
     if (formLocked) {
       return;
@@ -116,16 +139,19 @@ export function RaceWorkspace({
       return;
     }
 
+    completedRaceKeyRef.current = null;
     sessionRef.current?.reset();
     const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
     sessionRef.current = loop;
     loop.setPlaybackRate(playbackRate);
+    trackRaceStarted({ ...analyticsRace, playbackRate });
     loop.start();
   }
 
   function handlePlaybackRate(rate: PlaybackRate): void {
     setPlaybackRate(rate);
     sessionRef.current?.setPlaybackRate(rate);
+    trackPlaybackSpeed({ playbackRate: rate, distanceId });
   }
 
   function handlePause(): void {
@@ -140,6 +166,7 @@ export function RaceWorkspace({
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
+    completedRaceKeyRef.current = null;
   }
 
   function handleReplay(): void {
@@ -147,10 +174,12 @@ export function RaceWorkspace({
       return;
     }
 
+    completedRaceKeyRef.current = null;
     sessionRef.current?.reset();
     const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
     sessionRef.current = loop;
     loop.setPlaybackRate(playbackRate);
+    trackReplay(analyticsRace);
     loop.start();
   }
 
@@ -158,6 +187,8 @@ export function RaceWorkspace({
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
+    completedRaceKeyRef.current = null;
+    trackRaceAgain(analyticsRace);
   }
 
   return (
