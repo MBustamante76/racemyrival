@@ -16,7 +16,7 @@ describe("Phase 2N wireframe mode", () => {
   it("renders both presentations with the same engine wiring", () => {
     const { unmount } = render(<RaceApp initialMode="polished" />);
     expect(screen.getByTestId("presentation-root")).toHaveAttribute("data-presentation", "polished");
-    expect(screen.getByTestId("app-header")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-header")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     unmount();
 
@@ -26,6 +26,13 @@ describe("Phase 2N wireframe mode", () => {
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(screen.getByLabelText("Race distance")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
+
+    const flags = readFileSync(resolve("src/components/uiFlags.ts"), "utf8");
+    expect(flags).toContain("SHOW_APP_HEADER");
+    expect(flags).toMatch(/SHOW_APP_HEADER\s*=\s*false/);
+    const header = readFileSync(resolve("src/components/AppHeader.tsx"), "utf8");
+    expect(header).toContain("MyPB");
+    expect(header).toContain("RANKINGS");
 
     const workspace = readFileSync(resolve("src/components/RaceWorkspace.tsx"), "utf8");
     expect(workspace).toContain("createConfiguredRace");

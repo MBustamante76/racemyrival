@@ -6,6 +6,7 @@ import { AppHeader } from "./AppHeader";
 import { RaceWorkspace } from "./RaceWorkspace";
 import { resolvePresentationMode } from "./presentation";
 import type { PresentationMode } from "./presentation";
+import { SHOW_APP_HEADER } from "./uiFlags";
 
 function subscribePresentation(onStoreChange: () => void): () => void {
   window.addEventListener("popstate", onStoreChange);
@@ -48,7 +49,7 @@ export function RaceApp({
           : "flex flex-1 flex-col overflow-x-hidden bg-page"
       }
     >
-      {mode === "polished" ? <AppHeader /> : null}
+      {mode === "polished" && SHOW_APP_HEADER ? <AppHeader /> : null}
       <main
         className={
           mode === "wireframe"

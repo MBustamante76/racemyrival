@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import Home from "@/app/page";
+import { AppHeader } from "@/components/AppHeader";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import { PRESENTATION_ASPECT, trackViewBox } from "@/components/trackView";
+import { SHOW_APP_HEADER } from "@/components/uiFlags";
 
 const REQUIRED_CONTROLS = [
   "Race distance",
@@ -18,10 +20,10 @@ const REQUIRED_CONTROLS = [
 ] as const;
 
 describe("Phase 2B page shell", () => {
-  it("renders header, title, setup, track, and telemetry in that order", () => {
+  it("renders title, setup, track, and telemetry focused on the race (header shelved)", () => {
     const { container } = render(<Home />);
 
-    expect(screen.getByTestId("app-header")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-header")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Race My Rival" })).toBeInTheDocument();
     expect(screen.getByTestId("setup-card")).toBeInTheDocument();
     expect(screen.getByTestId("track-stage")).toBeInTheDocument();
@@ -78,8 +80,13 @@ describe("Phase 2B page shell", () => {
     ).toBe("0");
   });
 
-  it("marks placeholder header destinations as non-navigating", () => {
+  it("keeps shelved header destinations non-navigating when shown", () => {
+    expect(SHOW_APP_HEADER).toBe(false);
+
     render(<Home />);
+    expect(screen.queryByTestId("app-header")).not.toBeInTheDocument();
+
+    render(<AppHeader />);
     expect(screen.getByText("YOUR PB")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByText("RANKINGS")).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByText("TRAINING")).toHaveAttribute("aria-disabled", "true");
