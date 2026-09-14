@@ -53,7 +53,7 @@ export function SetupCard({
   return (
     <form
       data-testid="setup-card"
-      className="grid w-full min-w-0 gap-3 rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card md:grid-cols-[minmax(7rem,9rem)_1fr_auto_1fr_minmax(11rem,14rem)] md:items-center md:gap-4 md:p-4"
+      className="grid w-full min-w-0 gap-3 rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card lg:grid-cols-[minmax(7rem,9rem)_1fr_auto_1fr_minmax(11rem,14rem)] lg:items-center lg:gap-4 lg:p-4"
       onSubmit={(event) => {
         event.preventDefault();
         onStart();
@@ -75,7 +75,7 @@ export function SetupCard({
         </select>
       </label>
 
-      <div className="grid grid-cols-2 gap-2 md:contents">
+      <div className="grid grid-cols-2 gap-3 lg:contents">
         <AthleteColumn
           athlete={athletes[0]}
           locked={formLocked}
@@ -84,7 +84,7 @@ export function SetupCard({
 
         <div
           aria-hidden="true"
-          className="hidden flex-col items-center self-center md:flex"
+          className="hidden flex-col items-center self-center lg:flex"
         >
           <span className="h-5 w-px bg-divider" />
           <span className="flex h-8 w-8 items-center justify-center rounded-full border border-divider bg-surface-alt text-xs font-semibold text-muted">
@@ -117,7 +117,7 @@ export function SetupCard({
             <button
               type="button"
               onClick={onPause}
-              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white md:flex-none"
+              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white lg:flex-none"
             >
               Pause
             </button>
@@ -126,7 +126,7 @@ export function SetupCard({
             <button
               type="button"
               onClick={onResume}
-              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white md:flex-none"
+              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white lg:flex-none"
             >
               Resume
             </button>
@@ -162,46 +162,48 @@ function AthleteColumn({
   const nameId = `${athlete.id}-name`;
 
   return (
-    <fieldset className="flex min-w-0 items-center gap-3" data-testid={`setup-athlete-${athlete.id}`}>
+    <fieldset className="flex min-w-0 flex-col gap-2" data-testid={`setup-athlete-${athlete.id}`}>
       <legend className="sr-only">{column.accessibleLabel}</legend>
-      <span
-        aria-hidden="true"
-        className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${column.avatarClass} font-display text-sm font-bold`}
-      >
-        {athleteInitials(athlete.name)}
-      </span>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className={`font-display text-xs font-extrabold tracking-wide ${column.labelClass}`}>
-          {column.visualLabel}
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          aria-hidden="true"
+          className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${column.avatarClass} font-display text-sm font-bold`}
+        >
+          {athleteInitials(athlete.name)}
         </span>
-        <label className="flex min-w-0 flex-col" htmlFor={nameId}>
-          <span className="sr-only">{`${column.accessibleLabel} name`}</span>
-          <input
-            id={nameId}
-            value={athlete.name}
-            disabled={locked}
-            autoComplete="off"
-            aria-label={`${column.accessibleLabel} name`}
-            aria-invalid={nameError !== null}
-            aria-describedby={nameError ? `${nameId}-error` : undefined}
-            onChange={(event) => onChange({ name: event.target.value })}
-            className="h-8 w-full min-w-0 border-0 bg-transparent px-0 text-sm font-semibold text-brand-navy outline-none"
-          />
-        </label>
-        {nameError ? (
-          <p id={`${nameId}-error`} role="alert" className="text-sm text-brand-red">
-            {nameError}
-          </p>
-        ) : null}
-        <FinishingTimeFields
-          athleteId={athlete.id}
-          label={`${column.accessibleLabel} finishing time`}
-          time={athlete.time}
-          locked={locked}
-          error={timeError}
-          onChange={(time) => onChange({ time })}
-        />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className={`font-display text-xs font-extrabold tracking-wide ${column.labelClass}`}>
+            {column.visualLabel}
+          </span>
+          <label className="flex min-w-0 flex-col" htmlFor={nameId}>
+            <span className="sr-only">{`${column.accessibleLabel} name`}</span>
+            <input
+              id={nameId}
+              value={athlete.name}
+              disabled={locked}
+              autoComplete="off"
+              aria-label={`${column.accessibleLabel} name`}
+              aria-invalid={nameError !== null}
+              aria-describedby={nameError ? `${nameId}-error` : undefined}
+              onChange={(event) => onChange({ name: event.target.value })}
+              className="h-8 w-full min-w-0 border-0 bg-transparent px-0 text-sm font-semibold text-brand-navy outline-none"
+            />
+          </label>
+          {nameError ? (
+            <p id={`${nameId}-error`} role="alert" className="text-sm text-brand-red">
+              {nameError}
+            </p>
+          ) : null}
+        </div>
       </div>
+      <FinishingTimeFields
+        athleteId={athlete.id}
+        label={`${column.accessibleLabel} finishing time`}
+        time={athlete.time}
+        locked={locked}
+        error={timeError}
+        onChange={(time) => onChange({ time })}
+      />
     </fieldset>
   );
 }

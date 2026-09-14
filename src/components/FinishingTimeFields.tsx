@@ -76,16 +76,16 @@ export function FinishingTimeFields({
 
   return (
     <fieldset
-      className="flex flex-col gap-1"
+      className="flex w-full min-w-0 flex-col gap-1"
       aria-describedby={error ? errorId : undefined}
     >
       <legend className="sr-only">{label}</legend>
-      <div className="flex w-full max-w-[11rem] items-center rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2">
+      <div className="flex w-full min-w-[10.5rem] max-w-[13rem] items-end gap-0.5 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2 py-1">
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}
           fieldLabel={`${label.replace(/ finishing time$/, "")} minutes`}
-          caption="min"
+          caption="M"
           value={time.minutes}
           locked={locked}
           invalid={error !== null}
@@ -93,14 +93,14 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("minutes", value)}
           onKeyDown={(event) => handleKeyDown("minutes", event)}
         />
-        <span aria-hidden="true" className="pb-px text-sm text-muted">
+        <span aria-hidden="true" className="pb-5 text-sm font-semibold text-muted">
           :
         </span>
         <TimePartInput
           id={`${athleteId}-seconds`}
           inputRef={secondsRef}
           fieldLabel={`${label.replace(/ finishing time$/, "")} seconds`}
-          caption="sec"
+          caption="S"
           value={time.seconds}
           locked={locked}
           invalid={error !== null}
@@ -108,14 +108,14 @@ export function FinishingTimeFields({
           onChange={(value) => updateField("seconds", value)}
           onKeyDown={(event) => handleKeyDown("seconds", event)}
         />
-        <span aria-hidden="true" className="pb-px text-sm text-muted">
+        <span aria-hidden="true" className="pb-5 text-sm font-semibold text-muted">
           .
         </span>
         <TimePartInput
           id={`${athleteId}-hundredths`}
           inputRef={hundredthsRef}
           fieldLabel={`${label.replace(/ finishing time$/, "")} hundredths`}
-          caption="100ths"
+          caption="10ths"
           value={time.hundredths}
           locked={locked}
           invalid={error !== null}
@@ -157,7 +157,7 @@ function TimePartInput({
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex min-w-0 flex-1 flex-col" htmlFor={id}>
+    <label className="flex min-w-[2rem] flex-1 flex-col items-center" htmlFor={id}>
       <span className="sr-only">{fieldLabel}</span>
       <input
         ref={inputRef}
@@ -172,9 +172,11 @@ function TimePartInput({
         aria-invalid={invalid}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="h-9 w-full min-w-0 border-0 bg-transparent px-0 text-center text-sm font-semibold tabular-nums text-brand-navy outline-none sm:text-base"
+        className="h-9 w-full min-w-0 border-0 bg-transparent px-0 text-center text-base font-semibold tabular-nums text-brand-navy outline-none"
       />
-      <span className="sr-only">{caption}</span>
+      <span aria-hidden="true" className="pb-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
+        {caption}
+      </span>
     </label>
   );
 }

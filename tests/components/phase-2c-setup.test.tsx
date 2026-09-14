@@ -62,7 +62,7 @@ describe("Phase 2C setup card", () => {
     render(<RaceWorkspace />);
     expectSetupCardControls();
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
-    expect(screen.getByTestId("setup-card").className).toContain("md:grid-cols-");
+    expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
   });
 
   it("keeps the same Phase 1 controls on a mobile-width shell", () => {
