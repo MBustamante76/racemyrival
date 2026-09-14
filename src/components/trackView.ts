@@ -18,11 +18,14 @@ import type { LaneAssignment, LaneDefinition } from "@/domain/track";
 
 export const SAMPLE_STEP_M = 2;
 export const PADDING_M = 12;
+/** Legacy wide-frame target; viewBox now sizes to the stadium plus marker room. */
 export const PRESENTATION_ASPECT = 3;
 export const MARKER_RADIUS_M = 3.4;
 export const PIN_STEM_M = 7;
 /** Extra vertical viewBox room so pins and name labels are not clipped at the bends. */
-export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 16;
+export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 8;
+/** Modest horizontal room for outfield labels without empty side letterboxing. */
+export const SIDE_CLEARANCE_M = 8;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 /** Race-distance gap (m) under which labels switch to opposite sides of the markers. */
@@ -72,8 +75,7 @@ export function trackViewBox(): { minX: number; minY: number; width: number; hei
   const contentHalfWidth = STADIUM_STRAIGHT_M / 2 + STADIUM_BEND_RADIUS_M + PADDING_M;
   const contentHalfHeight = STADIUM_BEND_RADIUS_M + PADDING_M;
   const halfHeight = svgNumber(contentHalfHeight + MARKER_CLEARANCE_M);
-  // Keep the wide presentation width from the track content, not the taller marker box.
-  const halfWidth = svgNumber(Math.max(contentHalfWidth, contentHalfHeight * PRESENTATION_ASPECT));
+  const halfWidth = svgNumber(contentHalfWidth + SIDE_CLEARANCE_M);
   return {
     minX: -halfWidth,
     minY: -halfHeight,

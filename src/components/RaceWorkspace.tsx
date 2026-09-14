@@ -213,22 +213,23 @@ export function RaceWorkspace({
         {status}
       </p>
 
-      <TrackStage
-        clock={
-          <RaceClockReadout
-            timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
-            lapText={lapText}
-          />
-        }
-        track={
-          <TrackRenderer
-            raceDistanceM={distanceM}
-            athletes={trackAthletes}
-            ghosts={ghostAthletes}
-          />
-        }
-      />
-
+      <div className="min-h-0 w-full flex-1">
+        <TrackStage
+          clock={
+            <RaceClockReadout
+              timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
+              lapText={lapText}
+            />
+          }
+          track={
+            <TrackRenderer
+              raceDistanceM={distanceM}
+              athletes={trackAthletes}
+              ghosts={ghostAthletes}
+            />
+          }
+        />
+      </div>
       <TelemetryStrip
         raceDistanceM={distanceM}
         athletes={telemetry?.athletes}

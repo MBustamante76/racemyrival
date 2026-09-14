@@ -196,7 +196,7 @@ export function TrackRenderer({
       data-race-distance-m={raceDistanceM}
       data-course-type={courseType}
       data-runner-count={laneCount}
-      className="h-auto w-full overflow-visible"
+      className="h-full w-full overflow-visible"
     >
       <defs>
         <linearGradient id="track-shade" x1="0" y1="0" x2="0" y2="1">

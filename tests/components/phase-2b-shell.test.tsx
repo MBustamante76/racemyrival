@@ -66,8 +66,8 @@ describe("Phase 2B page shell", () => {
     const viewBox = trackViewBox();
     const aspect = viewBox.width / viewBox.height;
     expect(PRESENTATION_ASPECT).toBe(3);
-    expect(aspect).toBeGreaterThanOrEqual(1.9);
-    expect(aspect).toBeLessThanOrEqual(3.2);
+    expect(aspect).toBeGreaterThanOrEqual(1.3);
+    expect(aspect).toBeLessThanOrEqual(2.2);
 
     const track = screen.getByRole("img", { name: "400 metre stadium race track" });
     expect(track.getAttribute("viewBox")).toBe(viewBox.value);

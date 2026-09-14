@@ -10,12 +10,12 @@ export function TrackStage({
   return (
     <section
       data-testid="track-stage"
-      className="relative w-full min-w-0 overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card"
+      className="relative flex w-full min-w-0 min-h-[min(52vh,26rem)] flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card md:min-h-[min(58vh,32rem)]"
     >
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-3">
         {clock}
       </div>
-      <div className="w-full px-1 py-6 sm:py-7 md:px-2 md:py-6 lg:py-7">
+      <div className="flex w-full flex-1 items-center px-0 py-2 md:py-3">
         {track}
       </div>
     </section>
