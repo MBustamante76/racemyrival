@@ -415,7 +415,7 @@ export function TrackRenderer({
             data-lane-number={marker.laneNumber}
             data-testid={`athlete-ghost-${marker.id}`}
           >
-            <MarkerPin x={marker.marker.x} y={marker.marker.y} fill={fill} initials={athleteInitials(marker.name)} />
+            <MarkerPin x={marker.marker.x} y={marker.marker.y} fill={fill} initials={athleteInitials(marker.name, { single: true })} />
             <rect
               x={marker.label.x - 10}
               y={marker.label.y - 2.4}
@@ -452,7 +452,7 @@ export function TrackRenderer({
               x={marker.marker.x}
               y={marker.marker.y}
               fill={fill}
-              initials={athleteInitials(marker.name)}
+              initials={athleteInitials(marker.name, { single: true })}
               testId={`athlete-marker-${marker.id}`}
             />
             <rect

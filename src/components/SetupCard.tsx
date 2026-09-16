@@ -1,8 +1,8 @@
-import { RACE_DISTANCES } from "@/domain/race";
 import type { PlaybackRate, RaceStatus } from "@/domain/race";
+import { RACE_DISTANCES } from "@/domain/race";
 import { athleteInitials } from "./athleteDisplay";
 import { FinishingTimeFields } from "./FinishingTimeFields";
-import { PlaybackSpeedControls } from "./PlaybackSpeedControls";
+import { RaceControls } from "./RaceControls";
 import { nameFieldError, timeFieldError } from "./raceSession";
 import type { AthleteDraft } from "./raceSession";
 
@@ -100,49 +100,17 @@ export function SetupCard({
         />
       </div>
 
-      <div className="flex min-w-0 flex-col items-center justify-center gap-2 self-center">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {status === "idle" ? (
-            <button
-              type="submit"
-              disabled={!startEnabled}
-              aria-label="Start race"
-              className="ui-transition inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--rmr-radius-control)] bg-brand-red px-5 py-2 font-display text-sm font-light uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Start race
-              <span aria-hidden="true">▶</span>
-            </button>
-          ) : null}
-          {status === "running" ? (
-            <button
-              type="button"
-              onClick={onPause}
-              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white lg:flex-none"
-            >
-              Pause
-            </button>
-          ) : null}
-          {status === "paused" ? (
-            <button
-              type="button"
-              onClick={onResume}
-              className="min-h-11 flex-1 rounded-[var(--rmr-radius-control)] bg-brand-navy px-4 py-2 font-display text-sm font-extrabold tracking-wide text-white lg:flex-none"
-            >
-              Resume
-            </button>
-          ) : null}
-          {status !== "idle" ? (
-            <button
-              type="button"
-              onClick={onReset}
-              className="min-h-11 rounded-[var(--rmr-radius-control)] border border-input-border px-4 py-2 text-sm font-semibold text-brand-navy"
-            >
-              Reset
-            </button>
-          ) : null}
-        </div>
-        <PlaybackSpeedControls rate={playbackRate} onChange={onPlaybackRate} />
-      </div>
+      <RaceControls
+        status={status}
+        startEnabled={startEnabled}
+        playbackRate={playbackRate}
+        onStart={onStart}
+        onPause={onPause}
+        onResume={onResume}
+        onReset={onReset}
+        onPlaybackRate={onPlaybackRate}
+        submitOnStart
+      />
     </form>
   );
 }
@@ -186,7 +154,7 @@ function AthleteColumn({
               aria-invalid={nameError !== null}
               aria-describedby={nameError ? `${nameId}-error` : undefined}
               onChange={(event) => onChange({ name: event.target.value })}
-              className="h-8 w-full min-w-0 border-0 bg-transparent px-0 text-sm font-semibold text-brand-navy outline-none"
+              className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 text-sm font-semibold text-brand-navy outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
             />
           </label>
           {nameError ? (

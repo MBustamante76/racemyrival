@@ -137,4 +137,23 @@ body {
   .result-reveal {
     animation: none;
   }
+
+  .race-start-flash {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+
+.race-start-flash {
+  background: radial-gradient(circle at center, rgba(255, 250, 220, 0.85), rgba(255, 255, 255, 0) 70%);
+  animation: race-start-flash 450ms ease-out forwards;
+}
+
+@keyframes race-start-flash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
 }

@@ -31,7 +31,7 @@ export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 /** Race-distance gap (m) under which labels switch to opposite sides of the markers. */
 export const LABEL_CLOSE_GAP_M = 28;
 /** Screen-space gap from pin tip / head used when staggering close labels. */
-export const LABEL_CLOSE_STAGGER_M = 5.5;
+export const LABEL_CLOSE_STAGGER_M = 7.5;
 export const DISTANCE_LABEL_INFIELD_M = 5;
 export const DISTANCE_TICK_M = 3;
 export const DISTANCE_MARKS_M = [100, 200, 300] as const;
@@ -392,14 +392,15 @@ function staggerCloseLabels(layouts: AthleteMarkerLayout[]): AthleteMarkerLayout
 
   return layouts.map((layout) => {
     const side = sideById.get(layout.id) ?? "above";
+    const xNudge = side === "above" ? -5 : 5;
     const label =
       side === "above"
         ? {
-            x: layout.marker.x,
+            x: svgNumber(layout.marker.x + xNudge),
             y: svgNumber(layout.marker.y - PIN_STEM_M - MARKER_RADIUS_M - LABEL_CLOSE_STAGGER_M),
           }
         : {
-            x: layout.marker.x,
+            x: svgNumber(layout.marker.x + xNudge),
             y: svgNumber(layout.marker.y + LABEL_CLOSE_STAGGER_M),
           };
 

@@ -56,7 +56,8 @@ describe("Phase 2H replay and race again", () => {
     const firstLead = Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"));
 
     await user.click(screen.getByRole("button", { name: "Replay" }));
-    expect(screen.getByLabelText("Athlete A minutes")).toBeDisabled();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+    expect(screen.getByTestId("race-controls")).toBeInTheDocument();
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(clock.queuedCount).toBe(1);
 

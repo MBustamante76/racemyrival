@@ -10,8 +10,9 @@ describe("Phase 2L accessibility", () => {
 
     expect(screen.getByTestId("race-clock")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByTestId("race-status")).toHaveAttribute("aria-live", "polite");
-    expect(screen.getByTestId("athlete-distance-A")).toBeInTheDocument();
-    expect(screen.getByTestId("athlete-distance-B")).toBeInTheDocument();
+    expect(screen.getByTestId("track-stage")).toBeInTheDocument();
+    expect(screen.getByTestId("setup-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
 
     await user.tab();

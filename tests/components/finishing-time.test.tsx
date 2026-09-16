@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
@@ -47,7 +47,8 @@ describe("finishing time fields", () => {
     expect(screen.getByLabelText("Athlete B seconds")).toHaveValue("52");
     expect(screen.getByLabelText("Athlete B hundredths")).toHaveValue("00");
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
-    expect(screen.getAllByText("M")).toHaveLength(2);
+    expect(within(screen.getByTestId("setup-athlete-A")).getByText("M")).toBeInTheDocument();
+    expect(within(screen.getByTestId("setup-athlete-B")).getByText("M")).toBeInTheDocument();
     expect(screen.getAllByText("S")).toHaveLength(2);
     expect(screen.getAllByText("100THS")).toHaveLength(2);
     expect(screen.queryByText("Use SS.ff or M:SS.ff")).not.toBeInTheDocument();

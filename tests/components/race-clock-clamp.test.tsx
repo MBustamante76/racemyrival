@@ -83,7 +83,7 @@ describe("master race clock display", () => {
     clock.advance(10_000);
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("10.00");
-    expect(screen.getByTestId("athlete-finished-time-A")).toHaveTextContent("Finished 10.00");
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
 
     clock.advance(490);

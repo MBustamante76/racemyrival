@@ -17,9 +17,10 @@ import {
   trackReplay,
 } from "./analytics";
 import { formatLapLabel } from "./lapLabel";
+import { RaceControls } from "./RaceControls";
+import { RaceFinishConfetti, RaceStartFlash, scrollTrackIntoView, useRaceBookendFx } from "./RaceFx";
 import { ResultPanel } from "./ResultPanel";
 import { SetupCard } from "./SetupCard";
-import { TelemetryStrip } from "./TelemetryStrip";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -52,6 +53,7 @@ export function RaceWorkspace({
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
+  const trackStageRef = useRef<HTMLElement | null>(null);
 
   const draft = { distanceId, athletes };
   const parsed = parseRaceForm(draft);
@@ -60,6 +62,10 @@ export function RaceWorkspace({
   const status: RaceStatus = telemetry?.status ?? "idle";
   const formLocked = status !== "idle";
   const startEnabled = status === "idle" && canStartRace(draft);
+  const showSetup = status === "idle";
+  const showLiveControls = status !== "idle";
+  const showResult = Boolean(telemetry?.result);
+  const { startFlash, finishConfetti } = useRaceBookendFx(status);
   const leader = telemetry?.athletes.reduce((current, athlete) =>
     athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
   );
@@ -134,6 +140,10 @@ export function RaceWorkspace({
     });
   }
 
+  function focusTrack(): void {
+    scrollTrackIntoView(trackStageRef.current);
+  }
+
   function handleStart(): void {
     if (!startEnabled || !parsed) {
       return;
@@ -146,6 +156,7 @@ export function RaceWorkspace({
     loop.setPlaybackRate(playbackRate);
     trackRaceStarted({ ...analyticsRace, playbackRate });
     loop.start();
+    focusTrack();
   }
 
   function handlePlaybackRate(rate: PlaybackRate): void {
@@ -181,6 +192,7 @@ export function RaceWorkspace({
     loop.setPlaybackRate(playbackRate);
     trackReplay(analyticsRace);
     loop.start();
+    focusTrack();
   }
 
   function handleRaceAgain(): void {
@@ -193,28 +205,13 @@ export function RaceWorkspace({
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3 md:gap-4">
-      <SetupCard
-        distanceId={distanceId}
-        athletes={athletes}
-        status={status}
-        formLocked={formLocked}
-        startEnabled={startEnabled}
-        playbackRate={playbackRate}
-        onDistanceChange={setDistanceId}
-        onAthleteChange={updateAthlete}
-        onStart={handleStart}
-        onPause={handlePause}
-        onResume={handleResume}
-        onReset={handleReset}
-        onPlaybackRate={handlePlaybackRate}
-      />
-
       <p className="sr-only" data-testid="race-status" aria-live="polite">
         {status}
       </p>
 
       <div className="min-h-0 w-full flex-1">
         <TrackStage
+          stageRef={trackStageRef}
           clock={
             <RaceClockReadout
               timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
@@ -228,16 +225,49 @@ export function RaceWorkspace({
               ghosts={ghostAthletes}
             />
           }
+          overlay={
+            <>
+              <RaceStartFlash active={startFlash} />
+              <RaceFinishConfetti active={finishConfetti} />
+            </>
+          }
         />
       </div>
-      <TelemetryStrip
-        raceDistanceM={distanceM}
-        athletes={telemetry?.athletes}
-        drafts={athletes}
-        winnerSnapshot={telemetry?.winnerSnapshot ?? null}
-      />
 
-      {telemetry?.result ? (
+      {showLiveControls ? (
+        <div className="rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card">
+          <RaceControls
+            status={status}
+            startEnabled={false}
+            playbackRate={playbackRate}
+            onStart={handleStart}
+            onPause={handlePause}
+            onResume={handleResume}
+            onReset={handleReset}
+            onPlaybackRate={handlePlaybackRate}
+          />
+        </div>
+      ) : null}
+
+      {showSetup ? (
+        <SetupCard
+          distanceId={distanceId}
+          athletes={athletes}
+          status={status}
+          formLocked={formLocked}
+          startEnabled={startEnabled}
+          playbackRate={playbackRate}
+          onDistanceChange={setDistanceId}
+          onAthleteChange={updateAthlete}
+          onStart={handleStart}
+          onPause={handlePause}
+          onResume={handleResume}
+          onReset={handleReset}
+          onPlaybackRate={handlePlaybackRate}
+        />
+      ) : null}
+
+      {showResult && telemetry?.result ? (
         <ResultPanel
           result={telemetry.result}
           athletes={telemetry.athletes.map((athlete) => ({

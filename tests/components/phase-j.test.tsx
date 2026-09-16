@@ -20,7 +20,7 @@ describe("Test gate J", () => {
     expect(wide.getAttribute("preserveAspectRatio")).toBe("xMidYMid meet");
     expect(wide.getAttribute("viewBox")).toBe(trackViewBox().value);
     expect(wide.classList.contains("w-full")).toBe(true);
-    expect(wide.classList.contains("h-auto")).toBe(true);
+    expect(wide.classList.contains("h-full")).toBe(true);
 
     const aWide = wide.querySelector("[data-athlete-id='A']")?.getAttribute("data-distance-covered-m");
     rerender(

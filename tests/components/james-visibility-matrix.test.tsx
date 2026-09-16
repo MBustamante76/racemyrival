@@ -38,43 +38,53 @@ function createFakeLoopClock() {
   };
 }
 
-function markerDistance(id: string): number {
-  const group = document.querySelector(`[data-athlete-id='${id}']`);
-  return Number(group?.getAttribute("data-distance-covered-m"));
-}
+describe("James visibility matrix", () => {
+  it("shows track above setup on idle, without telemetry or result", () => {
+    const { container } = render(<RaceWorkspace />);
+    expect(screen.getByTestId("track-stage")).toBeInTheDocument();
+    expect(screen.getByTestId("setup-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
+    expect(container.innerHTML.indexOf('data-testid="track-stage"')).toBeLessThan(
+      container.innerHTML.indexOf('data-testid="setup-card"'),
+    );
+  });
 
-describe("Phase 2F track-only mid-race progress", () => {
-  it("keeps displayed metres inside the race and freezes across pause", async () => {
+  it("shows track only while running or paused, with live race controls", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
-    clock.advance(1_000);
 
+    expect(screen.getByTestId("track-stage")).toBeInTheDocument();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
     expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
-    expect(markerDistance("A")).toBeCloseTo(200, 5);
-    expect(markerDistance("B")).toBeCloseTo(200, 5);
+    expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("race-controls")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Pause" }));
-    expect(markerDistance("A")).toBeCloseTo(200, 5);
-    await user.click(screen.getByRole("button", { name: "Resume" }));
-    clock.advance(1_000);
-    expect(markerDistance("A")).toBeCloseTo(400, 5);
+    expect(screen.getByTestId("race-status")).toHaveTextContent("paused");
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Resume" })).toBeInTheDocument();
   });
 
-  it("advances the leader farther once one athlete pulls ahead", async () => {
+  it("shows track plus result when finished, with Reset available", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
-    await setFinishingTimes(user, "2.00", "1.00");
+    await setFinishingTimes(user, "1.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
-    clock.advance(500);
+    clock.advance(1_000);
 
+    expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
+    expect(screen.getByTestId("track-stage")).toBeInTheDocument();
+    expect(screen.getByTestId("result-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
     expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
-    expect(markerDistance("A")).toBeCloseTo(100, 5);
-    expect(markerDistance("B")).toBeCloseTo(200, 5);
+    expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
   });
 });

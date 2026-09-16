@@ -45,4 +45,14 @@ describe("athlete label proximity stagger", () => {
     expect(staggered[0]?.marker).toEqual(asFar[0]?.marker);
     expect(staggered[0]?.label).not.toEqual(asFar[0]?.label);
   });
+
+  it("nudges close labels apart on x as well as y so chips do not stack", () => {
+    const layouts = athleteMarkerLayouts(800, [
+      { id: "A", name: "Marcelo", distanceCoveredM: 200 },
+      { id: "B", name: "Josh", distanceCoveredM: 202 },
+    ]);
+    const [left, right] = [...layouts].sort((a, b) => a.label.x - b.label.x);
+    expect(Math.abs(right.label.x - left.label.x)).toBeGreaterThanOrEqual(8);
+    expect(Math.abs(right.label.y - left.label.y)).toBeGreaterThan(10);
+  });
 });

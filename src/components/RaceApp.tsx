@@ -54,7 +54,7 @@ export function RaceApp({
         className={
           mode === "wireframe"
             ? "mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6"
-            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-3 px-4 py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
+            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-3 px-2 py-3 sm:px-4 sm:py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
         }
       >
         <div className="flex flex-col items-center gap-2 text-center">

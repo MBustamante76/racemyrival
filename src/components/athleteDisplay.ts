@@ -1,7 +1,11 @@
-export function athleteInitials(name: string): string {
+export function athleteInitials(name: string, options: { single?: boolean } = {}): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
     return "?";
+  }
+
+  if (options.single) {
+    return (parts[0][0] ?? "?").toUpperCase();
   }
 
   if (parts.length === 1) {

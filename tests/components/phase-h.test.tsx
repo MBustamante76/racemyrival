@@ -165,15 +165,15 @@ describe("Test gate H", () => {
     expect(markerDistance("B")).toBeCloseTo(200, 5);
   });
 
-  it("shows finishing time when a runner finishes and does not stop the slower athlete", async () => {
+  it("keeps the slower athlete moving after the leader finishes", async () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);
 
-    expect(screen.getByTestId("athlete-finished-time-B")).toHaveTextContent("Finished 0.50");
-    expect(screen.queryByTestId("athlete-finished-time-A")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(markerDistance("B")).toBe(400);
     const afterFirst = markerDistance("A");
@@ -184,6 +184,6 @@ describe("Test gate H", () => {
     expect(screen.getByTestId("race-clock")).toHaveTextContent("0.70");
     expect(markerDistance("B")).toBe(400);
     expect(markerDistance("A")).toBeGreaterThan(afterFirst);
-    expect(screen.queryByTestId("athlete-finished-time-A")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
   });
 });

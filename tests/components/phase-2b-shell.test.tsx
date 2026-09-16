@@ -20,23 +20,20 @@ const REQUIRED_CONTROLS = [
 ] as const;
 
 describe("Phase 2B page shell", () => {
-  it("renders title, setup, track, and telemetry focused on the race (header shelved)", () => {
+  it("renders track above setup on idle with telemetry shelved", () => {
     const { container } = render(<Home />);
 
     expect(screen.queryByTestId("app-header")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Race My Rival" })).toBeInTheDocument();
     expect(screen.getByTestId("setup-card")).toBeInTheDocument();
     expect(screen.getByTestId("track-stage")).toBeInTheDocument();
-    expect(screen.getByTestId("telemetry-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-clock")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
 
     const markup = container.innerHTML;
-    expect(markup.indexOf("data-testid=\"setup-card\"")).toBeLessThan(
-      markup.indexOf("data-testid=\"track-stage\""),
-    );
     expect(markup.indexOf("data-testid=\"track-stage\"")).toBeLessThan(
-      markup.indexOf("data-testid=\"telemetry-strip\""),
+      markup.indexOf("data-testid=\"setup-card\""),
     );
   });
 
@@ -52,13 +49,10 @@ describe("Phase 2B page shell", () => {
         expect(screen.getByLabelText(name)).toBeInTheDocument();
       }
     }
-
     expect(screen.getByTestId("playback-speed-1x")).toBeInTheDocument();
     expect(screen.getByTestId("playback-speed-2x")).toBeInTheDocument();
     expect(screen.getByTestId("playback-speed-5x")).toBeInTheDocument();
     expect(screen.getByTestId("playback-speed-10x")).toBeInTheDocument();
-    expect(screen.getByText("YOU")).toBeInTheDocument();
-    expect(screen.getByText("RIVAL")).toBeInTheDocument();
   });
 
   it("uses a wider presentation frame without changing athlete distances", () => {

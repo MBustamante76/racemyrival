@@ -70,40 +70,25 @@ describe("mobile portrait layout regressions", () => {
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("lg:contents");
   });
 
-  it("keeps a compact telemetry list with ahead/behind status and shared gap metres", async () => {
+  it("hides telemetry while racing and keeps live controls on the track", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
 
-    const strip = screen.getByTestId("telemetry-strip");
-    expect(strip.firstElementChild?.className).toContain("rounded-[var(--rmr-radius-card)]");
-    expect(strip.firstElementChild?.className).toContain("md:grid-cols-[1fr_auto_1fr]");
-
-    const readoutA = screen.getByTestId("athlete-readout-A");
-    const mobileRow = readoutA.querySelector(".md\\:hidden") ?? [...readoutA.querySelectorAll("div")].find((node) =>
-      node.className.includes("md:hidden"),
-    );
-    expect(mobileRow).toBeTruthy();
-    expect(mobileRow?.className).toContain("md:hidden");
-    expect(within(readoutA).getByText("MA")).toBeInTheDocument();
-    expect(within(screen.getByTestId("athlete-readout-B")).getByText("JO")).toBeInTheDocument();
-    expect(screen.getAllByText("Level")).toHaveLength(2);
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
     await setFinishingTimes(user, "2.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);
 
-    expect(screen.getByTestId("athlete-distance-A")).toHaveTextContent("100m");
-    expect(screen.getByTestId("athlete-distance-B")).toHaveTextContent("200m");
-    expect(screen.getByTestId("athlete-speed-A")).toHaveTextContent("200.00m/s");
-    expect(screen.getByTestId("athlete-speed-B")).toHaveTextContent("400.00m/s");
-    expect(screen.getByTestId("telemetry-gap")).toHaveTextContent("100m");
-    expect(within(screen.getByTestId("athlete-readout-A")).getByText("Behind")).toBeInTheDocument();
-    expect(within(screen.getByTestId("athlete-readout-B")).getByText("Ahead")).toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+    expect(screen.getByTestId("race-controls")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
   });
 
-  it("keeps the infield clock overlaid, scaled down on small screens, and track zoom mobile-only", () => {
+  it("keeps the infield clock overlaid, scaled down on small screens, and larger on desktop", () => {
     render(<RaceWorkspace />);
 
     const stage = screen.getByTestId("track-stage");
@@ -111,7 +96,8 @@ describe("mobile portrait layout regressions", () => {
     expect(stage.contains(clock)).toBe(true);
     expect(clock.className).toContain("text-2xl");
     expect(clock.className).toContain("sm:text-4xl");
-    expect(clock.className).toContain("md:text-5xl");
+    expect(clock.className).toContain("md:text-6xl");
+    expect(clock.className).toContain("lg:text-7xl");
 
     const clockShell = clock.parentElement;
     expect(clockShell?.parentElement?.className).toContain("absolute");
@@ -120,8 +106,10 @@ describe("mobile portrait layout regressions", () => {
     expect(clockShell?.textContent ?? "").not.toMatch(/seconds/i);
 
     const trackSource = readFileSync(resolve("src/components/TrackStage.tsx"), "utf8");
-    expect(trackSource).toContain("min-h-[min(52vh,26rem)]");
-    expect(trackSource).toContain("py-2");
+    expect(trackSource).toContain("min-h-[min(56vh,28rem)]");
+    expect(trackSource).toContain("sm:min-h-[min(52vh,26rem)]");
+    expect(trackSource).toContain("py-1");
+    expect(trackSource).toContain("sm:py-2");
     expect(trackSource).not.toContain("w-[132%]");
     expect(trackSource).not.toContain("w-[140%]");
     expect(trackSource).not.toContain("w-[148%]");

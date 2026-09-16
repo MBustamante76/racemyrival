@@ -119,7 +119,7 @@ describe("Test gate I", () => {
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);
 
-    expect(screen.getByTestId("athlete-finished-time-B")).toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
   });

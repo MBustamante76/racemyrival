@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
@@ -84,20 +84,21 @@ describe("Phase 2C setup card", () => {
     expect(screen.getByTestId("setup-athlete-B").className).toContain("flex-col");
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-1");
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("sm:grid-cols-2");
-    expect(screen.getAllByText("M")).toHaveLength(2);
+    expect(within(screen.getByTestId("setup-athlete-A")).getByText("M")).toBeInTheDocument();
+    expect(within(screen.getByTestId("setup-athlete-B")).getByText("M")).toBeInTheDocument();
     expect(screen.getAllByText("S")).toHaveLength(2);
     expect(screen.getAllByText("100THS")).toHaveLength(2);
   });
 
-  it("locks the form while running and exposes Pause and Reset", async () => {
+  it("hides setup while running and keeps Pause and Reset on live controls", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await setFinishingTimes(user, "2.00", "2.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 
-    expect(screen.getByLabelText("Race distance")).toBeDisabled();
-    expect(screen.getByLabelText("Athlete A minutes")).toBeDisabled();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reset" })).toBeInTheDocument();
     expect(screen.getByTestId("playback-speed-5x")).toBeEnabled();
