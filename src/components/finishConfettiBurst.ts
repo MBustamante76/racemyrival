@@ -1,33 +1,32 @@
 const FINISH_CONFETTI_COLORS = ["#e10a1f", "#0470fc", "#fb5a03", "#ffffff", "#0a2540"];
 
-/** Dual side bursts via @tsparticles/confetti (confetti.js.org), scoped to a canvas. */
-export async function fireFinishConfetti(canvas: HTMLCanvasElement): Promise<void> {
+/** Dual side bursts via @tsparticles/confetti (confetti.js.org). */
+export async function fireFinishConfetti(): Promise<void> {
   const { confetti } = await import("@tsparticles/confetti");
-  const fire = await confetti.create(canvas, {
-    count: 80,
-    spread: 70,
-    startVelocity: 42,
-    gravity: 1.1,
-    ticks: 220,
-    colors: FINISH_CONFETTI_COLORS,
-    disableForReducedMotion: true,
-    zIndex: 20,
-  });
 
+  // Distinct canvas ids — parallel bursts with the default id cancel each other.
   await Promise.all([
-    fire({
-      count: 70,
+    confetti("rmr-finish-left", {
+      count: 100,
       angle: 60,
-      spread: 58,
-      position: { x: 12, y: 72 },
+      spread: 70,
+      startVelocity: 55,
+      gravity: 1.05,
+      ticks: 260,
+      position: { x: 15, y: 70 },
       colors: FINISH_CONFETTI_COLORS,
+      zIndex: 1000,
     }),
-    fire({
-      count: 70,
+    confetti("rmr-finish-right", {
+      count: 100,
       angle: 120,
-      spread: 58,
-      position: { x: 88, y: 72 },
+      spread: 70,
+      startVelocity: 55,
+      gravity: 1.05,
+      ticks: 260,
+      position: { x: 85, y: 70 },
       colors: FINISH_CONFETTI_COLORS,
+      zIndex: 1000,
     }),
   ]);
 }

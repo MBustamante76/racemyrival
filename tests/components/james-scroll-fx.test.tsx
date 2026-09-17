@@ -77,20 +77,24 @@ describe("James scroll and bookend FX", () => {
     expect(el.scrollIntoView).toHaveBeenCalledWith({ behavior: "auto", block: "start" });
   });
 
-  it("flashes on start and confetti on finish", async () => {
+  it("flashes on start and confetti when the winner finishes, not when all complete", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const clock = createFakeLoopClock();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
-    await setFinishingTimes(user, "1.00", "1.00");
+    await setFinishingTimes(user, "2.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 
     expect(screen.getByTestId("race-start-flash")).toBeInTheDocument();
 
     clock.advance(1_000);
-    expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
+    expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(screen.getByTestId("race-finish-confetti")).toBeInTheDocument();
+    expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
+
+    clock.advance(1_000);
+    expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
     vi.useRealTimers();
   });
 });

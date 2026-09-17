@@ -65,7 +65,8 @@ export function RaceWorkspace({
   const showSetup = status === "idle";
   const showLiveControls = status !== "idle";
   const showResult = Boolean(telemetry?.result);
-  const { startFlash, finishConfetti } = useRaceBookendFx(status);
+  const raceWon = Boolean(telemetry?.winnerSnapshot);
+  const { startFlash, finishConfetti } = useRaceBookendFx(status, raceWon);
   const leader = telemetry?.athletes.reduce((current, athlete) =>
     athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
   );
