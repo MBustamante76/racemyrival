@@ -29,14 +29,22 @@ export function TrackStage({
 }
 
 export function RaceClockReadout({
+  distanceLabel,
   timeText,
   lapText,
 }: {
+  distanceLabel: string;
   timeText: string;
   lapText: string;
 }) {
   return (
     <div className="flex flex-col items-center gap-0.5 text-center sm:gap-1">
+      <p
+        className="font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] text-near-black sm:text-xs md:text-sm"
+        data-testid="race-distance-readout"
+      >
+        {distanceLabel}
+      </p>
       <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs">
         Race clock
       </p>

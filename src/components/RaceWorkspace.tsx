@@ -58,6 +58,7 @@ export function RaceWorkspace({
   const draft = { distanceId, athletes };
   const parsed = parseRaceForm(draft);
   const distanceM = raceDistanceById(distanceId)?.distanceM ?? 800;
+  const distanceLabel = raceDistanceById(distanceId)?.label ?? "800m";
   const analyticsRace = useMemo(() => ({ distanceId, distanceM }), [distanceId, distanceM]);
   const status: RaceStatus = telemetry?.status ?? "idle";
   const formLocked = status !== "idle";
@@ -215,6 +216,7 @@ export function RaceWorkspace({
           stageRef={trackStageRef}
           clock={
             <RaceClockReadout
+              distanceLabel={distanceLabel}
               timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
               lapText={lapText}
             />

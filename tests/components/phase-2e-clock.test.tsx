@@ -45,11 +45,13 @@ describe("Phase 2E infield clock", () => {
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
 
     expect(screen.getByTestId("track-stage").contains(screen.getByTestId("race-clock"))).toBe(true);
+    expect(screen.getByTestId("race-distance-readout")).toHaveTextContent("800m");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("0.00");
     expect(screen.getByTestId("race-lap")).toHaveTextContent("LAP 1 OF 2");
 
     await setFinishingTimes(user, "2.00", "2.00");
     await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    expect(screen.getByTestId("race-distance-readout")).toHaveTextContent("400m");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_230);
 
