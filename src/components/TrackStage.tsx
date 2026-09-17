@@ -15,12 +15,12 @@ export function TrackStage({
     <section
       ref={stageRef as Ref<HTMLDivElement>}
       data-testid="track-stage"
-      className="relative flex w-full min-w-0 min-h-[min(56vh,28rem)] flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card sm:min-h-[min(52vh,26rem)] md:min-h-[min(56vh,30rem)] lg:min-h-[min(58vh,34rem)]"
+      className="relative flex w-full min-w-0 aspect-[198/134] min-h-0 flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card sm:aspect-auto sm:min-h-[min(48vh,24rem)] md:min-h-[min(56vh,30rem)] lg:min-h-[min(58vh,34rem)]"
     >
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
         {clock}
       </div>
-      <div className="flex w-full flex-1 items-center px-0 py-1 sm:py-2 md:py-3">
+      <div className="flex w-full flex-1 items-center px-0 py-0 sm:py-2 md:py-3">
         {track}
       </div>
       {overlay}

@@ -54,15 +54,15 @@ export function RaceApp({
         className={
           mode === "wireframe"
             ? "mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6"
-            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-3 px-2 py-3 sm:px-4 sm:py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
+            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 sm:gap-3 sm:px-4 sm:py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
         }
       >
-        <div className="flex flex-col items-center gap-2 text-center">
+        <div className="flex flex-col items-center gap-1 text-center sm:gap-2">
           <h1
             className={
               mode === "wireframe"
                 ? "text-center text-xl font-semibold tracking-tight text-zinc-950"
-                : "font-sans text-4xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy sm:text-5xl"
+                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy sm:text-5xl"
             }
           >
             {mode === "wireframe" ? (
@@ -73,7 +73,7 @@ export function RaceApp({
               </>
             )}
           </h1>
-          <p className={mode === "wireframe" ? "max-w-xl text-sm text-zinc-600" : "max-w-xl text-balance font-sans text-base font-extrabold tracking-[-0.02em] text-brand-navy"}>
+          <p className={mode === "wireframe" ? "max-w-xl text-sm text-zinc-600" : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy sm:text-base"}>
             {mode === "wireframe"
               ? "Enter two performances and start. Finishing times use minutes, seconds and hundredths. Live controls stay on one shared clock."
               : "See what the difference really looks like."}

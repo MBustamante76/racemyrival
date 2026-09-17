@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { fireFinishConfetti } from "./finishConfettiBurst";
 
+const START_GUN_SRC = "/audio/starting_gun.mp3";
+const FINISH_CHEER_SRC = "/audio/crowd_cheering.mp3";
+
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
     return false;
@@ -10,28 +13,15 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function playTone(frequencyHz: number, durationMs: number, gain = 0.08): void {
+function playSound(src: string, volume = 0.75): void {
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) {
-      return;
-    }
-    const ctx = new AudioCtx();
-    const oscillator = ctx.createOscillator();
-    const amp = ctx.createGain();
-    oscillator.type = "square";
-    oscillator.frequency.value = frequencyHz;
-    amp.gain.value = gain;
-    oscillator.connect(amp);
-    amp.connect(ctx.destination);
-    oscillator.start();
-    amp.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + durationMs / 1000);
-    oscillator.stop(ctx.currentTime + durationMs / 1000);
-    window.setTimeout(() => {
-      void ctx.close();
-    }, durationMs + 50);
+    const audio = new Audio(src);
+    audio.volume = volume;
+    void audio.play().catch(() => {
+      // Autoplay may be blocked until a user gesture; visual FX still run.
+    });
   } catch {
-    // Autoplay or AudioContext may be blocked; visual FX still run.
+    // Audio construction can fail in restricted environments.
   }
 }
 
@@ -83,7 +73,7 @@ export function useRaceBookendFx(
     if (prev !== "running" && status === "running") {
       setStartFlash(true);
       if (!prefersReducedMotion()) {
-        playTone(180, 120, 0.1);
+        playSound(START_GUN_SRC, 0.85);
       }
       const timer = window.setTimeout(() => setStartFlash(false), 450);
       return () => window.clearTimeout(timer);
@@ -100,8 +90,7 @@ export function useRaceBookendFx(
 
     setFinishConfetti(true);
     if (!prefersReducedMotion()) {
-      playTone(520, 90, 0.06);
-      window.setTimeout(() => playTone(660, 120, 0.05), 100);
+      playSound(FINISH_CHEER_SRC, 0.7);
       void fireFinishConfetti().catch(() => {
         // Canvas / WebGL may be unavailable.
       });

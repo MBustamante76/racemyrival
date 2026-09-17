@@ -106,9 +106,11 @@ describe("mobile portrait layout regressions", () => {
     expect(clockShell?.textContent ?? "").not.toMatch(/seconds/i);
 
     const trackSource = readFileSync(resolve("src/components/TrackStage.tsx"), "utf8");
-    expect(trackSource).toContain("min-h-[min(56vh,28rem)]");
-    expect(trackSource).toContain("sm:min-h-[min(52vh,26rem)]");
-    expect(trackSource).toContain("py-1");
+    expect(trackSource).toContain("aspect-[198/134]");
+    expect(trackSource).toContain("min-h-0");
+    expect(trackSource).toContain("sm:aspect-auto");
+    expect(trackSource).toContain("sm:min-h-[min(48vh,24rem)]");
+    expect(trackSource).toContain("py-0");
     expect(trackSource).toContain("sm:py-2");
     expect(trackSource).not.toContain("w-[132%]");
     expect(trackSource).not.toContain("w-[140%]");

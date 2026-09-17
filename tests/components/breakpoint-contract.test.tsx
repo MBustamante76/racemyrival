@@ -49,18 +49,22 @@ describe("James breakpoint and pin contracts", () => {
 
   it("lists additive breakpoint tokens without rewriting the mobile baseline", () => {
     const stage = readFileSync(resolve("src/components/TrackStage.tsx"), "utf8");
-    expect(stage).toContain("min-h-[min(56vh,28rem)]");
-    expect(stage).toContain("sm:min-h-[min(52vh,26rem)]");
+    expect(stage).toContain("aspect-[198/134]");
+    expect(stage).toContain("min-h-0");
+    expect(stage).toContain("sm:aspect-auto");
+    expect(stage).toContain("sm:min-h-[min(48vh,24rem)]");
     expect(stage).toContain("md:min-h-[min(56vh,30rem)]");
     expect(stage).toContain("lg:min-h-[min(58vh,34rem)]");
     expect(stage).toContain("md:text-6xl");
     expect(stage).toContain("lg:text-7xl");
 
     const app = readFileSync(resolve("src/components/RaceApp.tsx"), "utf8");
-    expect(app).toContain("px-2 py-3");
+    expect(app).toContain("px-2 py-2");
     expect(app).toContain("sm:px-4 sm:py-4");
     expect(app).toContain("md:px-6 md:py-5");
     expect(app).toContain("lg:px-8");
+    expect(app).toContain("text-3xl");
+    expect(app).toContain("sm:text-5xl");
 
     render(<RaceWorkspace />);
     expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
