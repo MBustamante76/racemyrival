@@ -25,7 +25,10 @@ export function TrackStage({
         data-testid="track-stage"
         style={{ aspectRatio: `${viewBox.width} / ${viewBox.height}` }}
         className={
+          // Height budget reserves page padding + control row so track+buttons fit in short landscape viewports.
           "relative isolate mx-auto min-h-0 w-full overflow-hidden " +
+          `max-h-[calc(100svh-5.5rem)] ` +
+          `max-w-[min(100%,calc((100svh-5.5rem)*${aspect}))] ` +
           `sm:max-w-[min(100%,calc(min(44svh,24rem)*${aspect}))] ` +
           `md:max-w-[min(100%,calc(min(42svh,24rem)*${aspect}))] ` +
           `lg:max-w-[min(100%,calc(min(46svh,26rem)*${aspect}))] ` +
@@ -44,7 +47,7 @@ export function TrackStage({
       {controls ? (
         <div
           data-testid="track-controls"
-          className="relative z-20 shrink-0 border-t border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2"
+          className="relative z-20 shrink-0 border-t border-border bg-card px-2 py-1.5 [@media(orientation:landscape)_and_(max-height:500px)]:py-1 sm:px-3 sm:py-2"
         >
           {controls}
         </div>
