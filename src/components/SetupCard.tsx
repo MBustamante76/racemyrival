@@ -58,7 +58,7 @@ export function SetupCard({
           disabled={formLocked}
           aria-label="Select race distance"
           onChange={(event) => onDistanceChange(event.target.value)}
-          className="min-h-11 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 py-2 text-sm font-semibold text-brand-navy"
+          className="min-h-11 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 py-2 text-base font-semibold text-brand-navy"
         >
           {RACE_DISTANCES.map((distance) => (
             <option key={distance.id} value={distance.id}>
@@ -136,7 +136,7 @@ function AthleteColumn({
               aria-invalid={nameError !== null}
               aria-describedby={nameError ? `${nameId}-error` : undefined}
               onChange={(event) => onChange({ name: event.target.value })}
-              className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 text-sm font-semibold text-brand-navy outline-none placeholder:font-medium placeholder:text-muted/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
+              className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 text-base font-semibold text-brand-navy outline-none placeholder:font-medium placeholder:text-muted/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
             />
           </label>
           {nameError ? (

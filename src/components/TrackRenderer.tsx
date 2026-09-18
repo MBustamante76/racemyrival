@@ -26,48 +26,47 @@ import {
   visualLaneLinePoints,
 } from "./trackView";
 import type { TrackAthleteView } from "./trackView";
+import { useSmoothedMarkerLayouts } from "./useSmoothedMarkerLayouts";
 
 const MARKER_FILLS = [athleteColors.A, athleteColors.B] as const;
-
-function markerPinPath(x: number, y: number): string {
-  const headCy = y - PIN_STEM_M;
-  const joinY = headCy + MARKER_RADIUS_M * 0.32;
-  const spread = MARKER_RADIUS_M * 0.56;
-  return `M ${x} ${y} L ${x - spread} ${joinY} L ${x + spread} ${joinY} Z`;
-}
+const RUNNER_PIN_SRC = "/runner-pin.png";
+/** Natural aspect of the extracted pin silhouette (width / height). */
+const PIN_ASPECT = 624 / 909;
+const PIN_HEIGHT_M = (PIN_STEM_M + MARKER_RADIUS_M) * 0.675;
+const PIN_WIDTH_M = PIN_HEIGHT_M * PIN_ASPECT;
 
 function MarkerPin({
   x,
   y,
   fill,
+  tintId,
   initials,
   testId,
 }: {
   x: number;
   y: number;
   fill: string;
+  tintId: "A" | "B";
   initials?: string;
   testId?: string;
 }) {
-  const headCy = y - PIN_STEM_M;
+  const width = PIN_WIDTH_M;
+  const height = PIN_HEIGHT_M;
+  const left = x - width / 2;
+  const top = y - height;
+  const headCy = top + width * 0.52;
+
   return (
     <>
       <circle cx={x} cy={y} r={0.55} fill={fill} data-testid={testId} />
-      <g filter="url(#marker-pin-shadow)">
-        <path
-          d={markerPinPath(x, y)}
-          fill={fill}
-          stroke="white"
-          strokeWidth={0.4}
-          strokeLinejoin="round"
-        />
-        <circle
-          cx={x}
-          cy={headCy}
-          r={MARKER_RADIUS_M}
-          fill={fill}
-          stroke="white"
-          strokeWidth={0.45}
+      <g filter={`url(#runner-pin-tint-${tintId})`}>
+        <image
+          href={RUNNER_PIN_SRC}
+          x={left}
+          y={top}
+          width={width}
+          height={height}
+          preserveAspectRatio="xMidYMax meet"
         />
       </g>
       {initials ? (
@@ -77,13 +76,35 @@ function MarkerPin({
           textAnchor="middle"
           dominantBaseline="middle"
           fill="white"
-          fontSize={2.9}
+          fontSize={1.55}
           fontWeight={700}
         >
           {initials}
         </text>
       ) : null}
     </>
+  );
+}
+
+function hexToUnitRgb(hex: string): [number, number, number] {
+  const raw = hex.replace("#", "");
+  return [
+    Number.parseInt(raw.slice(0, 2), 16) / 255,
+    Number.parseInt(raw.slice(2, 4), 16) / 255,
+    Number.parseInt(raw.slice(4, 6), 16) / 255,
+  ];
+}
+
+function RunnerPinTintFilter({ id, color }: { id: string; color: string }) {
+  const [r, g, b] = hexToUnitRgb(color);
+  return (
+    <filter id={id} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+      <feColorMatrix
+        type="matrix"
+        values={`0 0 0 0 ${r} 0 0 0 0 ${g} 0 0 0 0 ${b} 0 0 0 1 0`}
+      />
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
+    </filter>
   );
 }
 
@@ -105,7 +126,7 @@ export function TrackRenderer({
   const courseType = courseTypeForRace(raceDistanceM);
   const chute = courseType === "sprint-straight" ? sprintChuteView(laneCount) : null;
   const laneOrderIds = athletes.map((athlete) => athlete.id);
-  const markers = athleteMarkerLayouts(raceDistanceM, athletes);
+  const markers = useSmoothedMarkerLayouts(raceDistanceM, athletes);
   const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
   const startIsFinish = start === null && chute === null;
   const surfacePath = trackSurfacePath(laneCount);
@@ -207,6 +228,8 @@ export function TrackRenderer({
         <filter id="marker-pin-shadow" x="-70%" y="-50%" width="240%" height="260%">
           <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
         </filter>
+        <RunnerPinTintFilter id="runner-pin-tint-A" color={athleteColors.A} />
+        <RunnerPinTintFilter id="runner-pin-tint-B" color={athleteColors.B} />
         <clipPath id="infield-clip">
           <polygon points={infieldPolygonPoints()} />
         </clipPath>
@@ -415,7 +438,13 @@ export function TrackRenderer({
             data-lane-number={marker.laneNumber}
             data-testid={`athlete-ghost-${marker.id}`}
           >
-            <MarkerPin x={marker.marker.x} y={marker.marker.y} fill={fill} initials={athleteInitials(marker.name, { single: true })} />
+            <MarkerPin
+              x={marker.marker.x}
+              y={marker.marker.y}
+              fill={fill}
+              tintId={marker.id === "B" ? "B" : "A"}
+              initials={athleteInitials(marker.name, { single: true })}
+            />
             <rect
               x={marker.label.x - 10}
               y={marker.label.y - 2.4}
@@ -452,6 +481,7 @@ export function TrackRenderer({
               x={marker.marker.x}
               y={marker.marker.y}
               fill={fill}
+              tintId={marker.id === "B" ? "B" : "A"}
               initials={athleteInitials(marker.name, { single: true })}
               testId={`athlete-marker-${marker.id}`}
             />

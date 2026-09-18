@@ -58,10 +58,10 @@ describe("James breakpoint and pin contracts", () => {
     expect(stage).toContain("trackViewBox");
     expect(stage).toContain("aspectRatio");
     expect(stage).toContain("min-h-0");
-    expect(stage).toContain("sm:max-w-[min(100%,calc(min(44vh,24rem)*${aspect}))]");
-    expect(stage).toContain("md:max-w-[min(100%,calc(min(42vh,24rem)*${aspect}))]");
-    expect(stage).toContain("lg:max-w-[min(100%,calc(min(46vh,26rem)*${aspect}))]");
-    expect(stage).toContain("xl:max-w-[min(100%,calc(min(50vh,30rem)*${aspect}))]");
+    expect(stage).toContain("sm:max-w-[min(100%,calc(min(44svh,24rem)*${aspect}))]");
+    expect(stage).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*${aspect}))]");
+    expect(stage).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*${aspect}))]");
+    expect(stage).toContain("xl:max-w-[min(100%,calc(min(50svh,30rem)*${aspect}))]");
     expect(stage).toContain("overflow-hidden");
     expect(stage).toContain("track-surface-frame");
     expect(stage).toContain("md:text-6xl");

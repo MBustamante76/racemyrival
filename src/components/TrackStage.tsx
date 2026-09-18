@@ -26,10 +26,10 @@ export function TrackStage({
         style={{ aspectRatio: `${viewBox.width} / ${viewBox.height}` }}
         className={
           "relative isolate mx-auto min-h-0 w-full overflow-hidden " +
-          `sm:max-w-[min(100%,calc(min(44vh,24rem)*${aspect}))] ` +
-          `md:max-w-[min(100%,calc(min(42vh,24rem)*${aspect}))] ` +
-          `lg:max-w-[min(100%,calc(min(46vh,26rem)*${aspect}))] ` +
-          `xl:max-w-[min(100%,calc(min(50vh,30rem)*${aspect}))]`
+          `sm:max-w-[min(100%,calc(min(44svh,24rem)*${aspect}))] ` +
+          `md:max-w-[min(100%,calc(min(42svh,24rem)*${aspect}))] ` +
+          `lg:max-w-[min(100%,calc(min(46svh,26rem)*${aspect}))] ` +
+          `xl:max-w-[min(100%,calc(min(50svh,30rem)*${aspect}))]`
         }
       >
         {/* Absolutely contained so the SVG cannot paint over the controls row. */}

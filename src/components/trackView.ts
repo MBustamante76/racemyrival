@@ -28,10 +28,27 @@ export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 3;
 export const SIDE_CLEARANCE_M = 8;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
-/** Race-distance gap (m) under which labels switch to opposite sides of the markers. */
+/** Race-distance gap (m) at which labels enter close (above/below) mode. */
 export const LABEL_CLOSE_GAP_M = 28;
+/** Race-distance gap (m) at which labels leave close mode (hysteresis vs enter). */
+export const LABEL_CLOSE_EXIT_GAP_M = 40;
 /** Screen-space gap from pin tip / head used when staggering close labels. */
 export const LABEL_CLOSE_STAGGER_M = 7.5;
+/** Duration for sliding labels between far and close placements. */
+export const LABEL_LERP_MS = 200;
+
+export type CloseLabelSide = "above" | "below";
+
+export interface LabelProximityState {
+  closeMode: boolean;
+  /** Sticky above/below assignment while close mode stays active. */
+  closeSides: Readonly<Record<string, CloseLabelSide>>;
+}
+
+export const EMPTY_LABEL_PROXIMITY: LabelProximityState = {
+  closeMode: false,
+  closeSides: {},
+};
 export const DISTANCE_LABEL_INFIELD_M = 5;
 export const DISTANCE_TICK_M = 3;
 export const DISTANCE_MARKS_M = [100, 200, 300] as const;
@@ -311,16 +328,110 @@ export function distanceMarkViews(): DistanceMarkView[] {
   });
 }
 
+export function minAthleteGapM(athletes: readonly TrackAthleteView[]): number {
+  let minGap = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < athletes.length; i += 1) {
+    for (let j = i + 1; j < athletes.length; j += 1) {
+      minGap = Math.min(
+        minGap,
+        Math.abs(athletes[i].distanceCoveredM - athletes[j].distanceCoveredM),
+      );
+    }
+  }
+  return minGap;
+}
+
+/** Hysteresis: enter close at LABEL_CLOSE_GAP_M, leave only past LABEL_CLOSE_EXIT_GAP_M. */
+export function resolveCloseMode(
+  athletes: readonly TrackAthleteView[],
+  wasClose: boolean,
+): boolean {
+  if (athletes.length < 2) {
+    return false;
+  }
+  const gap = minAthleteGapM(athletes);
+  if (wasClose) {
+    return gap <= LABEL_CLOSE_EXIT_GAP_M;
+  }
+  return gap <= LABEL_CLOSE_GAP_M;
+}
+
+export function assignCloseSidesByMarkerY(
+  layouts: readonly AthleteMarkerLayout[],
+): Record<string, CloseLabelSide> {
+  const ordered = [...layouts].sort((a, b) => {
+    if (a.marker.y !== b.marker.y) {
+      return a.marker.y - b.marker.y;
+    }
+    return a.id.localeCompare(b.id);
+  });
+
+  const sides: Record<string, CloseLabelSide> = {};
+  ordered.forEach((layout, index) => {
+    sides[layout.id] = index % 2 === 0 ? "above" : "below";
+  });
+  return sides;
+}
+
+function closeSidesAreSticky(
+  layouts: readonly AthleteMarkerLayout[],
+  previous: LabelProximityState | null | undefined,
+): previous is LabelProximityState & { closeMode: true } {
+  if (!previous?.closeMode) {
+    return false;
+  }
+  return layouts.every((layout) => previous.closeSides[layout.id] !== undefined);
+}
+
+/** Stateful marker layouts: hysteresis close mode + sticky above/below sides. */
+export function layoutAthleteMarkers(
+  raceDistanceM: number,
+  athletes: readonly TrackAthleteView[],
+  previous: LabelProximityState | null = null,
+  laneOrderIds: readonly string[] = athletes.map((athlete) => athlete.id),
+  options: { flipLabels?: boolean } = {},
+): { layouts: AthleteMarkerLayout[]; proximity: LabelProximityState } {
+  const base = baseAthleteMarkerLayouts(raceDistanceM, athletes, laneOrderIds, options);
+
+  if (options.flipLabels || base.length < 2) {
+    return { layouts: base, proximity: EMPTY_LABEL_PROXIMITY };
+  }
+
+  const closeMode = resolveCloseMode(athletes, previous?.closeMode ?? false);
+  if (!closeMode) {
+    return { layouts: base, proximity: EMPTY_LABEL_PROXIMITY };
+  }
+
+  const closeSides = closeSidesAreSticky(base, previous)
+    ? previous.closeSides
+    : assignCloseSidesByMarkerY(base);
+
+  return {
+    layouts: applyCloseSides(base, closeSides),
+    proximity: { closeMode: true, closeSides },
+  };
+}
+
+/** Stateless layouts (enter close at LABEL_CLOSE_GAP_M; no sticky sides). */
 export function athleteMarkerLayouts(
   raceDistanceM: number,
   athletes: readonly TrackAthleteView[],
   laneOrderIds: readonly string[] = athletes.map((athlete) => athlete.id),
   options: { flipLabels?: boolean } = {},
 ): AthleteMarkerLayout[] {
+  return layoutAthleteMarkers(raceDistanceM, athletes, null, laneOrderIds, options).layouts;
+}
+
+function baseAthleteMarkerLayouts(
+  raceDistanceM: number,
+  athletes: readonly TrackAthleteView[],
+  laneOrderIds: readonly string[],
+  options: { flipLabels?: boolean },
+): AthleteMarkerLayout[] {
   const assignments = visualLaneAssignments(laneOrderIds);
   const course = courseForRace(raceDistanceM);
 
-  const layouts = athletes.map((athlete) => {
+  return athletes.map((athlete) => {
     const assigned = assignments.find((entry) => entry.athleteId === athlete.id);
     const lane = assigned?.lane ?? COMPARISON_INNER_LANE;
     const sample = course.sampleForRace(raceDistanceM, athlete.distanceCoveredM);
@@ -348,24 +459,6 @@ export function athleteMarkerLayouts(
       labelSide,
     };
   });
-
-  if (options.flipLabels || !athletesAreClose(athletes) || layouts.length < 2) {
-    return layouts;
-  }
-
-  return staggerCloseLabels(layouts);
-}
-
-function athletesAreClose(athletes: readonly TrackAthleteView[]): boolean {
-  for (let i = 0; i < athletes.length; i += 1) {
-    for (let j = i + 1; j < athletes.length; j += 1) {
-      if (Math.abs(athletes[i].distanceCoveredM - athletes[j].distanceCoveredM) <= LABEL_CLOSE_GAP_M) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 function labelOffsetForSide(side: "infield" | "outfield", lane: LaneDefinition): number {
@@ -377,21 +470,12 @@ function labelOffsetForSide(side: "infield" | "outfield", lane: LaneDefinition):
 }
 
 /** When runners bunch up, put one name above the pins and one below so both stay readable. */
-function staggerCloseLabels(layouts: AthleteMarkerLayout[]): AthleteMarkerLayout[] {
-  const ordered = [...layouts].sort((a, b) => {
-    if (a.marker.y !== b.marker.y) {
-      return a.marker.y - b.marker.y;
-    }
-    return a.id.localeCompare(b.id);
-  });
-
-  const sideById = new Map<string, "above" | "below">();
-  ordered.forEach((layout, index) => {
-    sideById.set(layout.id, index % 2 === 0 ? "above" : "below");
-  });
-
+export function applyCloseSides(
+  layouts: readonly AthleteMarkerLayout[],
+  sideById: Readonly<Record<string, CloseLabelSide>>,
+): AthleteMarkerLayout[] {
   return layouts.map((layout) => {
-    const side = sideById.get(layout.id) ?? "above";
+    const side = sideById[layout.id] ?? "above";
     const xNudge = side === "above" ? -5 : 5;
     const label =
       side === "above"
