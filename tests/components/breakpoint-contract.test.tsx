@@ -16,13 +16,19 @@ describe("James breakpoint and pin contracts", () => {
     expect(clock.className).toContain("lg:text-7xl");
   });
 
-  it("styles name fields like bordered inputs", () => {
+  it("styles name and finishing-time fields like bordered inputs", () => {
     render(<RaceWorkspace />);
     const name = screen.getByLabelText("Enter your name");
     expect(name.className).toContain("border");
     expect(name.className).toContain("border-input-border");
     expect(name.className).toContain("bg-surface-alt");
     expect(name.className).toContain("rounded-[var(--rmr-radius-control)]");
+
+    const minutes = screen.getByLabelText("Enter your time minutes");
+    expect(minutes.className).toContain("border");
+    expect(minutes.className).toContain("border-input-border");
+    expect(minutes.className).toContain("bg-surface-alt");
+    expect(minutes.className).toContain("rounded-[var(--rmr-radius-control)]");
   });
 
   it("uses single-initial pins on the track", () => {

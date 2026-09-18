@@ -10,16 +10,30 @@ import type { AthleteInput, ParseRaceTimeError } from "@/domain/race";
 
 export const DEFAULT_DISTANCE_ID = "800";
 
+export const DEFAULT_ATHLETE_NAMES = {
+  A: "Your Name",
+  B: "Your Rival",
+} as const;
+
+/** Sensible default finishing times (ms) per distance: [you, rival]. */
+export const DEFAULT_TIMES_BY_DISTANCE_MS: Record<string, readonly [number, number]> = {
+  "100": [14_000, 10_000],
+  "200": [28_000, 20_000],
+  "400": [62_000, 45_000],
+  "600": [100_000, 80_000],
+  "800": [140_000, 105_000],
+  "1000": [185_000, 150_000],
+  "1500": [285_000, 210_000],
+  mile: [310_000, 239_000],
+  "3000": [630_000, 510_000],
+  "5000": [1_170_000, 960_000],
+};
+
 export interface TimeParts {
   minutes: string;
   seconds: string;
   hundredths: string;
 }
-
-export const DEFAULT_ATHLETE_DRAFTS: [AthleteDraft, AthleteDraft] = [
-  { id: "A", name: "Marcelo", time: timePartsFromMilliseconds(124_000) },
-  { id: "B", name: "Josh", time: timePartsFromMilliseconds(112_000) },
-];
 
 export interface AthleteDraft {
   id: string;
@@ -45,6 +59,22 @@ const TIME_ERROR_MESSAGES: Record<ParseRaceTimeError, string> = {
   seconds_out_of_range: "Seconds must be below 60",
   non_numeric: "Use SS.ff or M:SS.ff",
 };
+
+export function defaultTimesForDistance(distanceId: string): [TimeParts, TimeParts] {
+  const pair = DEFAULT_TIMES_BY_DISTANCE_MS[distanceId] ?? DEFAULT_TIMES_BY_DISTANCE_MS[DEFAULT_DISTANCE_ID];
+  return [timePartsFromMilliseconds(pair[0]), timePartsFromMilliseconds(pair[1])];
+}
+
+export function createDefaultAthleteDrafts(distanceId = DEFAULT_DISTANCE_ID): [AthleteDraft, AthleteDraft] {
+  const [timeA, timeB] = defaultTimesForDistance(distanceId);
+  return [
+    { id: "A", name: DEFAULT_ATHLETE_NAMES.A, time: timeA },
+    { id: "B", name: DEFAULT_ATHLETE_NAMES.B, time: timeB },
+  ];
+}
+
+export const DEFAULT_ATHLETE_DRAFTS: [AthleteDraft, AthleteDraft] =
+  createDefaultAthleteDrafts(DEFAULT_DISTANCE_ID);
 
 export function nameFieldError(name: string): string | null {
   return name.trim() === "" ? "Enter a name" : null;

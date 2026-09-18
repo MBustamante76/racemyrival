@@ -13,7 +13,7 @@ describe("Home page (React Testing Library)", () => {
     render(<Home />);
 
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
-    expect(screen.getByTestId("athlete-label-A")).toHaveTextContent("Marcelo");
-    expect(screen.getByTestId("athlete-label-B")).toHaveTextContent("Josh");
+    expect(screen.getByTestId("athlete-label-A")).toHaveTextContent("Your Name");
+    expect(screen.getByTestId("athlete-label-B")).toHaveTextContent("Your Rival");
   });
 });

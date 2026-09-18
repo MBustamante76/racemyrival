@@ -9,7 +9,7 @@ const ATHLETE_COLUMN = {
   A: {
     visualLabel: "YOU",
     accessibleLabel: "Athlete A",
-    namePlaceholder: "Enter your name",
+    namePlaceholder: "Your Name",
     nameAriaLabel: "Enter your name",
     timeLabel: "Enter your time",
     labelClass: "text-athlete-a",
@@ -18,7 +18,7 @@ const ATHLETE_COLUMN = {
   B: {
     visualLabel: "RIVAL",
     accessibleLabel: "Athlete B",
-    namePlaceholder: "Enter rival's name",
+    namePlaceholder: "Your Rival",
     nameAriaLabel: "Enter rival's name",
     timeLabel: "Enter rival's time",
     labelClass: "text-athlete-b",

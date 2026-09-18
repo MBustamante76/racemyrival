@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import Home from "@/app/page";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -61,6 +62,7 @@ describe("Phase 2K viewport and injected journey", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    await setFinishingTimes(user, "2:04.00", "1:52.00");
 
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(2_000);
@@ -74,7 +76,7 @@ describe("Phase 2K viewport and injected journey", () => {
     await user.click(screen.getByTestId("playback-speed-5x"));
     clock.advance(24_400);
 
-    expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
+    expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("12.00 seconds faster");
     expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
       77.4194,

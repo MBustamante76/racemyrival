@@ -80,7 +80,7 @@ export function FinishingTimeFields({
       aria-describedby={error ? errorId : undefined}
     >
       <legend className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted">{label}</legend>
-      <div className="flex w-full min-w-0 max-w-none items-end gap-0.5 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2 py-1">
+      <div className="flex w-full min-w-0 max-w-none items-end gap-1">
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}
@@ -157,7 +157,7 @@ function TimePartInput({
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex min-w-[2rem] flex-1 flex-col items-center" htmlFor={id}>
+    <label className="flex min-w-[2.5rem] flex-1 flex-col items-center gap-0.5" htmlFor={id}>
       <span className="sr-only">{fieldLabel}</span>
       <input
         ref={inputRef}
@@ -172,9 +172,9 @@ function TimePartInput({
         aria-invalid={invalid}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
-        className="h-9 w-full min-w-0 border-0 bg-transparent px-0 text-center text-base font-semibold tabular-nums text-brand-navy outline-none"
+        className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-1 text-center text-base font-semibold tabular-nums text-brand-navy outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
       />
-      <span aria-hidden="true" className="pb-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
+      <span aria-hidden="true" className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
         {caption}
       </span>
     </label>

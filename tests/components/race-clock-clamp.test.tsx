@@ -70,8 +70,8 @@ describe("master race clock display", () => {
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("10.00");
-    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Marcelo 10.00");
-    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Josh 10.00");
+    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Your Name 10.00");
+    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Your Rival 10.00");
   });
 
   it("shows 10.50 after a 10.00 / 10.50 race overshoots by 0.01s", async () => {
@@ -91,8 +91,8 @@ describe("master race clock display", () => {
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("10.50");
-    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Marcelo 10.00");
-    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Josh 10.50");
+    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Your Name 10.00");
+    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Your Rival 10.50");
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 10.00");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("0.50 seconds faster");
   });

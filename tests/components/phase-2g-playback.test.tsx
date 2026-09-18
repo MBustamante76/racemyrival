@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { PlaybackRate } from "@/domain/race";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -49,6 +50,7 @@ describe("Phase 2G playback fixture", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    await setFinishingTimes(user, "2:04.00", "1:52.00");
 
     for (const rate of RATES) {
       if (screen.queryByRole("button", { name: "Reset" })) {
@@ -60,15 +62,15 @@ describe("Phase 2G playback fixture", () => {
       await user.click(screen.getByRole("button", { name: "Start race" }));
       clock.advance(Math.ceil(124_000 / rate / 100) * 100);
 
-      expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
+      expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
       expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 1:52.00");
       expect(screen.getByTestId("result-time-gap")).toHaveTextContent("12.00 seconds faster");
       expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
         77.4194,
         4,
       );
-      expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Marcelo 2:04.00");
-      expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Josh 1:52.00");
+      expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Your Name 2:04.00");
+      expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Your Rival 1:52.00");
     }
 
     expect(screen.getByTestId("playback-speed-10x")).toBeInTheDocument();

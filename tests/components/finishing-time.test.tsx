@@ -38,20 +38,38 @@ describe("finishing time parts", () => {
 });
 
 describe("finishing time fields", () => {
-  it("defaults to 2:04.00 and 1:52.00 across the three fields", () => {
+  it("defaults to 2:20.00 and 1:45.00 across the three fields", () => {
     render(<RaceWorkspace />);
     expect(screen.getByLabelText("Enter your time minutes")).toHaveValue("2");
-    expect(screen.getByLabelText("Enter your time seconds")).toHaveValue("04");
+    expect(screen.getByLabelText("Enter your time seconds")).toHaveValue("20");
     expect(screen.getByLabelText("Enter your time hundredths")).toHaveValue("00");
     expect(screen.getByLabelText("Enter rival's time minutes")).toHaveValue("1");
-    expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("52");
+    expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("45");
     expect(screen.getByLabelText("Enter rival's time hundredths")).toHaveValue("00");
+    expect(screen.getByLabelText("Enter your name")).toHaveValue("Your Name");
+    expect(screen.getByLabelText("Enter rival's name")).toHaveValue("Your Rival");
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(within(screen.getByTestId("setup-athlete-A")).getByText("M")).toBeInTheDocument();
     expect(within(screen.getByTestId("setup-athlete-B")).getByText("M")).toBeInTheDocument();
     expect(screen.getAllByText("S")).toHaveLength(2);
     expect(screen.getAllByText("100THS")).toHaveLength(2);
     expect(screen.queryByText("Use SS.ff or M:SS.ff")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Enter your time minutes").className).toContain("border-input-border");
+    expect(screen.getByLabelText("Enter your time minutes").className).toContain("bg-surface-alt");
+  });
+
+  it("applies sensible default times when the race distance changes", async () => {
+    const user = userEvent.setup();
+    render(<RaceWorkspace />);
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "100");
+    expect(screen.getByLabelText("Enter your time minutes")).toHaveValue("0");
+    expect(screen.getByLabelText("Enter your time seconds")).toHaveValue("14");
+    expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("10");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "mile");
+    expect(screen.getByLabelText("Enter your time minutes")).toHaveValue("5");
+    expect(screen.getByLabelText("Enter your time seconds")).toHaveValue("10");
+    expect(screen.getByLabelText("Enter rival's time minutes")).toHaveValue("3");
+    expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("59");
   });
 
   it("lets a user type 1, Tab, 52, Tab, 43", async () => {

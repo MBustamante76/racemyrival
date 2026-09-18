@@ -88,8 +88,8 @@ describe("playback speed controls", () => {
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");
-    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Marcelo 1.00");
-    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Josh 0.50");
+    expect(screen.getByTestId("result-athlete-A")).toHaveTextContent("Your Name 1.00");
+    expect(screen.getByTestId("result-athlete-B")).toHaveTextContent("Your Rival 0.50");
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 0.50");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("0.50 seconds faster");
   });

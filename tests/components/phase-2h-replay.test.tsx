@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
+import { setFinishingTimes } from "../helpers/finishing-time";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -41,6 +42,7 @@ function createFakeLoopClock() {
 }
 
 async function finishFixture(user: ReturnType<typeof userEvent.setup>, clock: ReturnType<typeof createFakeLoopClock>) {
+  await setFinishingTimes(user, "2:04.00", "1:52.00");
   await user.click(screen.getByRole("button", { name: "Start race" }));
   clock.advance(124_000);
 }
@@ -52,7 +54,7 @@ describe("Phase 2H replay and race again", () => {
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await finishFixture(user, clock);
 
-    expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
+    expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
     const firstLead = Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"));
 
     await user.click(screen.getByRole("button", { name: "Replay" }));
@@ -62,7 +64,7 @@ describe("Phase 2H replay and race again", () => {
     expect(clock.queuedCount).toBe(1);
 
     clock.advance(124_000);
-    expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
+    expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
     expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
       firstLead,
       8,

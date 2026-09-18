@@ -132,11 +132,11 @@ describe("Test gate I", () => {
     clock.advance(1_000);
 
     expect(screen.getByTestId("result-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("result-winner")).toHaveTextContent("Josh wins");
+    expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 0.50");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("0.50 seconds faster");
     expect(screen.getByTestId("result-distance-gap")).toHaveTextContent(
-      "Josh was approximately 200 metres ahead when they crossed the finish line",
+      "Your Rival was approximately 200 metres ahead when they crossed the finish line",
     );
     expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
       200,

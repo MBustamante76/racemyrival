@@ -26,10 +26,11 @@ import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
 import {
-  DEFAULT_ATHLETE_DRAFTS,
   DEFAULT_DISTANCE_ID,
   canStartRace,
   createConfiguredRace,
+  createDefaultAthleteDrafts,
+  defaultTimesForDistance,
   parseRaceForm,
 } from "./raceSession";
 import type { AthleteDraft } from "./raceSession";
@@ -46,10 +47,9 @@ export function RaceWorkspace({
   loopDependencies?: RaceLoopDependencies;
 } = {}) {
   const [distanceId, setDistanceId] = useState(DEFAULT_DISTANCE_ID);
-  const [athletes, setAthletes] = useState<[AthleteDraft, AthleteDraft]>([
-    { ...DEFAULT_ATHLETE_DRAFTS[0] },
-    { ...DEFAULT_ATHLETE_DRAFTS[1] },
-  ]);
+  const [athletes, setAthletes] = useState<[AthleteDraft, AthleteDraft]>(() =>
+    createDefaultAthleteDrafts(DEFAULT_DISTANCE_ID),
+  );
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const [pendingStart, setPendingStart] = useState(false);
@@ -57,6 +57,13 @@ export function RaceWorkspace({
   const completedRaceKeyRef = useRef<string | null>(null);
   const trackStageRef = useRef<HTMLElement | null>(null);
   const startDelayRef = useRef<number | null>(null);
+  const spaceActionRef = useRef({
+    status: "idle" as RaceStatus,
+    startEnabled: false,
+    start: () => {},
+    pause: () => {},
+    resume: () => {},
+  });
 
   const draft = { distanceId, athletes };
   const parsed = parseRaceForm(draft);
@@ -122,6 +129,52 @@ export function RaceWorkspace({
   }, []);
 
   useEffect(() => {
+    function isEditableTarget(target: EventTarget | null): boolean {
+      if (!(target instanceof HTMLElement)) {
+        return false;
+      }
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        return true;
+      }
+      return target.isContentEditable;
+    }
+
+    function onKeyDown(event: KeyboardEvent): void {
+      if (event.code !== "Space" && event.key !== " ") {
+        return;
+      }
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+      // Desktop shortcut (md+).
+      if (typeof window.matchMedia === "function" && !window.matchMedia("(min-width: 768px)").matches) {
+        return;
+      }
+
+      const action = spaceActionRef.current;
+      event.preventDefault();
+      if (action.status === "idle") {
+        action.start();
+        return;
+      }
+      if (action.status === "running") {
+        action.pause();
+        return;
+      }
+      if (action.status === "paused") {
+        action.resume();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
     if (status !== "finished" || !telemetry?.result) {
       return;
     }
@@ -145,6 +198,18 @@ export function RaceWorkspace({
       next[index] = { ...next[index], ...patch };
       return next;
     });
+  }
+
+  function handleDistanceChange(nextDistanceId: string): void {
+    if (formLocked) {
+      return;
+    }
+    const [timeA, timeB] = defaultTimesForDistance(nextDistanceId);
+    setDistanceId(nextDistanceId);
+    setAthletes((current) => [
+      { ...current[0], time: timeA },
+      { ...current[1], time: timeB },
+    ]);
   }
 
   function focusTrack(): void {
@@ -214,6 +279,14 @@ export function RaceWorkspace({
   function handleResume(): void {
     sessionRef.current?.resume();
   }
+
+  spaceActionRef.current = {
+    status,
+    startEnabled,
+    start: handleStart,
+    pause: handlePause,
+    resume: handleResume,
+  };
 
   function handleReset(): void {
     clearStartDelay();
@@ -288,7 +361,7 @@ export function RaceWorkspace({
           distanceId={distanceId}
           athletes={athletes}
           formLocked={formLocked}
-          onDistanceChange={setDistanceId}
+          onDistanceChange={handleDistanceChange}
           onAthleteChange={updateAthlete}
           onStart={handleStart}
         />
