@@ -61,7 +61,7 @@ async function renderWorkspace() {
 describe("master race clock display", () => {
   it("shows 10.00 after a 10.00 / 10.00 race overshoots by 0.01s", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "10.00", "10.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 
@@ -76,7 +76,7 @@ describe("master race clock display", () => {
 
   it("shows 10.50 after a 10.00 / 10.50 race overshoots by 0.01s", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "10.00", "10.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 

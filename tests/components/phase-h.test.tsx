@@ -64,9 +64,9 @@ describe("Test gate H", () => {
 
   it("prevents start and shows an error for an invalid time", async () => {
     const { user } = await renderWorkspace();
-    const minutes = screen.getByLabelText("Athlete A minutes");
-    const seconds = screen.getByLabelText("Athlete A seconds");
-    const hundredths = screen.getByLabelText("Athlete A hundredths");
+    const minutes = screen.getByLabelText("Enter your time minutes");
+    const seconds = screen.getByLabelText("Enter your time seconds");
+    const hundredths = screen.getByLabelText("Enter your time hundredths");
     await user.clear(minutes);
     await user.type(minutes, "0");
     await user.clear(seconds);
@@ -140,10 +140,10 @@ describe("Test gate H", () => {
     expect(screen.getByTestId("race-status")).toHaveTextContent("idle");
     expect(screen.getByTestId("race-clock")).toHaveTextContent("0.00");
     expect(markerDistance("A")).toBe(0);
-    expect(screen.getByLabelText("Race distance")).toBeEnabled();
-    expect(screen.getByLabelText("Athlete A minutes")).toBeEnabled();
+    expect(screen.getByLabelText("Select race distance")).toBeEnabled();
+    expect(screen.getByLabelText("Enter your time minutes")).toBeEnabled();
 
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);
@@ -152,7 +152,7 @@ describe("Test gate H", () => {
 
   it("distance selection affects calculations", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_000);
@@ -167,7 +167,7 @@ describe("Test gate H", () => {
 
   it("keeps the slower athlete moving after the leader finishes", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);

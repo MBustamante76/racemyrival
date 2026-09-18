@@ -16,7 +16,7 @@ describe("Phase 2L accessibility", () => {
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
 
     await user.tab();
-    expect(screen.getByLabelText("Race distance")).toHaveFocus();
+    expect(screen.getByTestId("playback-speed-1x")).toHaveFocus();
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
   });
 });

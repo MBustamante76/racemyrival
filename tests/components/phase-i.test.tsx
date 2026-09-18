@@ -114,7 +114,7 @@ describe("Test gate I", () => {
 
   it("does not show the result before both athletes finish", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);
@@ -126,7 +126,7 @@ describe("Test gate I", () => {
 
   it("uses the frozen winner snapshot after both finish, not live positions", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_000);
@@ -152,7 +152,7 @@ describe("Test gate I", () => {
 
   it("removes the previous result on reset", async () => {
     const { clock, user } = await renderWorkspace();
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_000);

@@ -1,5 +1,7 @@
 # Race My Rival — Phase 1 prototype test report
 
+Phase 2 polished V1 evidence is in [`PHASE_2_TEST_REPORT.md`](PHASE_2_TEST_REPORT.md). This file is historical Phase 1 evidence and was not rewritten.
+
 ## Identity
 
 | Field | Value |

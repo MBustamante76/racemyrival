@@ -8,13 +8,13 @@ export async function setFinishingTimes(
   timeA: string,
   timeB: string,
 ): Promise<void> {
-  await setFinishingTime(user, "Athlete A", timeA);
-  await setFinishingTime(user, "Athlete B", timeB);
+  await setFinishingTime(user, "you", timeA);
+  await setFinishingTime(user, "rival", timeB);
 }
 
 export async function setFinishingTime(
   user: ReturnType<typeof userEvent.setup>,
-  athleteLabel: "Athlete A" | "Athlete B",
+  athlete: "you" | "rival",
   timeText: string,
 ): Promise<void> {
   const parsed = parseRaceTime(timeText);
@@ -22,10 +22,11 @@ export async function setFinishingTime(
     throw new Error(`Test time must be a valid race time: ${timeText}`);
   }
 
+  const prefix = athlete === "you" ? "Enter your time" : "Enter rival's time";
   const parts = timePartsFromMilliseconds(parsed.milliseconds);
-  await fillPart(user, `${athleteLabel} minutes`, parts.minutes);
-  await fillPart(user, `${athleteLabel} seconds`, parts.seconds);
-  await fillPart(user, `${athleteLabel} hundredths`, parts.hundredths);
+  await fillPart(user, `${prefix} minutes`, parts.minutes);
+  await fillPart(user, `${prefix} seconds`, parts.seconds);
+  await fillPart(user, `${prefix} hundredths`, parts.hundredths);
 }
 
 async function fillPart(

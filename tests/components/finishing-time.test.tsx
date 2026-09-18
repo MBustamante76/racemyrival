@@ -40,12 +40,12 @@ describe("finishing time parts", () => {
 describe("finishing time fields", () => {
   it("defaults to 2:04.00 and 1:52.00 across the three fields", () => {
     render(<RaceWorkspace />);
-    expect(screen.getByLabelText("Athlete A minutes")).toHaveValue("2");
-    expect(screen.getByLabelText("Athlete A seconds")).toHaveValue("04");
-    expect(screen.getByLabelText("Athlete A hundredths")).toHaveValue("00");
-    expect(screen.getByLabelText("Athlete B minutes")).toHaveValue("1");
-    expect(screen.getByLabelText("Athlete B seconds")).toHaveValue("52");
-    expect(screen.getByLabelText("Athlete B hundredths")).toHaveValue("00");
+    expect(screen.getByLabelText("Enter your time minutes")).toHaveValue("2");
+    expect(screen.getByLabelText("Enter your time seconds")).toHaveValue("04");
+    expect(screen.getByLabelText("Enter your time hundredths")).toHaveValue("00");
+    expect(screen.getByLabelText("Enter rival's time minutes")).toHaveValue("1");
+    expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("52");
+    expect(screen.getByLabelText("Enter rival's time hundredths")).toHaveValue("00");
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(within(screen.getByTestId("setup-athlete-A")).getByText("M")).toBeInTheDocument();
     expect(within(screen.getByTestId("setup-athlete-B")).getByText("M")).toBeInTheDocument();
@@ -57,9 +57,9 @@ describe("finishing time fields", () => {
   it("lets a user type 1, Tab, 52, Tab, 43", async () => {
     const user = userEvent.setup();
     render(<RaceWorkspace />);
-    const minutes = screen.getByLabelText("Athlete A minutes");
-    const seconds = screen.getByLabelText("Athlete A seconds");
-    const hundredths = screen.getByLabelText("Athlete A hundredths");
+    const minutes = screen.getByLabelText("Enter your time minutes");
+    const seconds = screen.getByLabelText("Enter your time seconds");
+    const hundredths = screen.getByLabelText("Enter your time hundredths");
 
     await user.clear(minutes);
     await user.clear(seconds);
@@ -81,7 +81,7 @@ describe("finishing time fields", () => {
   it("does not accept 60 seconds", async () => {
     const user = userEvent.setup();
     render(<RaceWorkspace />);
-    const seconds = screen.getByLabelText("Athlete A seconds");
+    const seconds = screen.getByLabelText("Enter your time seconds");
     await user.clear(seconds);
     await user.type(seconds, "60");
     expect(seconds).toHaveValue("6");

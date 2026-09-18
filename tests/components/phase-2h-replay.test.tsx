@@ -90,8 +90,8 @@ describe("Phase 2H replay and race again", () => {
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("idle");
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Athlete A minutes")).toBeEnabled();
-    expect(screen.getByLabelText("Race distance")).toBeEnabled();
+    expect(screen.getByLabelText("Enter your time minutes")).toBeEnabled();
+    expect(screen.getByLabelText("Select race distance")).toBeEnabled();
     expect(clock.queuedCount).toBe(0);
   });
 });

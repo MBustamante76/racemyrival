@@ -24,7 +24,7 @@ describe("Phase 2N wireframe mode", () => {
     expect(screen.getByTestId("presentation-root")).toHaveAttribute("data-presentation", "wireframe");
     expect(screen.queryByTestId("app-header")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
-    expect(screen.getByLabelText("Race distance")).toBeInTheDocument();
+    expect(screen.getByLabelText("Select race distance")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
 
     const flags = readFileSync(resolve("src/components/uiFlags.ts"), "utf8");

@@ -1,8 +1,7 @@
-import type { PlaybackRate, RaceStatus } from "@/domain/race";
 import { RACE_DISTANCES } from "@/domain/race";
 import { athleteInitials } from "./athleteDisplay";
 import { FinishingTimeFields } from "./FinishingTimeFields";
-import { RaceControls } from "./RaceControls";
+import { RACE_SETUP_FORM_ID } from "./RaceControls";
 import { nameFieldError, timeFieldError } from "./raceSession";
 import type { AthleteDraft } from "./raceSession";
 
@@ -10,12 +9,18 @@ const ATHLETE_COLUMN = {
   A: {
     visualLabel: "YOU",
     accessibleLabel: "Athlete A",
+    namePlaceholder: "Enter your name",
+    nameAriaLabel: "Enter your name",
+    timeLabel: "Enter your time",
     labelClass: "text-athlete-a",
     avatarClass: "border-athlete-a bg-athlete-a-tint text-athlete-a",
   },
   B: {
     visualLabel: "RIVAL",
     accessibleLabel: "Athlete B",
+    namePlaceholder: "Enter rival's name",
+    nameAriaLabel: "Enter rival's name",
+    timeLabel: "Enter rival's time",
     labelClass: "text-athlete-b",
     avatarClass: "border-athlete-b bg-athlete-b-tint text-athlete-b",
   },
@@ -24,46 +29,34 @@ const ATHLETE_COLUMN = {
 export function SetupCard({
   distanceId,
   athletes,
-  status,
   formLocked,
-  startEnabled,
-  playbackRate,
   onDistanceChange,
   onAthleteChange,
   onStart,
-  onPause,
-  onResume,
-  onReset,
-  onPlaybackRate,
 }: {
   distanceId: string;
   athletes: [AthleteDraft, AthleteDraft];
-  status: RaceStatus;
   formLocked: boolean;
-  startEnabled: boolean;
-  playbackRate: PlaybackRate;
   onDistanceChange: (distanceId: string) => void;
   onAthleteChange: (index: 0 | 1, patch: Partial<AthleteDraft>) => void;
   onStart: () => void;
-  onPause: () => void;
-  onResume: () => void;
-  onReset: () => void;
-  onPlaybackRate: (rate: PlaybackRate) => void;
 }) {
   return (
     <form
+      id={RACE_SETUP_FORM_ID}
       data-testid="setup-card"
-      className="grid w-full min-w-0 gap-3 rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card lg:grid-cols-[minmax(7rem,9rem)_1fr_auto_1fr_minmax(11rem,14rem)] lg:items-center lg:gap-4 lg:p-4"
+      className="grid w-full min-w-0 gap-3 rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card lg:grid-cols-[minmax(7rem,9rem)_1fr_auto_1fr] lg:items-center lg:gap-4 lg:p-4"
       onSubmit={(event) => {
         event.preventDefault();
         onStart();
       }}
     >
       <label className="flex min-w-0 flex-col justify-center gap-1 self-center text-xs font-semibold uppercase tracking-wide text-muted">
-        Race distance
+        Select race distance
         <select
           value={distanceId}
           disabled={formLocked}
+          aria-label="Select race distance"
           onChange={(event) => onDistanceChange(event.target.value)}
           className="min-h-11 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 py-2 text-sm font-semibold text-brand-navy"
         >
@@ -99,18 +92,6 @@ export function SetupCard({
           onChange={(patch) => onAthleteChange(1, patch)}
         />
       </div>
-
-      <RaceControls
-        status={status}
-        startEnabled={startEnabled}
-        playbackRate={playbackRate}
-        onStart={onStart}
-        onPause={onPause}
-        onResume={onResume}
-        onReset={onReset}
-        onPlaybackRate={onPlaybackRate}
-        submitOnStart
-      />
     </form>
   );
 }
@@ -144,17 +125,18 @@ function AthleteColumn({
             {column.visualLabel}
           </span>
           <label className="flex min-w-0 flex-col" htmlFor={nameId}>
-            <span className="sr-only">{`${column.accessibleLabel} name`}</span>
+            <span className="sr-only">{column.nameAriaLabel}</span>
             <input
               id={nameId}
               value={athlete.name}
               disabled={locked}
               autoComplete="off"
-              aria-label={`${column.accessibleLabel} name`}
+              placeholder={column.namePlaceholder}
+              aria-label={column.nameAriaLabel}
               aria-invalid={nameError !== null}
               aria-describedby={nameError ? `${nameId}-error` : undefined}
               onChange={(event) => onChange({ name: event.target.value })}
-              className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 text-sm font-semibold text-brand-navy outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
+              className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-2 text-sm font-semibold text-brand-navy outline-none placeholder:font-medium placeholder:text-muted/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
             />
           </label>
           {nameError ? (
@@ -166,7 +148,7 @@ function AthleteColumn({
       </div>
       <FinishingTimeFields
         athleteId={athlete.id}
-        label={`${column.accessibleLabel} finishing time`}
+        label={column.timeLabel}
         time={athlete.time}
         locked={locked}
         error={timeError}

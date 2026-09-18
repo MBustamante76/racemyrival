@@ -50,7 +50,7 @@ describe("Phase 2E infield clock", () => {
     expect(screen.getByTestId("race-lap")).toHaveTextContent("LAP 1 OF 2");
 
     await setFinishingTimes(user, "2.00", "2.00");
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     expect(screen.getByTestId("race-distance-readout")).toHaveTextContent("400m");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_230);
@@ -66,7 +66,7 @@ describe("Phase 2E infield clock", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
     await user.click(screen.getByTestId("playback-speed-5x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));

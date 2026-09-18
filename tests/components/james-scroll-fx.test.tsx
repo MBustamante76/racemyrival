@@ -56,7 +56,7 @@ describe("James scroll and bookend FX", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 
@@ -82,7 +82,7 @@ describe("James scroll and bookend FX", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 

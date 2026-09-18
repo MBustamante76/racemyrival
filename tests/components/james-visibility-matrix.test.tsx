@@ -45,16 +45,19 @@ describe("James visibility matrix", () => {
     expect(screen.getByTestId("setup-card")).toBeInTheDocument();
     expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
-    expect(container.innerHTML.indexOf('data-testid="track-stage"')).toBeLessThan(
-      container.innerHTML.indexOf('data-testid="setup-card"'),
-    );
+    const markup = container.innerHTML;
+    const trackAt = markup.indexOf('data-testid="track-stage"');
+    const controlsAt = markup.indexOf('data-testid="race-controls"');
+    const setupAt = markup.indexOf('data-testid="setup-card"');
+    expect(trackAt).toBeLessThan(controlsAt);
+    expect(controlsAt).toBeLessThan(setupAt);
   });
 
   it("shows track only while running or paused, with live race controls", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
 
@@ -75,7 +78,7 @@ describe("James visibility matrix", () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(1_000);

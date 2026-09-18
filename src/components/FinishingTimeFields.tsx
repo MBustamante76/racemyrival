@@ -79,12 +79,12 @@ export function FinishingTimeFields({
       className="flex w-full min-w-0 flex-col gap-1"
       aria-describedby={error ? errorId : undefined}
     >
-      <legend className="sr-only">{label}</legend>
+      <legend className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted">{label}</legend>
       <div className="flex w-full min-w-0 max-w-none items-end gap-0.5 rounded-[var(--rmr-radius-control)] border border-input-border bg-card px-2 py-1">
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}
-          fieldLabel={`${label.replace(/ finishing time$/, "")} minutes`}
+          fieldLabel={`${label} minutes`}
           caption="M"
           value={time.minutes}
           locked={locked}
@@ -99,7 +99,7 @@ export function FinishingTimeFields({
         <TimePartInput
           id={`${athleteId}-seconds`}
           inputRef={secondsRef}
-          fieldLabel={`${label.replace(/ finishing time$/, "")} seconds`}
+          fieldLabel={`${label} seconds`}
           caption="S"
           value={time.seconds}
           locked={locked}
@@ -114,7 +114,7 @@ export function FinishingTimeFields({
         <TimePartInput
           id={`${athleteId}-hundredths`}
           inputRef={hundredthsRef}
-          fieldLabel={`${label.replace(/ finishing time$/, "")} hundredths`}
+          fieldLabel={`${label} hundredths`}
           caption="100THS"
           value={time.hundredths}
           locked={locked}

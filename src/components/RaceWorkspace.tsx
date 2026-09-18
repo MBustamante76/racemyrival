@@ -19,6 +19,7 @@ import {
 import { formatLapLabel } from "./lapLabel";
 import { RaceControls } from "./RaceControls";
 import { RaceFinishConfetti, RaceStartFlash, scrollTrackIntoView, useRaceBookendFx } from "./RaceFx";
+import { START_GUN_LEAD_MS } from "./raceAudio";
 import { ResultPanel } from "./ResultPanel";
 import { SetupCard } from "./SetupCard";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
@@ -51,9 +52,11 @@ export function RaceWorkspace({
   ]);
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
+  const [pendingStart, setPendingStart] = useState(false);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
   const trackStageRef = useRef<HTMLElement | null>(null);
+  const startDelayRef = useRef<number | null>(null);
 
   const draft = { distanceId, athletes };
   const parsed = parseRaceForm(draft);
@@ -61,13 +64,12 @@ export function RaceWorkspace({
   const distanceLabel = raceDistanceById(distanceId)?.label ?? "800m";
   const analyticsRace = useMemo(() => ({ distanceId, distanceM }), [distanceId, distanceM]);
   const status: RaceStatus = telemetry?.status ?? "idle";
-  const formLocked = status !== "idle";
-  const startEnabled = status === "idle" && canStartRace(draft);
-  const showSetup = status === "idle";
-  const showLiveControls = status !== "idle";
+  const formLocked = status !== "idle" || pendingStart;
+  const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
+  const showSetup = status === "idle" && !pendingStart;
   const showResult = Boolean(telemetry?.result);
   const raceWon = Boolean(telemetry?.winnerSnapshot);
-  const { startFlash, finishConfetti } = useRaceBookendFx(status, raceWon);
+  const { startFlash, finishConfetti, triggerStartFx } = useRaceBookendFx(raceWon);
   const leader = telemetry?.athletes.reduce((current, athlete) =>
     athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
   );
@@ -102,6 +104,9 @@ export function RaceWorkspace({
     return () => {
       sessionRef.current?.reset();
       sessionRef.current = null;
+      if (startDelayRef.current !== null) {
+        window.clearTimeout(startDelayRef.current);
+      }
     };
   }, []);
 
@@ -146,19 +151,54 @@ export function RaceWorkspace({
     scrollTrackIntoView(trackStageRef.current);
   }
 
-  function handleStart(): void {
-    if (!startEnabled || !parsed) {
+  function clearStartDelay(): void {
+    if (startDelayRef.current !== null) {
+      window.clearTimeout(startDelayRef.current);
+      startDelayRef.current = null;
+    }
+    setPendingStart(false);
+  }
+
+  function beginRace(kind: "start" | "replay"): void {
+    if (!parsed) {
       return;
     }
 
+    clearStartDelay();
+    setPendingStart(true);
     completedRaceKeyRef.current = null;
     sessionRef.current?.reset();
     const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
     sessionRef.current = loop;
     loop.setPlaybackRate(playbackRate);
-    trackRaceStarted({ ...analyticsRace, playbackRate });
-    loop.start();
+    if (kind === "start") {
+      trackRaceStarted({ ...analyticsRace, playbackRate });
+    } else {
+      trackReplay(analyticsRace);
+    }
+    triggerStartFx();
     focusTrack();
+    if (START_GUN_LEAD_MS <= 0) {
+      loop.start();
+      setPendingStart(false);
+      return;
+    }
+    startDelayRef.current = window.setTimeout(() => {
+      startDelayRef.current = null;
+      if (sessionRef.current !== loop) {
+        setPendingStart(false);
+        return;
+      }
+      loop.start();
+      setPendingStart(false);
+    }, START_GUN_LEAD_MS);
+  }
+
+  function handleStart(): void {
+    if (!startEnabled || !parsed) {
+      return;
+    }
+    beginRace("start");
   }
 
   function handlePlaybackRate(rate: PlaybackRate): void {
@@ -176,6 +216,7 @@ export function RaceWorkspace({
   }
 
   function handleReset(): void {
+    clearStartDelay();
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
@@ -186,18 +227,11 @@ export function RaceWorkspace({
     if (!parsed) {
       return;
     }
-
-    completedRaceKeyRef.current = null;
-    sessionRef.current?.reset();
-    const loop = createRaceLoop(createConfiguredRace(parsed), setTelemetry, loopDependencies);
-    sessionRef.current = loop;
-    loop.setPlaybackRate(playbackRate);
-    trackReplay(analyticsRace);
-    loop.start();
-    focusTrack();
+    beginRace("replay");
   }
 
   function handleRaceAgain(): void {
+    clearStartDelay();
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
@@ -234,39 +268,29 @@ export function RaceWorkspace({
               <RaceFinishConfetti active={finishConfetti} />
             </>
           }
+          controls={
+            <RaceControls
+              status={status}
+              startEnabled={startEnabled}
+              playbackRate={playbackRate}
+              onStart={handleStart}
+              onPause={handlePause}
+              onResume={handleResume}
+              onReset={handleReset}
+              onPlaybackRate={handlePlaybackRate}
+            />
+          }
         />
       </div>
-
-      {showLiveControls ? (
-        <div className="rounded-[var(--rmr-radius-card)] border border-border bg-card p-3 shadow-card">
-          <RaceControls
-            status={status}
-            startEnabled={false}
-            playbackRate={playbackRate}
-            onStart={handleStart}
-            onPause={handlePause}
-            onResume={handleResume}
-            onReset={handleReset}
-            onPlaybackRate={handlePlaybackRate}
-          />
-        </div>
-      ) : null}
 
       {showSetup ? (
         <SetupCard
           distanceId={distanceId}
           athletes={athletes}
-          status={status}
           formLocked={formLocked}
-          startEnabled={startEnabled}
-          playbackRate={playbackRate}
           onDistanceChange={setDistanceId}
           onAthleteChange={updateAthlete}
           onStart={handleStart}
-          onPause={handlePause}
-          onResume={handleResume}
-          onReset={handleReset}
-          onPlaybackRate={handlePlaybackRate}
         />
       ) : null}
 

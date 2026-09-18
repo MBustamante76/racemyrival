@@ -41,6 +41,35 @@ function createFakeLoopClock() {
 }
 
 describe("mobile portrait layout regressions", () => {
+  it("places race controls under the track and above setup on idle", () => {
+    const { container } = render(<RaceWorkspace />);
+    const markup = container.innerHTML;
+    const trackAt = markup.indexOf('data-testid="track-stage"');
+    const controlsAt = markup.indexOf('data-testid="race-controls"');
+    const setupAt = markup.indexOf('data-testid="setup-card"');
+    expect(screen.getByTestId("track-controls").contains(screen.getByTestId("race-controls"))).toBe(
+      true,
+    );
+    expect(screen.getByTestId("setup-card").contains(screen.getByTestId("race-controls"))).toBe(
+      false,
+    );
+    expect(trackAt).toBeLessThan(controlsAt);
+    expect(controlsAt).toBeLessThan(setupAt);
+  });
+
+  it("keeps speed and start actions on one compact horizontal control row", () => {
+    render(<RaceWorkspace />);
+    const controls = screen.getByTestId("race-controls");
+    expect(controls.className).toContain("flex-wrap");
+    expect(controls.className).toContain("justify-center");
+    expect(controls.className).toContain("sm:justify-between");
+    expect(controls.className).not.toMatch(/(?:^|\s)flex-col(?:\s|$)/);
+    expect(controls.contains(screen.getByTestId("playback-speed"))).toBe(true);
+    expect(controls.contains(screen.getByRole("button", { name: "Start race" }))).toBe(true);
+    expect(screen.getByTestId("playback-speed").className).toContain("justify-center");
+    expect(screen.getByRole("button", { name: "Start race" }).className).not.toContain("w-full");
+  });
+
   it("keeps finishing-time captions visible and times on their own row under the athlete identity", () => {
     render(<RaceWorkspace />);
 
@@ -50,7 +79,7 @@ describe("mobile portrait layout regressions", () => {
     expect(within(athleteA).getByText("S")).toBeVisible();
     expect(within(athleteA).getByText("100THS")).toBeVisible();
 
-    const minutes = within(athleteA).getByLabelText("Athlete A minutes");
+    const minutes = within(athleteA).getByLabelText("Enter your time minutes");
     const timeGroup = minutes.closest("div");
     expect(timeGroup?.className).toContain("w-full");
     expect(timeGroup?.className).toContain("min-w-0");
@@ -77,7 +106,7 @@ describe("mobile portrait layout regressions", () => {
 
     expect(screen.queryByTestId("telemetry-strip")).not.toBeInTheDocument();
 
-    await user.selectOptions(screen.getByLabelText("Race distance"), "400");
+    await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "1.00");
     await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(500);

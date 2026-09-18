@@ -4,27 +4,40 @@ export function TrackStage({
   clock,
   track,
   overlay,
+  controls,
   stageRef,
 }: {
   clock: ReactNode;
   track: ReactNode;
   overlay?: ReactNode;
+  /** Start / pause / speed — kept under the track so both stay in view on mobile. */
+  controls?: ReactNode;
   stageRef?: Ref<HTMLElement>;
 }) {
   return (
-    <section
-      ref={stageRef as Ref<HTMLDivElement>}
-      data-testid="track-stage"
-      className="relative flex w-full min-w-0 aspect-[198/134] min-h-0 flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card sm:aspect-auto sm:min-h-[min(48vh,24rem)] md:min-h-[min(56vh,30rem)] lg:min-h-[min(58vh,34rem)]"
-    >
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
-        {clock}
-      </div>
-      <div className="flex w-full flex-1 items-center px-0 py-0 sm:py-2 md:py-3">
-        {track}
-      </div>
-      {overlay}
-    </section>
+    <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card">
+      <section
+        ref={stageRef as Ref<HTMLDivElement>}
+        data-testid="track-stage"
+        className="relative flex w-full min-w-0 aspect-[198/134] min-h-0 flex-col sm:aspect-auto sm:min-h-[min(48vh,24rem)] md:min-h-[min(56vh,30rem)] lg:min-h-[min(58vh,34rem)]"
+      >
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
+          {clock}
+        </div>
+        <div className="flex w-full flex-1 items-center px-0 py-0 sm:py-2 md:py-3">
+          {track}
+        </div>
+        {overlay}
+      </section>
+      {controls ? (
+        <div
+          data-testid="track-controls"
+          className="border-t border-border px-2 py-1.5 sm:px-3 sm:py-2"
+        >
+          {controls}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

@@ -18,7 +18,7 @@ describe("James breakpoint and pin contracts", () => {
 
   it("styles name fields like bordered inputs", () => {
     render(<RaceWorkspace />);
-    const name = screen.getByLabelText("Athlete A name");
+    const name = screen.getByLabelText("Enter your name");
     expect(name.className).toContain("border");
     expect(name.className).toContain("border-input-border");
     expect(name.className).toContain("bg-surface-alt");
@@ -68,6 +68,6 @@ describe("James breakpoint and pin contracts", () => {
 
     render(<RaceWorkspace />);
     expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
-    expect(within(screen.getByTestId("setup-athlete-A")).getByLabelText("Athlete A name")).toBeInTheDocument();
+    expect(within(screen.getByTestId("setup-athlete-A")).getByLabelText("Enter your name")).toBeInTheDocument();
   });
 });

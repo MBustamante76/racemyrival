@@ -47,7 +47,7 @@ describe("Test gate J", () => {
 
   it("keeps the homepage controls usable in the document flow", () => {
     render(<Home />);
-    expect(screen.getByLabelText("Race distance")).toBeEnabled();
+    expect(screen.getByLabelText("Select race distance")).toBeEnabled();
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(screen.getByRole("img", { name: "400 metre stadium race track" })).toBeInTheDocument();
   });

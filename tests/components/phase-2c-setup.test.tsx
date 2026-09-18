@@ -41,19 +41,21 @@ function createFakeLoopClock() {
 function expectSetupCardControls(): void {
   const card = screen.getByTestId("setup-card");
   expect(card).toBeInTheDocument();
-  expect(screen.getByLabelText("Race distance")).toBeInTheDocument();
+  expect(screen.getByLabelText("Select race distance")).toBeInTheDocument();
   expect(screen.getByText("YOU")).toBeInTheDocument();
   expect(screen.getByText("RIVAL")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete A minutes")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete A seconds")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete A hundredths")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete B minutes")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete B seconds")).toBeInTheDocument();
-  expect(screen.getByLabelText("Athlete B hundredths")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter your time minutes")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter your time seconds")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter your time hundredths")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter rival's time minutes")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter rival's time seconds")).toBeInTheDocument();
+  expect(screen.getByLabelText("Enter rival's time hundredths")).toBeInTheDocument();
   expect(screen.getByTestId("playback-speed")).toBeInTheDocument();
-  expect(card.contains(screen.getByLabelText("Race distance"))).toBe(true);
+  expect(screen.getByTestId("race-controls")).toBeInTheDocument();
+  expect(card.contains(screen.getByLabelText("Select race distance"))).toBe(true);
   expect(card.contains(screen.getByTestId("setup-athlete-A"))).toBe(true);
   expect(card.contains(screen.getByTestId("setup-athlete-B"))).toBe(true);
+  expect(card.contains(screen.getByTestId("race-controls"))).toBe(false);
 }
 
 describe("Phase 2C setup card", () => {

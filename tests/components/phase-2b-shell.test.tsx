@@ -7,15 +7,15 @@ import { PRESENTATION_ASPECT, trackViewBox } from "@/components/trackView";
 import { SHOW_APP_HEADER } from "@/components/uiFlags";
 
 const REQUIRED_CONTROLS = [
-  "Race distance",
-  "Athlete A name",
-  "Athlete B name",
-  "Athlete A minutes",
-  "Athlete A seconds",
-  "Athlete A hundredths",
-  "Athlete B minutes",
-  "Athlete B seconds",
-  "Athlete B hundredths",
+  "Select race distance",
+  "Enter your name",
+  "Enter rival's name",
+  "Enter your time minutes",
+  "Enter your time seconds",
+  "Enter your time hundredths",
+  "Enter rival's time minutes",
+  "Enter rival's time seconds",
+  "Enter rival's time hundredths",
   "Start race",
 ] as const;
 
@@ -33,6 +33,9 @@ describe("Phase 2B page shell", () => {
 
     const markup = container.innerHTML;
     expect(markup.indexOf("data-testid=\"track-stage\"")).toBeLessThan(
+      markup.indexOf("data-testid=\"race-controls\""),
+    );
+    expect(markup.indexOf("data-testid=\"race-controls\"")).toBeLessThan(
       markup.indexOf("data-testid=\"setup-card\""),
     );
   });
@@ -43,7 +46,7 @@ describe("Phase 2B page shell", () => {
     for (const name of REQUIRED_CONTROLS) {
       if (name === "Start race") {
         expect(screen.getByRole("button", { name })).toBeEnabled();
-      } else if (name === "Race distance") {
+      } else if (name === "Select race distance") {
         expect(screen.getByLabelText(name)).toBeEnabled();
       } else {
         expect(screen.getByLabelText(name)).toBeInTheDocument();

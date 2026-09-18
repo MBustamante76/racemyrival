@@ -2,27 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fireFinishConfetti } from "./finishConfettiBurst";
-
-const START_GUN_SRC = "/audio/starting_gun.mp3";
-const FINISH_CHEER_SRC = "/audio/crowd_cheering.mp3";
+import { playFinishCheer, playStartGun, preloadRaceAudio } from "./raceAudio";
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
     return false;
   }
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function playSound(src: string, volume = 0.75): void {
-  try {
-    const audio = new Audio(src);
-    audio.volume = volume;
-    void audio.play().catch(() => {
-      // Autoplay may be blocked until a user gesture; visual FX still run.
-    });
-  } catch {
-    // Audio construction can fail in restricted environments.
-  }
 }
 
 export function RaceStartFlash({ active }: { active: boolean }) {
@@ -54,33 +40,44 @@ export function RaceFinishConfetti({ active }: { active: boolean }) {
   );
 }
 
-/** Triggers start flash on race start; confetti when the winner crosses (not when all finish). */
-export function useRaceBookendFx(
-  status: string,
-  raceWon = false,
-): {
+/**
+ * Start FX are armed from Start/Replay (gun bang before go).
+ * Finish FX fire when the winner crosses (`raceWon`).
+ */
+export function useRaceBookendFx(raceWon = false): {
   startFlash: boolean;
   finishConfetti: boolean;
+  triggerStartFx: () => void;
 } {
-  const previousStatus = useRef(status);
   const [startFlash, setStartFlash] = useState(false);
   const [finishConfetti, setFinishConfetti] = useState(false);
+  const startFlashTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    const prev = previousStatus.current;
-    previousStatus.current = status;
+    preloadRaceAudio();
+  }, []);
 
-    if (prev !== "running" && status === "running") {
-      setStartFlash(true);
-      if (!prefersReducedMotion()) {
-        playSound(START_GUN_SRC, 0.85);
+  useEffect(() => {
+    return () => {
+      if (startFlashTimer.current !== null) {
+        window.clearTimeout(startFlashTimer.current);
       }
-      const timer = window.setTimeout(() => setStartFlash(false), 450);
-      return () => window.clearTimeout(timer);
-    }
+    };
+  }, []);
 
-    return undefined;
-  }, [status]);
+  function triggerStartFx(): void {
+    if (startFlashTimer.current !== null) {
+      window.clearTimeout(startFlashTimer.current);
+    }
+    setStartFlash(true);
+    if (!prefersReducedMotion()) {
+      playStartGun();
+    }
+    startFlashTimer.current = window.setTimeout(() => {
+      setStartFlash(false);
+      startFlashTimer.current = null;
+    }, 450);
+  }
 
   useEffect(() => {
     if (!raceWon) {
@@ -90,7 +87,7 @@ export function useRaceBookendFx(
 
     setFinishConfetti(true);
     if (!prefersReducedMotion()) {
-      playSound(FINISH_CHEER_SRC, 0.7);
+      playFinishCheer();
       void fireFinishConfetti().catch(() => {
         // Canvas / WebGL may be unavailable.
       });
@@ -99,7 +96,7 @@ export function useRaceBookendFx(
     return () => window.clearTimeout(timer);
   }, [raceWon]);
 
-  return { startFlash, finishConfetti };
+  return { startFlash, finishConfetti, triggerStartFx };
 }
 
 export function scrollTrackIntoView(element: HTMLElement | null): void {
