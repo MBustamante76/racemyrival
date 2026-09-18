@@ -54,15 +54,15 @@ export function RaceApp({
         className={
           mode === "wireframe"
             ? "mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6"
-            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 sm:gap-3 sm:px-4 sm:py-4 md:gap-4 md:px-6 md:py-5 lg:px-8"
+            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 sm:gap-2 sm:px-4 sm:py-3 md:gap-3 md:px-6 md:py-3 lg:px-8"
         }
       >
-        <div className="flex flex-col items-center gap-1 text-center sm:gap-2">
+        <div className="flex flex-col items-center gap-1 text-center">
           <h1
             className={
               mode === "wireframe"
                 ? "text-center text-xl font-semibold tracking-tight text-zinc-950"
-                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy sm:text-5xl"
+                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy sm:text-4xl lg:text-5xl"
             }
           >
             {mode === "wireframe" ? (

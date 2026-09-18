@@ -240,12 +240,12 @@ export function RaceWorkspace({
   }
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-3 md:gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-2 sm:gap-3">
       <p className="sr-only" data-testid="race-status" aria-live="polite">
         {status}
       </p>
 
-      <div className="min-h-0 w-full flex-1">
+      <div className="w-full min-w-0 shrink-0">
         <TrackStage
           stageRef={trackStageRef}
           clock={

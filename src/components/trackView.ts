@@ -23,7 +23,7 @@ export const PRESENTATION_ASPECT = 3;
 export const MARKER_RADIUS_M = 3.4;
 export const PIN_STEM_M = 7;
 /** Extra vertical viewBox room so pins and name labels are not clipped at the bends. */
-export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 8;
+export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 3;
 /** Modest horizontal room for outfield labels without empty side letterboxing. */
 export const SIDE_CLEARANCE_M = 8;
 export const LABEL_INFIELD_M = 13;

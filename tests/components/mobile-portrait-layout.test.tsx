@@ -70,6 +70,25 @@ describe("mobile portrait layout regressions", () => {
     expect(screen.getByRole("button", { name: "Start race" }).className).not.toContain("w-full");
   });
 
+  it("keeps the track panel from flex-shrinking under the setup card", () => {
+    const workspace = readFileSync(resolve("src/components/RaceWorkspace.tsx"), "utf8");
+    expect(workspace).toContain('className="w-full min-w-0 shrink-0"');
+    expect(workspace).not.toMatch(/min-h-0 w-full flex-1/);
+  });
+
+  it("stacks track controls below a clipped stage instead of under the SVG", () => {
+    render(<RaceWorkspace />);
+    const stage = screen.getByTestId("track-stage");
+    const controls = screen.getByTestId("track-controls");
+    expect(stage.className).toContain("overflow-hidden");
+    expect(controls.className).toContain("bg-card");
+    expect(controls.className).toContain("z-20");
+    expect(controls.className).toContain("shrink-0");
+    expect(stage.contains(controls)).toBe(false);
+    expect(screen.getByTestId("track-surface-frame").className).toContain("absolute");
+    expect(screen.getByTestId("track-surface-frame").className).toContain("overflow-hidden");
+  });
+
   it("keeps finishing-time captions visible and times on their own row under the athlete identity", () => {
     render(<RaceWorkspace />);
 
@@ -135,17 +154,21 @@ describe("mobile portrait layout regressions", () => {
     expect(clockShell?.textContent ?? "").not.toMatch(/seconds/i);
 
     const trackSource = readFileSync(resolve("src/components/TrackStage.tsx"), "utf8");
-    expect(trackSource).toContain("aspect-[198/134]");
+    expect(trackSource).toContain("trackViewBox");
+    expect(trackSource).toContain("aspectRatio");
     expect(trackSource).toContain("min-h-0");
-    expect(trackSource).toContain("sm:aspect-auto");
-    expect(trackSource).toContain("sm:min-h-[min(48vh,24rem)]");
-    expect(trackSource).toContain("py-0");
-    expect(trackSource).toContain("sm:py-2");
+    expect(trackSource).toContain("sm:max-w-[min(100%,calc(min(44vh,24rem)*${aspect}))]");
+    expect(trackSource).toContain("md:max-w-[min(100%,calc(min(42vh,24rem)*${aspect}))]");
+    expect(trackSource).toContain("lg:max-w-[min(100%,calc(min(46vh,26rem)*${aspect}))]");
+    expect(trackSource).toContain("overflow-hidden");
+    expect(trackSource).toContain("absolute inset-0");
+    expect(trackSource).toContain("track-surface-frame");
     expect(trackSource).not.toContain("w-[132%]");
     expect(trackSource).not.toContain("w-[140%]");
     expect(trackSource).not.toContain("w-[148%]");
     expect(trackSource).not.toContain("scale(");
     expect(trackSource).not.toContain(">seconds<");
+    expect(screen.getByTestId("track-stage").getAttribute("style") ?? "").toMatch(/aspect-ratio/i);
 
     const trackViewSource = readFileSync(resolve("src/components/trackView.ts"), "utf8");
     expect(trackViewSource).toContain("MARKER_CLEARANCE_M");

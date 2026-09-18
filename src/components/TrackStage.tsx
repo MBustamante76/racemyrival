@@ -1,4 +1,5 @@
 import type { ReactNode, Ref } from "react";
+import { trackViewBox } from "./trackView";
 
 export function TrackStage({
   clock,
@@ -14,25 +15,36 @@ export function TrackStage({
   controls?: ReactNode;
   stageRef?: Ref<HTMLElement>;
 }) {
+  const viewBox = trackViewBox();
+  const aspect = viewBox.width / viewBox.height;
+
   return (
-    <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card">
+    <div className="flex w-full min-w-0 flex-col rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card">
       <section
         ref={stageRef as Ref<HTMLDivElement>}
         data-testid="track-stage"
-        className="relative flex w-full min-w-0 aspect-[198/134] min-h-0 flex-col sm:aspect-auto sm:min-h-[min(48vh,24rem)] md:min-h-[min(56vh,30rem)] lg:min-h-[min(58vh,34rem)]"
+        style={{ aspectRatio: `${viewBox.width} / ${viewBox.height}` }}
+        className={
+          "relative isolate mx-auto min-h-0 w-full overflow-hidden " +
+          `sm:max-w-[min(100%,calc(min(44vh,24rem)*${aspect}))] ` +
+          `md:max-w-[min(100%,calc(min(42vh,24rem)*${aspect}))] ` +
+          `lg:max-w-[min(100%,calc(min(46vh,26rem)*${aspect}))] ` +
+          `xl:max-w-[min(100%,calc(min(50vh,30rem)*${aspect}))]`
+        }
       >
+        {/* Absolutely contained so the SVG cannot paint over the controls row. */}
+        <div className="absolute inset-0 overflow-hidden" data-testid="track-surface-frame">
+          {track}
+        </div>
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
           {clock}
-        </div>
-        <div className="flex w-full flex-1 items-center px-0 py-0 sm:py-2 md:py-3">
-          {track}
         </div>
         {overlay}
       </section>
       {controls ? (
         <div
           data-testid="track-controls"
-          className="border-t border-border px-2 py-1.5 sm:px-3 sm:py-2"
+          className="relative z-20 shrink-0 border-t border-border bg-card px-2 py-1.5 sm:px-3 sm:py-2"
         >
           {controls}
         </div>
