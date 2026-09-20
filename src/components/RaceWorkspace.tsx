@@ -22,7 +22,9 @@ import { RaceFinishConfetti, RaceStartFlash, prefersReducedMotion, scrollTrackIn
 import { START_GUN_LEAD_MS } from "./raceAudio";
 import { resolveResultRevealDelayMs } from "./resultReveal";
 import { ResultPanel } from "./ResultPanel";
+import { SetupBottomSheet } from "./SetupBottomSheet";
 import { SetupCard } from "./SetupCard";
+import { useLandscapeFit } from "./landscapeFit";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -55,6 +57,8 @@ export function RaceWorkspace({
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const [pendingStart, setPendingStart] = useState(false);
   const [resultsRevealed, setResultsRevealed] = useState(false);
+  const [setupSheetOpen, setSetupSheetOpen] = useState(false);
+  const landscapeFit = useLandscapeFit();
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
   const trackStageRef = useRef<HTMLElement | null>(null);
@@ -81,6 +85,12 @@ export function RaceWorkspace({
   const showResult = Boolean(telemetry?.result) && resultsRevealed;
   const raceWon = Boolean(telemetry?.winnerSnapshot);
   const { startFlash, finishConfetti, triggerStartFx } = useRaceBookendFx(raceWon);
+
+  useEffect(() => {
+    if (!showSetup) {
+      setSetupSheetOpen(false);
+    }
+  }, [showSetup]);
   const leader = telemetry?.athletes.reduce((current, athlete) =>
     athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
   );
@@ -412,14 +422,27 @@ export function RaceWorkspace({
       </div>
 
       {showSetup ? (
-        <SetupCard
-          distanceId={distanceId}
-          athletes={athletes}
-          formLocked={formLocked}
-          onDistanceChange={handleDistanceChange}
-          onAthleteChange={updateAthlete}
-          onStart={handleStart}
-        />
+        landscapeFit ? (
+          <SetupBottomSheet open={setupSheetOpen} onOpenChange={setSetupSheetOpen}>
+            <SetupCard
+              distanceId={distanceId}
+              athletes={athletes}
+              formLocked={formLocked}
+              onDistanceChange={handleDistanceChange}
+              onAthleteChange={updateAthlete}
+              onStart={handleStart}
+            />
+          </SetupBottomSheet>
+        ) : (
+          <SetupCard
+            distanceId={distanceId}
+            athletes={athletes}
+            formLocked={formLocked}
+            onDistanceChange={handleDistanceChange}
+            onAthleteChange={updateAthlete}
+            onStart={handleStart}
+          />
+        )
       ) : null}
 
       {showResult && telemetry?.result ? (
