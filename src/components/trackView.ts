@@ -24,8 +24,8 @@ export const MARKER_RADIUS_M = 3.4;
 export const PIN_STEM_M = 7;
 /** Extra vertical viewBox room so pins and name labels are not clipped at the bends. */
 export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 3;
-/** Modest horizontal room for outfield labels without empty side letterboxing. */
-export const SIDE_CLEARANCE_M = 8;
+/** Horizontal room so the oval and outfield labels are not clipped at the stage edge. */
+export const SIDE_CLEARANCE_M = 18;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 /** Race-distance gap (m) at which labels enter close (above/below) mode. */

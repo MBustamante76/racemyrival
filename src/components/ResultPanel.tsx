@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { formatRaceTime } from "@/domain/race";
 import type { RaceResult } from "@/domain/race";
 import { SHOW_SHARE_RESULT } from "./uiFlags";
@@ -20,17 +21,15 @@ function formatFullRaceTime(milliseconds: number): string {
   return formatted.includes(":") ? formatted : `0:${formatted.padStart(5, "0")}`;
 }
 
-export function ResultPanel({
-  result,
-  athletes,
-  onReplay,
-  onRaceAgain,
-}: {
-  result: RaceResult;
-  athletes: readonly ResultAthleteView[];
-  onReplay?: () => void;
-  onRaceAgain?: () => void;
-}) {
+export const ResultPanel = forwardRef<
+  HTMLElement,
+  {
+    result: RaceResult;
+    athletes: readonly ResultAthleteView[];
+    onReplay?: () => void;
+    onRaceAgain?: () => void;
+  }
+>(function ResultPanel({ result, athletes, onReplay, onRaceAgain }, ref) {
   const winner = athletes.find((athlete) => athlete.id === result.winnerId);
   const loser = athletes.find((athlete) => athlete.id !== result.winnerId);
   const distanceGapM = Math.round(result.snapshot.leadM);
@@ -41,15 +40,16 @@ export function ResultPanel({
   const actionCols = [onReplay, onRaceAgain, SHOW_SHARE_RESULT].filter(Boolean).length;
   const actionGrid =
     actionCols >= 3
-      ? "mt-5 grid gap-2 sm:grid-cols-3 sm:items-center"
+      ? "mt-3 grid gap-2 sm:grid-cols-3 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2"
       : actionCols === 2
-        ? "mt-5 grid gap-2 sm:grid-cols-2 sm:items-center"
-        : "mt-5 grid gap-2 sm:items-center";
+        ? "mt-3 grid gap-2 sm:grid-cols-2 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2"
+        : "mt-3 grid gap-2 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2";
 
   return (
     <section
+      ref={ref}
       aria-labelledby="race-complete-heading"
-      className="result-reveal w-full min-w-0 max-w-full rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-5 shadow-card md:px-6"
+      className="result-reveal w-full min-w-0 max-w-full rounded-[var(--rmr-radius-card)] border border-border bg-card px-4 py-5 shadow-card md:px-6 [@media(orientation:landscape)_and_(max-height:900px)]:px-3 [@media(orientation:landscape)_and_(max-height:900px)]:py-3"
       data-testid="result-panel"
       data-snapshot-race-time-ms={result.snapshot.raceTimeMs}
       data-snapshot-lead-m={result.snapshot.leadM}
@@ -57,7 +57,7 @@ export function ResultPanel({
       <h2 id="race-complete-heading" className="sr-only">
         Race complete
       </h2>
-      <div className="grid items-center gap-5 md:grid-cols-3">
+      <div className="grid items-center gap-5 md:grid-cols-3 [@media(orientation:landscape)_and_(max-height:900px)]:gap-3">
         <div className="flex flex-col items-center gap-5 md:col-span-2 md:flex-row md:items-center">
           <div className="hidden shrink-0 md:flex md:justify-start">
             <TrophyIcon />
@@ -147,7 +147,7 @@ export function ResultPanel({
       ) : null}
     </section>
   );
-}
+});
 
 function TrophyIcon() {
   return (

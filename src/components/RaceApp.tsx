@@ -54,15 +54,15 @@ export function RaceApp({
         className={
           mode === "wireframe"
             ? "mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6"
-            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-1 [@media(orientation:landscape)_and_(max-height:500px)]:py-1 sm:gap-2 sm:px-4 sm:py-3 md:gap-3 md:px-6 md:py-3 lg:px-8"
+            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 [@media(orientation:landscape)_and_(max-height:900px)]:gap-1 [@media(orientation:landscape)_and_(max-height:900px)]:py-1 sm:gap-2 sm:px-4 sm:py-3 md:gap-3 md:px-6 md:py-3 lg:px-8"
         }
       >
-        <div className="flex flex-col items-center gap-1 text-center [@media(orientation:landscape)_and_(max-height:500px)]:gap-0">
+        <div className="flex flex-col items-center gap-1 text-center [@media(orientation:landscape)_and_(max-height:900px)]:gap-0">
           <h1
             className={
               mode === "wireframe"
                 ? "text-center text-xl font-semibold tracking-tight text-zinc-950"
-                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:500px)]:text-xl sm:text-4xl lg:text-5xl"
+                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xl sm:text-4xl lg:text-5xl"
             }
           >
             {mode === "wireframe" ? (
@@ -77,9 +77,10 @@ export function RaceApp({
             className={
               mode === "wireframe"
                 ? "max-w-xl text-sm text-zinc-600"
-                : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:500px)]:hidden sm:text-base"
+                : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:hidden sm:text-base"
             }
-          >            {mode === "wireframe"
+          >
+            {mode === "wireframe"
               ? "Enter two performances and start. Finishing times use minutes, seconds and hundredths. Live controls stay on one shared clock."
               : "See what the difference really looks like."}
           </p>

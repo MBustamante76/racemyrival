@@ -101,13 +101,13 @@ body {
 }
 
 .result-reveal {
-  animation: result-reveal 220ms ease-out;
+  animation: result-reveal 400ms ease-out;
 }
 
 @keyframes result-reveal {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(2rem);
   }
   to {
     opacity: 1;

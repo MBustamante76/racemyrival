@@ -158,10 +158,14 @@ describe("mobile portrait layout regressions", () => {
     expect(trackSource).toContain("aspectRatio");
     expect(trackSource).toContain("min-h-0");
     expect(trackSource).toContain("max-h-[calc(100svh-5.5rem)]");
-    expect(trackSource).toContain("max-w-[min(100%,calc((100svh-5.5rem)*${aspect}))]");
-    expect(trackSource).toContain("sm:max-w-[min(100%,calc(min(44svh,24rem)*${aspect}))]");
-    expect(trackSource).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*${aspect}))]");
-    expect(trackSource).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*${aspect}))]");
+    expect(trackSource).toContain("max-w-[min(100%,calc((100svh-5.5rem)*var(--track-aspect)))]");
+    expect(trackSource).toContain("sm:max-w-[min(100%,calc(min(44svh,24rem)*var(--track-aspect)))]");
+    expect(trackSource).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))]");
+    expect(trackSource).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))]");
+    expect(trackSource).toContain("max-height:900px");
+    expect(trackSource).toContain("max-h-[calc(100svh-8rem)]");
+    expect(trackSource).toContain("--track-aspect");
+    expect(trackSource).not.toContain("max-height:500px");
     expect(trackSource).toContain("overflow-hidden");
     expect(trackSource).toContain("absolute inset-0");
     expect(trackSource).toContain("track-surface-frame");

@@ -11,6 +11,8 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+export { prefersReducedMotion };
+
 export function RaceStartFlash({ active }: { active: boolean }) {
   if (!active) {
     return null;
