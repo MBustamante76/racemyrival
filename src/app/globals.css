@@ -115,6 +115,44 @@ body {
   }
 }
 
+.setup-sheet-backdrop {
+  animation: setup-sheet-backdrop-in 180ms ease-out;
+}
+
+@keyframes setup-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.setup-sheet-panel {
+  transition:
+    max-height 280ms ease-out,
+    opacity 200ms ease-out;
+}
+
+.setup-sheet-panel-closed {
+  max-height: 0;
+  opacity: 0;
+  border-width: 0;
+  pointer-events: none;
+}
+
+.setup-sheet-panel-open {
+  max-height: min(70svh, 28rem);
+  opacity: 1;
+}
+
+.setup-sheet-panel [data-testid="setup-card"] {
+  border-width: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+}
+
 [data-presentation="wireframe"] {
   --rmr-navy: #18181b;
   --rmr-red: #18181b;
@@ -136,6 +174,14 @@ body {
 
   .result-reveal {
     animation: none;
+  }
+
+  .setup-sheet-backdrop {
+    animation: none;
+  }
+
+  .setup-sheet-panel {
+    transition: none;
   }
 
   .race-start-flash {
