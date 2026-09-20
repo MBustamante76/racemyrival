@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { trackViewBox } from "./trackView";
 
 export function TrackStage({
@@ -17,37 +17,47 @@ export function TrackStage({
 }) {
   const viewBox = trackViewBox();
   const aspect = viewBox.width / viewBox.height;
+  const stageStyle = {
+    aspectRatio: `${viewBox.width} / ${viewBox.height}`,
+    // Static Tailwind class names need a var — dynamic ${aspect} in class strings is not emitted.
+    ["--track-aspect" as string]: String(aspect),
+  } satisfies CSSProperties;
 
   return (
     <div className="flex w-full min-w-0 flex-col rounded-[var(--rmr-radius-card)] border border-border bg-card shadow-card">
-      <section
-        ref={stageRef as Ref<HTMLDivElement>}
-        data-testid="track-stage"
-        style={{ aspectRatio: `${viewBox.width} / ${viewBox.height}` }}
-        className={
-          // Height budget reserves page padding + control row so track+buttons fit in short landscape viewports.
-          "relative isolate mx-auto min-h-0 w-full overflow-hidden " +
-          `max-h-[calc(100svh-5.5rem)] ` +
-          `max-w-[min(100%,calc((100svh-5.5rem)*${aspect}))] ` +
-          `sm:max-w-[min(100%,calc(min(44svh,24rem)*${aspect}))] ` +
-          `md:max-w-[min(100%,calc(min(42svh,24rem)*${aspect}))] ` +
-          `lg:max-w-[min(100%,calc(min(46svh,26rem)*${aspect}))] ` +
-          `xl:max-w-[min(100%,calc(min(50svh,30rem)*${aspect}))]`
-        }
-      >
-        {/* Absolutely contained so the SVG cannot paint over the controls row. */}
-        <div className="absolute inset-0 overflow-hidden" data-testid="track-surface-frame">
-          {track}
-        </div>
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
-          {clock}
-        </div>
-        {overlay}
-      </section>
+      <div className="flex w-full min-w-0 justify-center">
+        <section
+          ref={stageRef as Ref<HTMLDivElement>}
+          data-testid="track-stage"
+          style={stageStyle}
+          className={
+            // Portrait / tall: existing caps. Landscape ≤900px: title+track+controls only (~8rem chrome).
+            // max-w must use var(--track-aspect) so Tailwind emits the utility (see style above).
+            "relative isolate min-h-0 w-full overflow-hidden " +
+            "max-h-[calc(100svh-5.5rem)] " +
+            "max-w-[min(100%,calc((100svh-5.5rem)*var(--track-aspect)))] " +
+            "sm:max-w-[min(100%,calc(min(44svh,24rem)*var(--track-aspect)))] " +
+            "md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))] " +
+            "lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))] " +
+            "xl:max-w-[min(100%,calc(min(50svh,30rem)*var(--track-aspect)))] " +
+            "[@media(orientation:landscape)_and_(max-height:900px)]:max-h-[calc(100svh-8rem)] " +
+            "[@media(orientation:landscape)_and_(max-height:900px)]:max-w-[min(100%,calc((100svh-8rem)*var(--track-aspect)))]"
+          }
+        >
+          {/* Inset so the oval never kisses overflow:hidden edges after height-budget scaling. */}
+          <div className="absolute inset-2 overflow-hidden sm:inset-3" data-testid="track-surface-frame">
+            {track}
+          </div>
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-2 sm:px-3">
+            {clock}
+          </div>
+          {overlay}
+        </section>
+      </div>
       {controls ? (
         <div
           data-testid="track-controls"
-          className="relative z-20 shrink-0 border-t border-border bg-card px-2 py-1.5 [@media(orientation:landscape)_and_(max-height:500px)]:py-1 sm:px-3 sm:py-2"
+          className="relative z-20 shrink-0 border-t border-border bg-card px-2 py-1.5 [@media(orientation:landscape)_and_(max-height:900px)]:py-1 sm:px-3 sm:py-2"
         >
           {controls}
         </div>
@@ -66,18 +76,18 @@ export function RaceClockReadout({
   lapText: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-0.5 text-center sm:gap-1">
+    <div className="flex flex-col items-center gap-0.5 text-center sm:gap-1 [@media(orientation:landscape)_and_(max-height:900px)]:gap-0">
       <p
-        className="font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] text-near-black sm:text-xs md:text-sm"
+        className="font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] text-near-black sm:text-xs md:text-sm [@media(orientation:landscape)_and_(max-height:900px)]:text-[10px]"
         data-testid="race-distance-readout"
       >
         {distanceLabel}
       </p>
-      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs">
+      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[9px]">
         Race clock
       </p>
       <p
-        className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-4xl md:text-6xl lg:text-7xl"
+        className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-4xl md:text-6xl lg:text-7xl [@media(orientation:landscape)_and_(max-height:900px)]:!text-2xl"
         data-testid="race-clock"
         aria-label="Race clock"
         aria-live="polite"
@@ -85,7 +95,10 @@ export function RaceClockReadout({
       >
         {timeText}
       </p>
-      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs" data-testid="race-lap">
+      <p
+        className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[9px]"
+        data-testid="race-lap"
+      >
         {lapText}
       </p>
     </div>

@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   title: "Race My Rival",
   description: "See what the difference really looks like.",
   icons: {
-    icon: [{ url: "/RMR_favicon.png", type: "image/png" }],
-    apple: [{ url: "/RMR_favicon.png", type: "image/png" }],
+    icon: [{ url: "/RMR_new.png", type: "image/png" }],
+    apple: [{ url: "/RMR_new.png", type: "image/png" }],
   },
 };
 

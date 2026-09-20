@@ -18,8 +18,9 @@ import {
 } from "./analytics";
 import { formatLapLabel } from "./lapLabel";
 import { RaceControls } from "./RaceControls";
-import { RaceFinishConfetti, RaceStartFlash, scrollTrackIntoView, useRaceBookendFx } from "./RaceFx";
+import { RaceFinishConfetti, RaceStartFlash, prefersReducedMotion, scrollTrackIntoView, useRaceBookendFx } from "./RaceFx";
 import { START_GUN_LEAD_MS } from "./raceAudio";
+import { resolveResultRevealDelayMs } from "./resultReveal";
 import { ResultPanel } from "./ResultPanel";
 import { SetupCard } from "./SetupCard";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
@@ -53,10 +54,13 @@ export function RaceWorkspace({
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const [pendingStart, setPendingStart] = useState(false);
+  const [resultsRevealed, setResultsRevealed] = useState(false);
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
   const trackStageRef = useRef<HTMLElement | null>(null);
+  const resultPanelRef = useRef<HTMLElement | null>(null);
   const startDelayRef = useRef<number | null>(null);
+  const resultRevealTimerRef = useRef<number | null>(null);
   const spaceActionRef = useRef({
     status: "idle" as RaceStatus,
     startEnabled: false,
@@ -74,7 +78,7 @@ export function RaceWorkspace({
   const formLocked = status !== "idle" || pendingStart;
   const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
   const showSetup = status === "idle" && !pendingStart;
-  const showResult = Boolean(telemetry?.result);
+  const showResult = Boolean(telemetry?.result) && resultsRevealed;
   const raceWon = Boolean(telemetry?.winnerSnapshot);
   const { startFlash, finishConfetti, triggerStartFx } = useRaceBookendFx(raceWon);
   const leader = telemetry?.athletes.reduce((current, athlete) =>
@@ -114,8 +118,48 @@ export function RaceWorkspace({
       if (startDelayRef.current !== null) {
         window.clearTimeout(startDelayRef.current);
       }
+      if (resultRevealTimerRef.current !== null) {
+        window.clearTimeout(resultRevealTimerRef.current);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (!telemetry?.result) {
+      if (resultRevealTimerRef.current !== null) {
+        window.clearTimeout(resultRevealTimerRef.current);
+        resultRevealTimerRef.current = null;
+      }
+      setResultsRevealed(false);
+      return;
+    }
+
+    const delay = resolveResultRevealDelayMs(prefersReducedMotion());
+    if (delay <= 0) {
+      setResultsRevealed(true);
+      return;
+    }
+
+    setResultsRevealed(false);
+    resultRevealTimerRef.current = window.setTimeout(() => {
+      resultRevealTimerRef.current = null;
+      setResultsRevealed(true);
+    }, delay);
+
+    return () => {
+      if (resultRevealTimerRef.current !== null) {
+        window.clearTimeout(resultRevealTimerRef.current);
+        resultRevealTimerRef.current = null;
+      }
+    };
+  }, [telemetry?.result]);
+
+  useEffect(() => {
+    if (!resultsRevealed) {
+      return;
+    }
+    scrollTrackIntoView(resultPanelRef.current);
+  }, [resultsRevealed]);
 
   useEffect(() => {
     function onVisibilityChange(): void {
@@ -216,6 +260,14 @@ export function RaceWorkspace({
     scrollTrackIntoView(trackStageRef.current);
   }
 
+  function clearResultReveal(): void {
+    if (resultRevealTimerRef.current !== null) {
+      window.clearTimeout(resultRevealTimerRef.current);
+      resultRevealTimerRef.current = null;
+    }
+    setResultsRevealed(false);
+  }
+
   function clearStartDelay(): void {
     if (startDelayRef.current !== null) {
       window.clearTimeout(startDelayRef.current);
@@ -230,6 +282,7 @@ export function RaceWorkspace({
     }
 
     clearStartDelay();
+    clearResultReveal();
     setPendingStart(true);
     completedRaceKeyRef.current = null;
     sessionRef.current?.reset();
@@ -290,6 +343,7 @@ export function RaceWorkspace({
 
   function handleReset(): void {
     clearStartDelay();
+    clearResultReveal();
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
@@ -305,6 +359,7 @@ export function RaceWorkspace({
 
   function handleRaceAgain(): void {
     clearStartDelay();
+    clearResultReveal();
     sessionRef.current?.reset();
     sessionRef.current = null;
     setTelemetry(null);
@@ -369,6 +424,7 @@ export function RaceWorkspace({
 
       {showResult && telemetry?.result ? (
         <ResultPanel
+          ref={resultPanelRef}
           result={telemetry.result}
           athletes={telemetry.athletes.map((athlete) => ({
             id: athlete.id,
