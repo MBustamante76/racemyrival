@@ -1,5 +1,6 @@
 import { formatRaceTime } from "@/domain/race";
 import type { RaceResult } from "@/domain/race";
+import { SHOW_SHARE_RESULT } from "./uiFlags";
 
 export interface ResultAthleteView {
   id: string;
@@ -36,7 +37,14 @@ export function ResultPanel({
   const winnerName = winner?.name ?? "Winner";
   const winnerAccent =
     winner?.id === "B" ? "text-athlete-b" : winner?.id === "A" ? "text-athlete-a" : "text-near-black";
-  const showActions = Boolean(onReplay || onRaceAgain);
+  const showActions = Boolean(onReplay || onRaceAgain || SHOW_SHARE_RESULT);
+  const actionCols = [onReplay, onRaceAgain, SHOW_SHARE_RESULT].filter(Boolean).length;
+  const actionGrid =
+    actionCols >= 3
+      ? "mt-5 grid gap-2 sm:grid-cols-3 sm:items-center"
+      : actionCols === 2
+        ? "mt-5 grid gap-2 sm:grid-cols-2 sm:items-center"
+        : "mt-5 grid gap-2 sm:items-center";
 
   return (
     <section
@@ -116,7 +124,7 @@ export function ResultPanel({
         ))}
       </ul>
       {showActions ? (
-        <div className="mt-5 grid gap-2 sm:grid-cols-3 sm:items-center">
+        <div className={actionGrid}>
           {onReplay ? (
             <button type="button" onClick={onReplay} className={ACTION_BUTTON}>
               <ReplayIcon />
@@ -129,10 +137,12 @@ export function ResultPanel({
               Race again
             </button>
           ) : null}
-          <button type="button" aria-disabled="true" className={`${ACTION_BUTTON} cursor-not-allowed opacity-70`}>
-            <ShareIcon />
-            Share result
-          </button>
+          {SHOW_SHARE_RESULT ? (
+            <button type="button" aria-disabled="true" className={`${ACTION_BUTTON} cursor-not-allowed opacity-70`}>
+              <ShareIcon />
+              Share result
+            </button>
+          ) : null}
         </div>
       ) : null}
     </section>
