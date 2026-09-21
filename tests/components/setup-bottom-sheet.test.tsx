@@ -69,4 +69,21 @@ describe("landscape setup bottom sheet", () => {
     expect(tab).toHaveAttribute("aria-expanded", "false");
     expect(screen.getByTestId("setup-sheet-panel")).toHaveAttribute("data-open", "false");
   });
+
+  it("lets runners start from the open setup sheet without dismissing first", async () => {
+    mockMatchMedia(true);
+    const user = userEvent.setup();
+    render(<RaceWorkspace />);
+
+    await user.click(screen.getByTestId("setup-sheet-tab"));
+    const sheetStart = screen.getByTestId("setup-sheet-start");
+    expect(sheetStart).toBeEnabled();
+    expect(screen.getByTestId("setup-sheet-footer")).toContainElement(sheetStart);
+
+    await user.click(sheetStart);
+
+    expect(screen.getByTestId("race-status")).toHaveTextContent("running");
+    expect(screen.queryByTestId("setup-sheet")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+  });
 });

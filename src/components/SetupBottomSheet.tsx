@@ -8,10 +8,12 @@ export function SetupBottomSheet({
   open,
   onOpenChange,
   children,
+  footer,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
+  footer?: ReactNode;
 }) {
   function toggle(): void {
     onOpenChange(!open);
@@ -56,7 +58,17 @@ export function SetupBottomSheet({
             (open ? "setup-sheet-panel-open" : "setup-sheet-panel-closed")
           }
         >
-          <div className="max-h-[min(70svh,28rem)] overflow-y-auto p-2 sm:p-3">{children}</div>
+          <div className="max-h-[min(calc(70svh-4.5rem),23.5rem)] overflow-y-auto p-2 sm:p-3">
+            {children}
+          </div>
+          {footer ? (
+            <div
+              data-testid="setup-sheet-footer"
+              className="flex shrink-0 justify-center border-t border-border px-2 py-2.5 sm:px-3 sm:py-3"
+            >
+              {footer}
+            </div>
+          ) : null}
         </div>
       </div>
     </>
