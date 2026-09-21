@@ -78,16 +78,16 @@ export function RaceClockReadout({
   return (
     <div className="flex flex-col items-center gap-0.5 text-center sm:gap-1 [@media(orientation:landscape)_and_(max-height:900px)]:gap-0">
       <p
-        className="font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] text-near-black sm:text-xs md:text-sm [@media(orientation:landscape)_and_(max-height:900px)]:text-[10px]"
+        className="font-sans text-[10px] font-extrabold uppercase tracking-[0.14em] text-near-black sm:text-xs md:text-sm [@media(orientation:landscape)_and_(max-height:900px)]:text-xs"
         data-testid="race-distance-readout"
       >
         {distanceLabel}
       </p>
-      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[9px]">
+      <p className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[11px]">
         Race clock
       </p>
       <p
-        className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-4xl md:text-6xl lg:text-7xl [@media(orientation:landscape)_and_(max-height:900px)]:!text-2xl"
+        className="font-sans text-2xl font-extrabold tabular-nums tracking-[-0.02em] text-near-black sm:text-4xl md:text-6xl lg:text-7xl [@media(orientation:landscape)_and_(max-height:900px)]:!text-5xl"
         data-testid="race-clock"
         aria-label="Race clock"
         aria-live="polite"
@@ -96,7 +96,7 @@ export function RaceClockReadout({
         {timeText}
       </p>
       <p
-        className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[9px]"
+        className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] text-near-black sm:text-[11px] md:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:text-[11px]"
         data-testid="race-lap"
       >
         {lapText}
