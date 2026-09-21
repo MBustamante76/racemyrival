@@ -423,7 +423,23 @@ export function RaceWorkspace({
 
       {showSetup ? (
         landscapeFit ? (
-          <SetupBottomSheet open={setupSheetOpen} onOpenChange={setSetupSheetOpen}>
+          <SetupBottomSheet
+            open={setupSheetOpen}
+            onOpenChange={setSetupSheetOpen}
+            footer={
+              <button
+                type="button"
+                disabled={!startEnabled}
+                aria-label="Start race"
+                data-testid="setup-sheet-start"
+                onClick={handleStart}
+                className="ui-transition inline-flex min-h-11 min-w-[12rem] shrink-0 items-center justify-center gap-1.5 rounded-[var(--rmr-radius-control)] bg-brand-red px-5 py-2 font-display text-sm font-light uppercase tracking-[0.18em] text-white disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[14rem] sm:tracking-[0.22em]"
+              >
+                Start race
+                <span aria-hidden="true">▶</span>
+              </button>
+            }
+          >
             <SetupCard
               distanceId={distanceId}
               athletes={athletes}

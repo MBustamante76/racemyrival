@@ -142,7 +142,7 @@ body {
 }
 
 .setup-sheet-panel-open {
-  max-height: min(70svh, 28rem);
+  max-height: min(70svh, 32rem);
   opacity: 1;
 }
 
