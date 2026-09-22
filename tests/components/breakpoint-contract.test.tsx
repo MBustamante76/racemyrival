@@ -64,9 +64,13 @@ describe("James breakpoint and pin contracts", () => {
     expect(stage).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))]");
     expect(stage).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))]");
     expect(stage).toContain("xl:max-w-[min(100%,calc(min(50svh,30rem)*var(--track-aspect)))]");
+    expect(stage).toContain("max-height:700px");
+    expect(stage).toContain("max-h-[calc(100svh-9.5rem)]");
+    expect(stage).toContain("max-w-[min(100%,calc((100svh-9.5rem)*var(--track-aspect)))]");
+    expect(stage).toContain("min-height:701px");
     expect(stage).toContain("max-height:900px");
-    expect(stage).toContain("max-h-[calc(100svh-8rem)]");
-    expect(stage).toContain("max-w-[min(100%,calc((100svh-8rem)*var(--track-aspect)))]");
+    expect(stage).toContain("max-h-[calc(100svh-20rem)]");
+    expect(stage).toContain("max-w-[min(100%,calc((100svh-20rem)*var(--track-aspect)))]");
     expect(stage).toContain("--track-aspect");
     expect(stage).not.toContain("max-height:500px");
     expect(stage).toContain("overflow-hidden");
@@ -82,6 +86,13 @@ describe("James breakpoint and pin contracts", () => {
     expect(app).toContain("text-3xl");
     expect(app).toContain("sm:text-4xl");
     expect(app).toContain("lg:text-5xl");
+    expect(app).toContain("See what the difference really looks like.");
+    expect(app).toContain(
+      "[@media(orientation:landscape)_and_(max-height:900px)]:text-xs",
+    );
+    expect(app).not.toContain(
+      "[@media(orientation:landscape)_and_(max-height:900px)]:hidden",
+    );
 
     render(<RaceWorkspace />);
     expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");

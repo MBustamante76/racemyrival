@@ -2,8 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 
-/** Same band as track chrome compaction (phone → iPad → short laptop landscape). */
-export const LANDSCAPE_FIT_MQ = "(orientation: landscape) and (max-height: 900px)";
+/**
+ * Setup bottom-sheet only — short phone/tablet landscape where inline setup
+ * fights the track. Roomy landscape (laptop / large iPad) keeps inline SetupCard.
+ * Track/header chrome still uses the wider CSS band (landscape + max-height 900px).
+ */
+export const LANDSCAPE_FIT_MQ =
+  "(orientation: landscape) and (max-height: 700px)";
 
 function subscribeLandscapeFit(onStoreChange: () => void): () => void {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {

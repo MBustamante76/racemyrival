@@ -77,7 +77,7 @@ export function RaceApp({
             className={
               mode === "wireframe"
                 ? "max-w-xl text-sm text-zinc-600"
-                : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:hidden sm:text-base"
+                : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:leading-snug sm:text-base"
             }
           >
             {mode === "wireframe"
