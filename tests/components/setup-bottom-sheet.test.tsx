@@ -48,6 +48,11 @@ describe("landscape setup bottom sheet", () => {
     expect(screen.queryByTestId("setup-sheet-tab")).not.toBeInTheDocument();
   });
 
+  it("uses a shorter landscape band than track chrome so roomy landscape keeps inline setup", () => {
+    expect(LANDSCAPE_FIT_MQ).toBe("(orientation: landscape) and (max-height: 700px)");
+    expect(LANDSCAPE_FIT_MQ).not.toContain("900px");
+  });
+
   it("shows a closed Race setup tab in landscape-fit and opens the panel on tap", async () => {
     mockMatchMedia(true);
     const user = userEvent.setup();

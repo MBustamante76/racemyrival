@@ -31,7 +31,9 @@ export function TrackStage({
           data-testid="track-stage"
           style={stageStyle}
           className={
-            // Portrait / tall: existing caps. Landscape ≤900px: title+track+controls only (~8rem chrome).
+            // Portrait / tall: existing caps.
+            // Short landscape (≤700, setup sheet): title+strapline+controls (~9.5rem).
+            // Roomy landscape (701–900, inline setup): leave room for the setup card (~20rem).
             // max-w must use var(--track-aspect) so Tailwind emits the utility (see style above).
             "relative isolate min-h-0 w-full overflow-hidden " +
             "max-h-[calc(100svh-5.5rem)] " +
@@ -40,8 +42,10 @@ export function TrackStage({
             "md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))] " +
             "lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))] " +
             "xl:max-w-[min(100%,calc(min(50svh,30rem)*var(--track-aspect)))] " +
-            "[@media(orientation:landscape)_and_(max-height:900px)]:max-h-[calc(100svh-8rem)] " +
-            "[@media(orientation:landscape)_and_(max-height:900px)]:max-w-[min(100%,calc((100svh-8rem)*var(--track-aspect)))]"
+            "[@media(orientation:landscape)_and_(max-height:700px)]:max-h-[calc(100svh-9.5rem)] " +
+            "[@media(orientation:landscape)_and_(max-height:700px)]:max-w-[min(100%,calc((100svh-9.5rem)*var(--track-aspect)))] " +
+            "[@media(orientation:landscape)_and_(min-height:701px)_and_(max-height:900px)]:max-h-[calc(100svh-20rem)] " +
+            "[@media(orientation:landscape)_and_(min-height:701px)_and_(max-height:900px)]:max-w-[min(100%,calc((100svh-20rem)*var(--track-aspect)))]"
           }
         >
           {/* Inset so the oval never kisses overflow:hidden edges after height-budget scaling. */}
