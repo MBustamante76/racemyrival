@@ -29,46 +29,45 @@ import type { TrackAthleteView } from "./trackView";
 import { useSmoothedMarkerLayouts } from "./useSmoothedMarkerLayouts";
 
 const MARKER_FILLS = [athleteColors.A, athleteColors.B] as const;
-const RUNNER_PIN_SRC = "/runner-pin.png";
-/** Natural aspect of the extracted pin silhouette (width / height). */
-const PIN_ASPECT = 624 / 909;
-const PIN_HEIGHT_M = (PIN_STEM_M + MARKER_RADIUS_M) * 0.675;
+const RUNNER_PIN_SRC = {
+  A: "/runner-pin-a.png?v=3",
+  B: "/runner-pin-b.png?v=3",
+} as const;
+/** Tight crop of the supplied teardrop pins (width / height). */
+const PIN_ASPECT = 433 / 633;
+const PIN_HEIGHT_M = PIN_STEM_M + MARKER_RADIUS_M;
 const PIN_WIDTH_M = PIN_HEIGHT_M * PIN_ASPECT;
 
 function MarkerPin({
   x,
   y,
   fill,
-  tintId,
+  variant,
   initials,
   testId,
 }: {
   x: number;
   y: number;
   fill: string;
-  tintId: "A" | "B";
+  variant: "A" | "B";
   initials?: string;
   testId?: string;
 }) {
   const width = PIN_WIDTH_M;
   const height = PIN_HEIGHT_M;
-  const left = x - width / 2;
-  const top = y - height;
-  const headCy = top + width * 0.52;
+  const headCy = y - height + width * 0.5;
 
   return (
     <>
       <circle cx={x} cy={y} r={0.55} fill={fill} data-testid={testId} />
-      <g filter={`url(#runner-pin-tint-${tintId})`}>
-        <image
-          href={RUNNER_PIN_SRC}
-          x={left}
-          y={top}
-          width={width}
-          height={height}
-          preserveAspectRatio="xMidYMax meet"
-        />
-      </g>
+      <image
+        href={RUNNER_PIN_SRC[variant]}
+        x={x - width / 2}
+        y={y - height}
+        width={width}
+        height={height}
+        preserveAspectRatio="xMidYMax meet"
+      />
       {initials ? (
         <text
           x={x}
@@ -76,35 +75,13 @@ function MarkerPin({
           textAnchor="middle"
           dominantBaseline="middle"
           fill="white"
-          fontSize={1.55}
+          fontSize={2.1}
           fontWeight={700}
         >
           {initials}
         </text>
       ) : null}
     </>
-  );
-}
-
-function hexToUnitRgb(hex: string): [number, number, number] {
-  const raw = hex.replace("#", "");
-  return [
-    Number.parseInt(raw.slice(0, 2), 16) / 255,
-    Number.parseInt(raw.slice(2, 4), 16) / 255,
-    Number.parseInt(raw.slice(4, 6), 16) / 255,
-  ];
-}
-
-function RunnerPinTintFilter({ id, color }: { id: string; color: string }) {
-  const [r, g, b] = hexToUnitRgb(color);
-  return (
-    <filter id={id} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
-      <feColorMatrix
-        type="matrix"
-        values={`0 0 0 0 ${r} 0 0 0 0 ${g} 0 0 0 0 ${b} 0 0 0 1 0`}
-      />
-      <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
-    </filter>
   );
 }
 
@@ -228,8 +205,6 @@ export function TrackRenderer({
         <filter id="marker-pin-shadow" x="-70%" y="-50%" width="240%" height="260%">
           <feDropShadow dx="0" dy="1.1" stdDeviation="1.05" floodColor="#111318" floodOpacity="0.45" />
         </filter>
-        <RunnerPinTintFilter id="runner-pin-tint-A" color={athleteColors.A} />
-        <RunnerPinTintFilter id="runner-pin-tint-B" color={athleteColors.B} />
         <clipPath id="infield-clip">
           <polygon points={infieldPolygonPoints()} />
         </clipPath>
@@ -442,7 +417,7 @@ export function TrackRenderer({
               x={marker.marker.x}
               y={marker.marker.y}
               fill={fill}
-              tintId={marker.id === "B" ? "B" : "A"}
+              variant={marker.id === "B" ? "B" : "A"}
               initials={athleteInitials(marker.name, { single: true })}
             />
             <rect
@@ -481,7 +456,7 @@ export function TrackRenderer({
               x={marker.marker.x}
               y={marker.marker.y}
               fill={fill}
-              tintId={marker.id === "B" ? "B" : "A"}
+              variant={marker.id === "B" ? "B" : "A"}
               initials={athleteInitials(marker.name, { single: true })}
               testId={`athlete-marker-${marker.id}`}
             />

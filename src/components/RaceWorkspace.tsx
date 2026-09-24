@@ -20,7 +20,7 @@ import { formatLapLabel } from "./lapLabel";
 import { RaceControls } from "./RaceControls";
 import { RaceFinishConfetti, RaceStartFlash, prefersReducedMotion, scrollTrackIntoView, useRaceBookendFx } from "./RaceFx";
 import { START_GUN_LEAD_MS } from "./raceAudio";
-import { resolveResultRevealDelayMs } from "./resultReveal";
+import { RESULT_REVEAL_DELAY_MS, resolveResultRevealDelayMs } from "./resultReveal";
 import { ResultPanel } from "./ResultPanel";
 import { SetupBottomSheet } from "./SetupBottomSheet";
 import { SetupCard } from "./SetupCard";
@@ -82,15 +82,24 @@ export function RaceWorkspace({
   const formLocked = status !== "idle" || pendingStart;
   const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
   const showSetup = status === "idle" && !pendingStart;
-  const showResult = Boolean(telemetry?.result) && resultsRevealed;
+  const hasResult = Boolean(telemetry?.result);
+  const showResult = hasResult && resultsRevealed;
   const raceWon = Boolean(telemetry?.winnerSnapshot);
   const { startFlash, finishConfetti, triggerStartFx } = useRaceBookendFx(raceWon);
+  const [setupEpoch, setSetupEpoch] = useState(showSetup);
+  const [resultSeen, setResultSeen] = useState(hasResult);
 
-  useEffect(() => {
-    if (!showSetup) {
+  if (setupEpoch !== showSetup) {
+    setSetupEpoch(showSetup);
+    if (!showSetup && setupSheetOpen) {
       setSetupSheetOpen(false);
     }
-  }, [showSetup]);
+  }
+
+  if (resultSeen !== hasResult) {
+    setResultSeen(hasResult);
+    setResultsRevealed(hasResult && RESULT_REVEAL_DELAY_MS <= 0);
+  }
   const leader = telemetry?.athletes.reduce((current, athlete) =>
     athlete.distanceCoveredM > current.distanceCoveredM ? athlete : current,
   );
@@ -135,22 +144,19 @@ export function RaceWorkspace({
   }, []);
 
   useEffect(() => {
-    if (!telemetry?.result) {
+    if (!hasResult) {
       if (resultRevealTimerRef.current !== null) {
         window.clearTimeout(resultRevealTimerRef.current);
         resultRevealTimerRef.current = null;
       }
-      setResultsRevealed(false);
       return;
     }
 
     const delay = resolveResultRevealDelayMs(prefersReducedMotion());
     if (delay <= 0) {
-      setResultsRevealed(true);
       return;
     }
 
-    setResultsRevealed(false);
     resultRevealTimerRef.current = window.setTimeout(() => {
       resultRevealTimerRef.current = null;
       setResultsRevealed(true);
@@ -162,7 +168,7 @@ export function RaceWorkspace({
         resultRevealTimerRef.current = null;
       }
     };
-  }, [telemetry?.result]);
+  }, [hasResult]);
 
   useEffect(() => {
     if (!resultsRevealed) {
@@ -343,13 +349,15 @@ export function RaceWorkspace({
     sessionRef.current?.resume();
   }
 
-  spaceActionRef.current = {
-    status,
-    startEnabled,
-    start: handleStart,
-    pause: handlePause,
-    resume: handleResume,
-  };
+  useEffect(() => {
+    spaceActionRef.current = {
+      status,
+      startEnabled,
+      start: handleStart,
+      pause: handlePause,
+      resume: handleResume,
+    };
+  });
 
   function handleReset(): void {
     clearStartDelay();

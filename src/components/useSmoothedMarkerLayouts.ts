@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   blendLayoutsTowardTargets,
   labelLerpProgress,
@@ -10,79 +10,118 @@ import {
 import type { AthleteMarkerLayout, LabelProximityState, ScreenPoint, TrackAthleteView } from "./trackView";
 import { EMPTY_LABEL_PROXIMITY, layoutAthleteMarkers } from "./trackView";
 
+function offsetsFrom(layouts: readonly AthleteMarkerLayout[]): Record<string, ScreenPoint> {
+  return Object.fromEntries(layouts.map((layout) => [layout.id, labelOffsetFromMarker(layout)]));
+}
+
+function mergeOffsets(
+  previous: readonly AthleteMarkerLayout[],
+  targets: readonly AthleteMarkerLayout[],
+): Record<string, ScreenPoint> {
+  const nextFrom: Record<string, ScreenPoint> = {};
+  for (const layout of previous) {
+    nextFrom[layout.id] = labelOffsetFromMarker(layout);
+  }
+  for (const layout of targets) {
+    if (!nextFrom[layout.id]) {
+      nextFrom[layout.id] = labelOffsetFromMarker(layout);
+    }
+  }
+  return nextFrom;
+}
+
+function proximityKey(state: LabelProximityState): string {
+  if (!state.closeMode) {
+    return "open";
+  }
+  return `close:${Object.entries(state.closeSides)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([id, side]) => `${id}:${side}`)
+    .join("|")}`;
+}
+
+function targetsKey(layouts: readonly AthleteMarkerLayout[]): string {
+  return layouts.map((layout) => `${layout.id}:${layout.labelSide}:${layout.label.x}:${layout.label.y}`).join("|");
+}
+
 /** Marker layouts with hysteresis/sticky close sides and smoothed label slides. */
 export function useSmoothedMarkerLayouts(
   raceDistanceM: number,
   athletes: readonly TrackAthleteView[],
   laneOrderIds?: readonly string[],
 ): AthleteMarkerLayout[] {
-  const proximityRef = useRef<LabelProximityState>(EMPTY_LABEL_PROXIMITY);
-  const sideSigRef = useRef<string | null>(null);
-  const fromOffsetsRef = useRef<Record<string, ScreenPoint>>({});
-  const animStartRef = useRef(0);
-  const displayRef = useRef<AthleteMarkerLayout[]>([]);
-  const [, setFrame] = useState(0);
+  const [proximity, setProximity] = useState<LabelProximityState>(EMPTY_LABEL_PROXIMITY);
+  const [committed, setCommitted] = useState<{
+    sig: string;
+    key: string;
+    targets: AthleteMarkerLayout[];
+  } | null>(null);
+  const [fromOffsets, setFromOffsets] = useState<Record<string, ScreenPoint>>({});
+  const [animStart, setAnimStart] = useState(0);
+  const [nowMs, setNowMs] = useState(0);
 
-  const { layouts: targets, proximity } = layoutAthleteMarkers(
+  const { layouts: targets, proximity: nextProximity } = layoutAthleteMarkers(
     raceDistanceM,
     athletes,
-    proximityRef.current,
+    proximity,
     laneOrderIds,
   );
-  proximityRef.current = proximity;
-
   const nextSig = sidesSignature(targets);
+  const nextKey = targetsKey(targets);
 
-  if (sideSigRef.current === null) {
-    sideSigRef.current = nextSig;
-    fromOffsetsRef.current = Object.fromEntries(
-      targets.map((layout) => [layout.id, labelOffsetFromMarker(layout)]),
-    );
-    displayRef.current = [...targets];
-  } else if (nextSig !== sideSigRef.current) {
-    const previous = displayRef.current.length > 0 ? displayRef.current : targets;
-    const nextFrom: Record<string, ScreenPoint> = {};
-    for (const layout of previous) {
-      nextFrom[layout.id] = labelOffsetFromMarker(layout);
-    }
-    for (const layout of targets) {
-      if (!nextFrom[layout.id]) {
-        nextFrom[layout.id] = labelOffsetFromMarker(layout);
-      }
-    }
-    fromOffsetsRef.current = nextFrom;
-    sideSigRef.current = nextSig;
-    animStartRef.current = performance.now();
+  if (proximityKey(proximity) !== proximityKey(nextProximity)) {
+    setProximity(nextProximity);
   }
 
-  const now = typeof performance !== "undefined" ? performance.now() : 0;
-  const progress = animStartRef.current === 0 ? 1 : labelLerpProgress(animStartRef.current, now);
-  const blended = blendLayoutsTowardTargets(targets, fromOffsetsRef.current, progress);
-  displayRef.current = blended;
+  if (committed === null) {
+    setCommitted({ sig: nextSig, key: nextKey, targets });
+    setFromOffsets(offsetsFrom(targets));
+  } else if (committed.sig !== nextSig) {
+    setFromOffsets(mergeOffsets(committed.targets, targets));
+    setCommitted({ sig: nextSig, key: nextKey, targets });
+    setAnimStart(-1);
+    setNowMs(0);
+  } else if (committed.key !== nextKey) {
+    setCommitted({ sig: nextSig, key: nextKey, targets });
+  }
+
+  const progress = animStart <= 0 ? (animStart === -1 ? 0 : 1) : labelLerpProgress(animStart, nowMs);
+  const blended = blendLayoutsTowardTargets(targets, fromOffsets, progress);
 
   useEffect(() => {
-    if (animStartRef.current === 0) {
+    if (animStart !== -1) {
+      return;
+    }
+    const raf = requestAnimationFrame(() => {
+      const started = performance.now();
+      setAnimStart(started);
+      setNowMs(started);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [animStart]);
+
+  useEffect(() => {
+    if (animStart <= 0) {
       return;
     }
     let raf = 0;
     let alive = true;
-    const tick = () => {
+    const tick = (): void => {
       if (!alive) {
         return;
       }
-      setFrame((value) => value + 1);
-      if (labelLerpProgress(animStartRef.current, performance.now()) < 1) {
+      const now = performance.now();
+      setNowMs(now);
+      if (labelLerpProgress(animStart, now) < 1) {
         raf = requestAnimationFrame(tick);
       }
     };
-    if (labelLerpProgress(animStartRef.current, performance.now()) < 1) {
-      raf = requestAnimationFrame(tick);
-    }
+    raf = requestAnimationFrame(tick);
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
     };
-  }, [nextSig]);
+  }, [animStart]);
 
   return blended;
 }
