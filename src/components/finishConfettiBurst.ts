@@ -1,4 +1,4 @@
-const FINISH_CONFETTI_COLORS = ["#e10a1f", "#0470fc", "#fb5a03", "#ffffff", "#0a2540"];
+const FINISH_CONFETTI_COLORS = ["#e10a1f", "#008c95", "#6a50a7", "#ffffff", "#0a2540"];
 
 /** Dual side bursts via @tsparticles/confetti (confetti.js.org). */
 export async function fireFinishConfetti(): Promise<void> {

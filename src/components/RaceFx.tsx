@@ -52,8 +52,16 @@ export function useRaceBookendFx(raceWon = false): {
   triggerStartFx: () => void;
 } {
   const [startFlash, setStartFlash] = useState(false);
-  const [finishConfetti, setFinishConfetti] = useState(false);
+  const [wonSeen, setWonSeen] = useState(raceWon);
+  const [finishExpired, setFinishExpired] = useState(false);
   const startFlashTimer = useRef<number | null>(null);
+
+  if (wonSeen !== raceWon) {
+    setWonSeen(raceWon);
+    setFinishExpired(false);
+  }
+
+  const finishConfetti = raceWon && !finishExpired;
 
   useEffect(() => {
     preloadRaceAudio();
@@ -83,18 +91,16 @@ export function useRaceBookendFx(raceWon = false): {
 
   useEffect(() => {
     if (!raceWon) {
-      setFinishConfetti(false);
       return undefined;
     }
 
-    setFinishConfetti(true);
     if (!prefersReducedMotion()) {
       playFinishCheer();
       void fireFinishConfetti().catch(() => {
         // Canvas / WebGL may be unavailable.
       });
     }
-    const timer = window.setTimeout(() => setFinishConfetti(false), 2800);
+    const timer = window.setTimeout(() => setFinishExpired(true), 2800);
     return () => window.clearTimeout(timer);
   }, [raceWon]);
 
