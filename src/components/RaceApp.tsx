@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import { AppHeader } from "./AppHeader";
+import { BrandHeader, PartnerShell } from "./PartnerShell";
 import { RaceWorkspace } from "./RaceWorkspace";
 import { resolvePresentationMode } from "./presentation";
 import type { PresentationMode } from "./presentation";
@@ -25,6 +26,14 @@ function readServerPresentation(): PresentationMode {
   return "polished";
 }
 
+function readChallengeName(): string | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+  const value = new URLSearchParams(window.location.search).get("challenge");
+  return value?.trim() || undefined;
+}
+
 export function RaceApp({
   initialMode,
   loopDependencies,
@@ -38,54 +47,51 @@ export function RaceApp({
     readServerPresentation,
   );
   const mode = initialMode ?? liveMode;
+  const challengePrefillName = useSyncExternalStore(
+    subscribePresentation,
+    readChallengeName,
+    () => undefined,
+  );
+
+  if (mode === "wireframe") {
+    return (
+      <div
+        data-testid="presentation-root"
+        data-presentation={mode}
+        className="flex flex-1 flex-col overflow-x-hidden bg-zinc-50"
+      >
+        <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6">
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h1 className="text-center text-xl font-semibold tracking-tight text-zinc-950">
+              Race My Rival
+            </h1>
+            <p className="max-w-xl text-sm text-zinc-600">
+              See what the difference really looks like.
+            </p>
+          </div>
+          <RaceWorkspace
+            loopDependencies={loopDependencies}
+            challengePrefillName={challengePrefillName}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div
       data-testid="presentation-root"
       data-presentation={mode}
-      className={
-        mode === "wireframe"
-          ? "flex flex-1 flex-col overflow-x-hidden bg-zinc-50"
-          : "flex flex-1 flex-col overflow-x-hidden bg-page"
-      }
+      className="flex flex-1 flex-col overflow-x-hidden bg-page"
     >
-      {mode === "polished" && SHOW_APP_HEADER ? <AppHeader /> : null}
-      <main
-        className={
-          mode === "wireframe"
-            ? "mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6"
-            : "mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 [@media(orientation:landscape)_and_(max-height:900px)]:gap-1 [@media(orientation:landscape)_and_(max-height:900px)]:py-1 sm:gap-2 sm:px-4 sm:py-3 md:gap-3 md:px-6 md:py-3 lg:px-8"
-        }
-      >
-        <div className="flex flex-col items-center gap-1 text-center [@media(orientation:landscape)_and_(max-height:900px)]:gap-0">
-          <h1
-            className={
-              mode === "wireframe"
-                ? "text-center text-xl font-semibold tracking-tight text-zinc-950"
-                : "font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xl sm:text-4xl lg:text-5xl"
-            }
-          >
-            {mode === "wireframe" ? (
-              "Race My Rival"
-            ) : (
-              <>
-                Race <span className="text-brand-red">My</span> Rival
-              </>
-            )}
-          </h1>
-          <p
-            className={
-              mode === "wireframe"
-                ? "max-w-xl text-sm text-zinc-600"
-                : "max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:leading-snug sm:text-base"
-            }
-          >
-            {mode === "wireframe"
-              ? "Enter two performances and start. Finishing times use minutes, seconds and hundredths. Live controls stay on one shared clock."
-              : "See what the difference really looks like."}
-          </p>
-        </div>
-        <RaceWorkspace loopDependencies={loopDependencies} />
+      {SHOW_APP_HEADER ? <AppHeader /> : null}
+      <main className="flex w-full min-w-0 flex-1 flex-col">
+        <PartnerShell header={<BrandHeader />}>
+          <RaceWorkspace
+            loopDependencies={loopDependencies}
+            challengePrefillName={challengePrefillName}
+          />
+        </PartnerShell>
       </main>
     </div>
   );

@@ -19,6 +19,9 @@ describe("privacy-safe race analytics", () => {
       trackRaceStarted,
       trackReplay,
       trackShareResult,
+      trackShareInitiated,
+      trackLinkCopied,
+      trackPartnerImpression,
     } = await import("@/components/analytics");
 
     trackRaceStarted({ distanceId: "800", distanceM: 800, playbackRate: 5 });
@@ -27,11 +30,14 @@ describe("privacy-safe race analytics", () => {
     trackReplay({ distanceId: "mile", distanceM: 1609.344 });
     trackPlaybackSpeed({ distanceId: "1500", playbackRate: 10 });
     trackShareResult({ distanceId: "400", distanceM: 400 });
+    trackShareInitiated({ distanceId: "800", distanceM: 800, raceId: "abcdefghijklmnopqrstu" });
+    trackLinkCopied({ distanceId: "800", distanceM: 800, raceId: "abcdefghijklmnopqrstu" });
+    trackPartnerImpression({ campaignId: "run-lab", placement: "top", viewport: "desktop" });
 
-    expect(track).toHaveBeenCalledTimes(6);
+    expect(track).toHaveBeenCalledTimes(9);
     for (const [, payload] of track.mock.calls) {
       const keys = Object.keys(payload as Record<string, unknown>);
-      expect(keys.some((key) => /name|athlete|time|email/i.test(key))).toBe(false);
+      expect(keys.some((key) => /name|athlete|email|dob/i.test(key))).toBe(false);
     }
 
     expect(track).toHaveBeenCalledWith("Race Started", {
@@ -43,5 +49,9 @@ describe("privacy-safe race analytics", () => {
       distanceId: "400",
       distanceM: 400,
     });
+    expect(track).toHaveBeenCalledWith(
+      "share_initiated",
+      expect.objectContaining({ raceId: "abcdefghijklmnopqrstu" }),
+    );
   });
 });

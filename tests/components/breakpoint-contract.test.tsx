@@ -78,19 +78,19 @@ describe("James breakpoint and pin contracts", () => {
     expect(stage).toContain("md:text-6xl");
     expect(stage).toContain("lg:text-7xl");
 
-    const app = readFileSync(resolve("src/components/RaceApp.tsx"), "utf8");
-    expect(app).toContain("px-2 py-2");
-    expect(app).toContain("sm:px-4 sm:py-3");
-    expect(app).toContain("md:px-6 md:py-3");
-    expect(app).toContain("lg:px-8");
-    expect(app).toContain("text-3xl");
-    expect(app).toContain("sm:text-4xl");
-    expect(app).toContain("lg:text-5xl");
-    expect(app).toContain("See what the difference really looks like.");
-    expect(app).toContain(
+    const shell = readFileSync(resolve("src/components/PartnerShell.tsx"), "utf8");
+    expect(shell).toContain("px-2 py-2");
+    expect(shell).toContain("sm:px-4 sm:py-3");
+    expect(shell).toContain("md:px-6 md:py-3");
+    expect(shell).toContain("lg:px-8");
+    expect(shell).toContain("text-3xl");
+    expect(shell).toContain("sm:text-4xl");
+    expect(shell).toContain("lg:text-5xl");
+    expect(shell).toContain("See what the difference really looks like.");
+    expect(shell).toContain(
       "[@media(orientation:landscape)_and_(max-height:900px)]:text-xs",
     );
-    expect(app).not.toContain(
+    expect(shell).not.toContain(
       "[@media(orientation:landscape)_and_(max-height:900px)]:hidden",
     );
 

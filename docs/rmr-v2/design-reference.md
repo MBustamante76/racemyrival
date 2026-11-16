@@ -1,0 +1,102 @@
+# Race My Rival V2 — Design Reference
+
+Source of truth for the live V1 visual system. V2 sharing and partner layers must respect this system. Partner creatives are secondary to Race My Rival identity.
+
+## Primary colours
+
+| Role | Token | Hex |
+|------|-------|-----|
+| Brand navy | `--rmr-navy` / `brandNavy` | `#0F182F` |
+| Near black | `--rmr-near-black` | `#111318` |
+| Brand red | `--rmr-red` | `#E10A1F` |
+| Brand red hover | `--rmr-red-hover` | `#C9081B` |
+| Brand red tint | `--rmr-red-tint` | `#FDECEE` |
+| Page | `--rmr-page` | `#FEFEFE` |
+| Card | `--rmr-card` | `#FFFFFF` |
+| Border | `--rmr-border` | `#EEF0F3` |
+| Muted | `--rmr-muted` | `#667085` |
+| Gold | `--rmr-gold` | `#D99800` |
+
+## Athlete / track colours
+
+| Role | Hex |
+|------|-----|
+| Athlete A (You) | `#008C95` |
+| Athlete B (Rival) | `#6A50A7` |
+| Track surface | `#E15B56` |
+| Infield | `#C9D2A1` |
+| Lane lines | `#FFFFFF` |
+
+**Note:** V2 mockups often show blue/orange markers. Production uses teal/purple. Preserve the live palette unless the client explicitly approves a change.
+
+## Typography
+
+| Role | Font | Usage |
+|------|------|--------|
+| UI / body | Inter (`--font-inter`) | Body, controls, results |
+| Display | Montserrat (`--font-montserrat`) | Available via `--font-display` |
+| Wordmark | Inter extrabold uppercase | “Race **My** Rival” with red “My” |
+
+Defined in `src/app/layout.tsx` (Google fonts) and mirrored in `src/app/globals.css` / `src/styles/tokens.ts`.
+
+## Logo usage
+
+| Asset | Location | Role |
+|-------|----------|------|
+| Typographic wordmark | `RaceApp.tsx` `<h1>` | Primary on-page brand |
+| `public/RMR_new.png` | Favicon / apple icon via `layout.tsx` metadata | Browser chrome |
+| `src/app/icon.png` | App Router icon | Next icon route |
+| `public/runner-pin-a.png`, `runner-pin-b.png` | Track markers | Athlete pins |
+
+`AppHeader` exists but is gated off (`SHOW_APP_HEADER = false`).
+
+### Logo assessment (discussion only)
+
+Current production identity is a clean typographic wordmark plus a simple PNG favicon. It is clear and on-brand with navy/red. A restrained refresh could:
+
+- Tighten the favicon mark so it reads at 16–32px;
+- Optionally introduce a small track/rival monogram that pairs with the wordmark;
+
+Do **not** replace the production logo until the client approves. Logo work must not block V2 sharing/partners.
+
+## Buttons
+
+- Primary race action: brand red, white text, rounded-full / bold sans.
+- Secondary result actions: bordered card-style pills (`ResultPanel`).
+- Focus: `--rmr-athlete-a` outline (`:focus-visible` in `globals.css`).
+- Touch targets: prefer `min-h-11` on result actions.
+
+## Track presentation
+
+- SVG stadium oval (non-100m) or sprint straight (100m).
+- Red track, pale green infield, white lane lines.
+- Infield clock + lap label; distance marks 100/200/300.
+- Ghost markers after first finish via `ghostFromSnapshot`.
+
+## Result presentation
+
+- Card with border, shadow (`--rmr-shadow-card`), radius 8px.
+- Winner name, times VS, time gap, distance gap at finish.
+- CTAs: Replay, Race again; Share gated until V2 (`SHOW_SHARE_RESULT`).
+
+## Cards / spacing
+
+- Card radius: 8px; control radius: 6px.
+- Soft navy-tinted shadows.
+- Main shell max width ~1250px; compact padding on mobile; tighter landscape short-height rules.
+
+## Responsive layout
+
+- Mobile-first stacking; setup bottom sheet on small viewports.
+- Side partner creative (V2): beside track only when wide; **below race on mobile**.
+- No horizontal scroll; overflow-x hidden on presentation root.
+- Breakpoint contracts covered by existing tests (`breakpoint-contract`, `phase-2k-responsive`, mobile portrait).
+
+## Desktop vs mobile behaviour
+
+| Concern | Desktop | Mobile |
+|---------|---------|--------|
+| Setup | Inline `SetupCard` | Bottom sheet |
+| Spacebar start/pause | ≥768px | Not used |
+| Partner side slot | Beside track when room | Relocate below race |
+| Share | Copy Link + native share if available | Prefer native share sheet |

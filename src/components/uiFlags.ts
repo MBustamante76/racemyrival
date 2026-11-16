@@ -3,5 +3,5 @@
  * Prefer flags over deleting components so later product chrome can return cleanly.
  */
 export const SHOW_APP_HEADER = false;
-/** Share result CTA — shelved until sharing is implemented. */
-export const SHOW_SHARE_RESULT = false;
+/** @deprecated Share is live via ShareRaceControls; kept for older references. */
+export const SHOW_SHARE_RESULT = true;
