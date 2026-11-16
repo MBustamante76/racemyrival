@@ -51,6 +51,9 @@ export function SetupCard({
         onStart();
       }}
     >
+      <p className="col-span-full text-center text-xs text-muted lg:text-left" data-testid="share-name-privacy-note">
+        Only enter names you are happy to share.
+      </p>
       <label className="flex min-w-0 flex-col justify-center gap-1 self-center text-xs font-semibold uppercase tracking-wide text-muted">
         Select race distance
         <select

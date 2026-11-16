@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { formatRaceTime } from "@/domain/race";
 import type { RaceResult } from "@/domain/race";
-import { SHOW_SHARE_RESULT } from "./uiFlags";
+import { ShareRaceControls, type ShareRacePayload } from "./ShareRaceControls";
 
 export interface ResultAthleteView {
   id: string;
@@ -26,24 +26,29 @@ export const ResultPanel = forwardRef<
   {
     result: RaceResult;
     athletes: readonly ResultAthleteView[];
+    sharePayload?: ShareRacePayload;
     onReplay?: () => void;
     onRaceAgain?: () => void;
+    onChallengeRival?: () => void;
+    onCreateNewRace?: () => void;
   }
->(function ResultPanel({ result, athletes, onReplay, onRaceAgain }, ref) {
+>(function ResultPanel(
+  { result, athletes, sharePayload, onReplay, onRaceAgain, onChallengeRival, onCreateNewRace },
+  ref,
+) {
   const winner = athletes.find((athlete) => athlete.id === result.winnerId);
   const loser = athletes.find((athlete) => athlete.id !== result.winnerId);
   const distanceGapM = Math.round(result.snapshot.leadM);
   const winnerName = winner?.name ?? "Winner";
   const winnerAccent =
     winner?.id === "B" ? "text-athlete-b" : winner?.id === "A" ? "text-athlete-a" : "text-near-black";
-  const showActions = Boolean(onReplay || onRaceAgain || SHOW_SHARE_RESULT);
-  const actionCols = [onReplay, onRaceAgain, SHOW_SHARE_RESULT].filter(Boolean).length;
-  const actionGrid =
-    actionCols >= 3
-      ? "mt-3 grid gap-2 sm:grid-cols-3 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2"
-      : actionCols === 2
-        ? "mt-3 grid gap-2 sm:grid-cols-2 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2"
-        : "mt-3 grid gap-2 sm:items-center [@media(orientation:landscape)_and_(max-height:900px)]:mt-2";
+  const secondaryActions = [onReplay, onRaceAgain, onChallengeRival, onCreateNewRace].filter(Boolean).length;
+  const secondaryGrid =
+    secondaryActions >= 3
+      ? "mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      : secondaryActions === 2
+        ? "mt-2 grid gap-2 sm:grid-cols-2"
+        : "mt-2 grid gap-2";
 
   return (
     <section
@@ -123,8 +128,13 @@ export const ResultPanel = forwardRef<
           </li>
         ))}
       </ul>
-      {showActions ? (
-        <div className={actionGrid}>
+      {sharePayload ? (
+        <div className="mt-4">
+          <ShareRaceControls payload={sharePayload} />
+        </div>
+      ) : null}
+      {secondaryActions > 0 ? (
+        <div className={secondaryGrid}>
           {onReplay ? (
             <button type="button" onClick={onReplay} className={ACTION_BUTTON}>
               <ReplayIcon />
@@ -137,10 +147,24 @@ export const ResultPanel = forwardRef<
               Race again
             </button>
           ) : null}
-          {SHOW_SHARE_RESULT ? (
-            <button type="button" aria-disabled="true" className={`${ACTION_BUTTON} cursor-not-allowed opacity-70`}>
-              <ShareIcon />
-              Share result
+          {onChallengeRival ? (
+            <button
+              type="button"
+              onClick={onChallengeRival}
+              className={ACTION_BUTTON}
+              data-testid="challenge-rival-button"
+            >
+              Challenge a Rival
+            </button>
+          ) : null}
+          {onCreateNewRace ? (
+            <button
+              type="button"
+              onClick={onCreateNewRace}
+              className={ACTION_BUTTON}
+              data-testid="create-new-race-button"
+            >
+              Create New Race
             </button>
           ) : null}
         </div>
@@ -189,17 +213,6 @@ function RaceAgainIcon() {
         strokeLinecap="round"
       />
       <path d="M3.2 3.6v3.8h3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ShareIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none">
-      <circle cx="14.5" cy="4.5" r="1.7" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="5.5" cy="10" r="1.7" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="14.5" cy="15.5" r="1.7" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M7 9.2 13 5.4M7 10.8 13 14.6" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   );
 }

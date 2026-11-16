@@ -10,11 +10,14 @@ import type { PlaybackRate, RaceStatus, RaceTelemetry } from "@/domain/race";
 import { createRaceLoop } from "@/runtime/createRaceLoop";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import {
+  trackFollowOnRaceCreated,
   trackPlaybackSpeed,
   trackRaceAgain,
   trackRaceCompleted,
   trackRaceStarted,
   trackReplay,
+  trackSharedRaceCompleted,
+  trackSharedRaceStarted,
 } from "./analytics";
 import { formatLapLabel } from "./lapLabel";
 import { RaceControls } from "./RaceControls";
@@ -36,7 +39,7 @@ import {
   defaultTimesForDistance,
   parseRaceForm,
 } from "./raceSession";
-import type { AthleteDraft } from "./raceSession";
+import type { AthleteDraft, RaceFormDraft } from "./raceSession";
 
 const defaultLoopDependencies: RaceLoopDependencies = {
   now: () => performance.now(),
@@ -44,20 +47,46 @@ const defaultLoopDependencies: RaceLoopDependencies = {
   cancelFrame: (handle) => cancelAnimationFrame(handle),
 };
 
+export type SharedWorkspaceConfig = {
+  raceId: string;
+  draft: RaceFormDraft;
+  autoStart?: boolean;
+};
+
 export function RaceWorkspace({
   loopDependencies = defaultLoopDependencies,
+  shared,
+  challengePrefillName,
 }: {
   loopDependencies?: RaceLoopDependencies;
+  shared?: SharedWorkspaceConfig;
+  challengePrefillName?: string;
 } = {}) {
-  const [distanceId, setDistanceId] = useState(DEFAULT_DISTANCE_ID);
-  const [athletes, setAthletes] = useState<[AthleteDraft, AthleteDraft]>(() =>
-    createDefaultAthleteDrafts(DEFAULT_DISTANCE_ID),
+  const [distanceId, setDistanceId] = useState(
+    shared?.draft.distanceId ?? DEFAULT_DISTANCE_ID,
   );
+  const [athletes, setAthletes] = useState<[AthleteDraft, AthleteDraft]>(() => {
+    if (shared?.draft.athletes) {
+      return [
+        { ...shared.draft.athletes[0] },
+        { ...shared.draft.athletes[1] },
+      ];
+    }
+    const defaults = createDefaultAthleteDrafts(DEFAULT_DISTANCE_ID);
+    if (challengePrefillName) {
+      return [
+        defaults[0],
+        { ...defaults[1], name: challengePrefillName },
+      ];
+    }
+    return defaults;
+  });
   const [telemetry, setTelemetry] = useState<RaceTelemetry | null>(null);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(DEFAULT_PLAYBACK_RATE);
   const [pendingStart, setPendingStart] = useState(false);
   const [resultsRevealed, setResultsRevealed] = useState(false);
   const [setupSheetOpen, setSetupSheetOpen] = useState(false);
+  const [sharedLocked, setSharedLocked] = useState(Boolean(shared));
   const landscapeFit = useLandscapeFit();
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
@@ -79,9 +108,9 @@ export function RaceWorkspace({
   const distanceLabel = raceDistanceById(distanceId)?.label ?? "800m";
   const analyticsRace = useMemo(() => ({ distanceId, distanceM }), [distanceId, distanceM]);
   const status: RaceStatus = telemetry?.status ?? "idle";
-  const formLocked = status !== "idle" || pendingStart;
+  const formLocked = status !== "idle" || pendingStart || sharedLocked;
   const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
-  const showSetup = status === "idle" && !pendingStart;
+  const showSetup = status === "idle" && !pendingStart && !sharedLocked;
   const hasResult = Boolean(telemetry?.result);
   const showResult = hasResult && resultsRevealed;
   const raceWon = Boolean(telemetry?.winnerSnapshot);
@@ -142,6 +171,8 @@ export function RaceWorkspace({
       }
     };
   }, []);
+
+  const autoStartRef = useRef(false);
 
   useEffect(() => {
     if (!hasResult) {
@@ -210,7 +241,6 @@ export function RaceWorkspace({
       if (isEditableTarget(event.target)) {
         return;
       }
-      // Desktop shortcut (md+).
       if (typeof window.matchMedia === "function" && !window.matchMedia("(min-width: 768px)").matches) {
         return;
       }
@@ -245,8 +275,16 @@ export function RaceWorkspace({
     }
 
     completedRaceKeyRef.current = key;
-    trackRaceCompleted({ ...analyticsRace, playbackRate });
-  }, [analyticsRace, distanceId, playbackRate, status, telemetry?.result]);
+    if (shared?.raceId) {
+      trackSharedRaceCompleted({
+        ...analyticsRace,
+        playbackRate,
+        raceId: shared.raceId,
+      });
+    } else {
+      trackRaceCompleted({ ...analyticsRace, playbackRate });
+    }
+  }, [analyticsRace, distanceId, playbackRate, shared?.raceId, status, telemetry?.result]);
 
   function updateAthlete(index: 0 | 1, patch: Partial<AthleteDraft>): void {
     if (formLocked) {
@@ -306,7 +344,15 @@ export function RaceWorkspace({
     sessionRef.current = loop;
     loop.setPlaybackRate(playbackRate);
     if (kind === "start") {
-      trackRaceStarted({ ...analyticsRace, playbackRate });
+      if (shared?.raceId) {
+        trackSharedRaceStarted({
+          ...analyticsRace,
+          playbackRate,
+          raceId: shared.raceId,
+        });
+      } else {
+        trackRaceStarted({ ...analyticsRace, playbackRate });
+      }
     } else {
       trackReplay(analyticsRace);
     }
@@ -334,6 +380,21 @@ export function RaceWorkspace({
     }
     beginRace("start");
   }
+
+  useEffect(() => {
+    if (!shared?.autoStart || autoStartRef.current) {
+      return;
+    }
+    if (!parsed || status !== "idle" || pendingStart) {
+      return;
+    }
+    autoStartRef.current = true;
+    const timer = window.setTimeout(() => {
+      beginRace("start");
+    }, 0);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot auto-start for shared watch
+  }, [shared?.autoStart, parsed, status, pendingStart]);
 
   function handlePlaybackRate(rate: PlaybackRate): void {
     setPlaybackRate(rate);
@@ -375,6 +436,26 @@ export function RaceWorkspace({
     beginRace("replay");
   }
 
+  function unlockForNewSetup(options?: { keepRivalName?: string }): void {
+    clearStartDelay();
+    clearResultReveal();
+    sessionRef.current?.reset();
+    sessionRef.current = null;
+    setTelemetry(null);
+    completedRaceKeyRef.current = null;
+    setSharedLocked(false);
+    const nextDistance = DEFAULT_DISTANCE_ID;
+    const defaults = createDefaultAthleteDrafts(nextDistance);
+    setDistanceId(nextDistance);
+    setAthletes([
+      defaults[0],
+      {
+        ...defaults[1],
+        name: options?.keepRivalName ?? defaults[1].name,
+      },
+    ]);
+  }
+
   function handleRaceAgain(): void {
     clearStartDelay();
     clearResultReveal();
@@ -382,8 +463,54 @@ export function RaceWorkspace({
     sessionRef.current = null;
     setTelemetry(null);
     completedRaceKeyRef.current = null;
+    if (shared) {
+      // Keep shared inputs locked for another watch from this link context.
+      setSharedLocked(true);
+    }
     trackRaceAgain(analyticsRace);
   }
+
+  function handleChallengeRival(): void {
+    const rivalName = athletes[1]?.name?.trim() || athletes[0]?.name?.trim() || "";
+    trackFollowOnRaceCreated({
+      ...analyticsRace,
+      sourceRaceId: shared?.raceId,
+    });
+    if (shared) {
+      // Full navigation keeps shared-page client state from leaking into home.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- unit tests render without App Router
+      window.location.assign(`/?challenge=${encodeURIComponent(rivalName)}`);
+      return;
+    }
+    unlockForNewSetup({ keepRivalName: rivalName });
+  }
+
+  function handleCreateNewRace(): void {
+    trackFollowOnRaceCreated({
+      ...analyticsRace,
+      sourceRaceId: shared?.raceId,
+    });
+    if (shared) {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- unit tests render without App Router
+      window.location.assign("/");
+      return;
+    }
+    unlockForNewSetup();
+  }
+
+  const sharePayload =
+    parsed && telemetry?.result
+      ? {
+          distanceId,
+          distanceM,
+          distanceLabel,
+          nameA: parsed.athletes[0].name,
+          nameB: parsed.athletes[1].name,
+          finishTimeMsA: parsed.athletes[0].finishTimeMs,
+          finishTimeMsB: parsed.athletes[1].finishTimeMs,
+          sourceRaceId: shared?.raceId,
+        }
+      : undefined;
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-2 sm:gap-3">
@@ -478,8 +605,11 @@ export function RaceWorkspace({
             name: athlete.name,
             finishTimeMs: athlete.finishTimeMs,
           }))}
+          sharePayload={sharePayload}
           onReplay={handleReplay}
           onRaceAgain={handleRaceAgain}
+          onChallengeRival={handleChallengeRival}
+          onCreateNewRace={handleCreateNewRace}
         />
       ) : null}
     </div>

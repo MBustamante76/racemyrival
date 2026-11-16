@@ -72,15 +72,23 @@ docker compose --profile test run --rm test
 
 ## Vercel
 
-The production build is a static App Router site (`npm run build` / `next start`).
+Next.js App Router on Vercel (`npm run build` / `next start`). Shared races need
+server routes + Redis — not a static export.
+
 To deploy:
 
 1. Import this GitHub repository in the Vercel dashboard.
 2. Framework preset: Next.js. Build command: `npm run build`. Output: default.
-3. No environment variables are required for V1.
+3. V1 homepage works without env vars. For V2 shared races set
+   `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (see `.env.example`
+   and `docs/rmr-v2/deployment.md`).
 
 This repository does not claim a live production URL unless deploy credentials
 are present.
+
+## V2 docs
+
+See [`docs/rmr-v2/`](docs/rmr-v2/) for sharing, partners, analytics, and retention.
 
 ## Architecture
 
