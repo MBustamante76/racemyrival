@@ -125,9 +125,14 @@ export function getActiveCampaign(): PartnerCampaign | null {
   return campaign;
 }
 
+/**
+ * Pick a creative for the given **viewport** width (window.innerWidth).
+ * Do not pass the partner slot's layout container width — the shell caps at ~1250px,
+ * which would incorrectly select tablet bands on typical desktop monitors.
+ */
 export function pickPlacementAsset(
   placement: { desktopAsset?: string; mobileAsset?: string; assetsByMaxWidth?: Array<{ maxWidth: number; src: string }> } | undefined,
-  widthPx: number,
+  viewportWidthPx: number,
 ): string | null {
   if (!placement) {
     return null;
@@ -135,13 +140,13 @@ export function pickPlacementAsset(
   if (placement.assetsByMaxWidth?.length) {
     const sorted = [...placement.assetsByMaxWidth].sort((a, b) => a.maxWidth - b.maxWidth);
     for (const entry of sorted) {
-      if (widthPx <= entry.maxWidth) {
+      if (viewportWidthPx <= entry.maxWidth) {
         return entry.src;
       }
     }
     return sorted[sorted.length - 1]?.src ?? null;
   }
-  if (widthPx < 768) {
+  if (viewportWidthPx < 768) {
     return placement.mobileAsset ?? placement.desktopAsset ?? null;
   }
   return placement.desktopAsset ?? placement.mobileAsset ?? null;

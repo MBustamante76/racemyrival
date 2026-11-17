@@ -18,7 +18,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Race My Rival",
-  description: "See what the difference really looks like.",
+  description: "Turn times into races.",
   icons: {
     icon: [{ url: "/RMR_new.png", type: "image/png" }],
     apple: [{ url: "/RMR_new.png", type: "image/png" }],

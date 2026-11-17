@@ -35,29 +35,24 @@ Source of truth for the live V1 visual system. V2 sharing and partner layers mus
 |------|------|--------|
 | UI / body | Inter (`--font-inter`) | Body, controls, results |
 | Display | Montserrat (`--font-montserrat`) | Available via `--font-display` |
-| Wordmark | Inter extrabold uppercase | “Race **My** Rival” with red “My” |
+| Wordmark | Brand SVG pack | Italic “Race My Rival” mark; tagline baked into header asset |
 
 Defined in `src/app/layout.tsx` (Google fonts) and mirrored in `src/app/globals.css` / `src/styles/tokens.ts`.
+
+Site metadata description: **Turn times into races.**
 
 ## Logo usage
 
 | Asset | Location | Role |
 |-------|----------|------|
-| Typographic wordmark | `RaceApp.tsx` `<h1>` | Primary on-page brand |
-| `public/RMR_new.png` | Favicon / apple icon via `layout.tsx` metadata | Browser chrome |
+| `public/brand/race-my-rival-with-tagline-colour.svg` | `BrandHeader` / wireframe header | Primary on-page brand |
+| `public/brand/race-my-rival-wordmark-colour.png` | Shared race OG image | Compact mark on social cards |
+| Black / white / reversed variants | `public/brand/` | Future dark / partner surfaces |
+| `public/RMR_new.png` | Favicon / apple icon via `layout.tsx` metadata | Browser chrome (keep until SVG favicon arrives) |
 | `src/app/icon.png` | App Router icon | Next icon route |
 | `public/runner-pin-a.png`, `runner-pin-b.png` | Track markers | Athlete pins |
 
 `AppHeader` exists but is gated off (`SHOW_APP_HEADER = false`).
-
-### Logo assessment (discussion only)
-
-Current production identity is a clean typographic wordmark plus a simple PNG favicon. It is clear and on-brand with navy/red. A restrained refresh could:
-
-- Tighten the favicon mark so it reads at 16–32px;
-- Optionally introduce a small track/rival monogram that pairs with the wordmark;
-
-Do **not** replace the production logo until the client approves. Logo work must not block V2 sharing/partners.
 
 ## Buttons
 
@@ -77,7 +72,7 @@ Do **not** replace the production logo until the client approves. Logo work must
 
 - Card with border, shadow (`--rmr-shadow-card`), radius 8px.
 - Winner name, times VS, time gap, distance gap at finish.
-- CTAs: Replay, Race again; Share gated until V2 (`SHOW_SHARE_RESULT`).
+- CTAs: Replay Race, Challenge a Rival, Create New Race; Share Race is primary.
 
 ## Cards / spacing
 

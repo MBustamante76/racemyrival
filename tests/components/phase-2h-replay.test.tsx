@@ -47,7 +47,7 @@ async function finishFixture(user: ReturnType<typeof userEvent.setup>, clock: Re
   clock.advance(124_000);
 }
 
-describe("Phase 2H replay and race again", () => {
+describe("Phase 2H replay and create new race", () => {
   it("replays the same 800m fixture with the form still locked", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
@@ -57,7 +57,7 @@ describe("Phase 2H replay and race again", () => {
     expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");
     const firstLead = Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"));
 
-    await user.click(screen.getByRole("button", { name: "Replay" }));
+    await user.click(screen.getByRole("button", { name: "Replay Race" }));
     expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-controls")).toBeInTheDocument();
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
@@ -75,20 +75,20 @@ describe("Phase 2H replay and race again", () => {
     );
   });
 
-  it("unlocks the form on Race again and does not stack replay frames", async () => {
+  it("unlocks a fresh setup on Create New Race and does not stack replay frames", async () => {
     const clock = createFakeLoopClock();
     const user = userEvent.setup();
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await finishFixture(user, clock);
 
-    await user.click(screen.getByRole("button", { name: "Replay" }));
+    await user.click(screen.getByRole("button", { name: "Replay Race" }));
     expect(clock.queuedCount).toBe(1);
     clock.advance(124_000);
-    await user.click(screen.getByRole("button", { name: "Replay" }));
+    await user.click(screen.getByRole("button", { name: "Replay Race" }));
     expect(clock.queuedCount).toBe(1);
 
     clock.advance(124_000);
-    await user.click(screen.getByRole("button", { name: "Race again" }));
+    await user.click(screen.getByRole("button", { name: "Create New Race" }));
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("idle");
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();

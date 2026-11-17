@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { raceDistanceById } from "@/domain/race";
 import { getCampaignById, getActiveCampaign } from "@/partners/campaigns";
@@ -32,6 +34,10 @@ export default async function OpenGraphImage({ params }: Props) {
   const attribution =
     campaign?.placements.socialCard?.attribution ?? campaign?.attribution ?? null;
 
+  const wordmarkSrc = `data:image/png;base64,${(
+    await readFile(join(process.cwd(), "public/brand/race-my-rival-wordmark-colour.png"))
+  ).toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -43,23 +49,32 @@ export default async function OpenGraphImage({ params }: Props) {
           justifyContent: "space-between",
           background: "linear-gradient(160deg, #0F182F 0%, #1a2744 55%, #0F182F 100%)",
           color: "#FEFEFE",
-          padding: "48px 56px",
+          padding: "40px 48px",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 42,
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-              textTransform: "uppercase",
-            }}
-          >
-            <span>Race </span>
-            <span style={{ color: "#E10A1F" }}>My</span>
-            <span> Rival</span>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 8,
+            background: "#FEFEFE",
+            borderRadius: 16,
+            padding: "20px 36px",
+            alignSelf: "center",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og ImageResponse */}
+          <img
+            src={wordmarkSrc}
+            width={380}
+            height={76}
+            alt="Race My Rival"
+            style={{ objectFit: "contain" }}
+          />
+          <div style={{ display: "flex", fontSize: 20, color: "#0F182F", fontWeight: 600 }}>
+            Turn times into races.
           </div>
         </div>
 

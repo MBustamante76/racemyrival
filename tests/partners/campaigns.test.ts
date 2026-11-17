@@ -18,11 +18,16 @@ describe("partner campaigns", () => {
     expect(getCampaignById("test-partner")).toEqual(TEST_PARTNER_CAMPAIGN);
   });
 
-  it("picks responsive assets by container width", () => {
+  it("picks responsive assets by viewport width", () => {
     const top = RUN_LAB_CAMPAIGN.placements.top!;
+    const lower = RUN_LAB_CAMPAIGN.placements.lower!;
     expect(pickPlacementAsset(top, 390)).toContain("mobile-portrait");
     expect(pickPlacementAsset(top, 800)).toContain("mobile-landscape");
+    // Content column (~1186) must not drive selection — typical desktop viewport wins desktop creatives.
+    expect(pickPlacementAsset(top, 1280)).toContain("tablet-landscape");
     expect(pickPlacementAsset(top, 1920)).toContain("desktop-1920");
+    expect(pickPlacementAsset(lower, 1280)).toContain("tablet-landscape");
+    expect(pickPlacementAsset(lower, 1920)).toContain("desktop-1920");
   });
 
   it("allowlists partner destinations", () => {

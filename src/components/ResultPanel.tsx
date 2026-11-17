@@ -28,12 +28,11 @@ export const ResultPanel = forwardRef<
     athletes: readonly ResultAthleteView[];
     sharePayload?: ShareRacePayload;
     onReplay?: () => void;
-    onRaceAgain?: () => void;
     onChallengeRival?: () => void;
     onCreateNewRace?: () => void;
   }
 >(function ResultPanel(
-  { result, athletes, sharePayload, onReplay, onRaceAgain, onChallengeRival, onCreateNewRace },
+  { result, athletes, sharePayload, onReplay, onChallengeRival, onCreateNewRace },
   ref,
 ) {
   const winner = athletes.find((athlete) => athlete.id === result.winnerId);
@@ -42,10 +41,10 @@ export const ResultPanel = forwardRef<
   const winnerName = winner?.name ?? "Winner";
   const winnerAccent =
     winner?.id === "B" ? "text-athlete-b" : winner?.id === "A" ? "text-athlete-a" : "text-near-black";
-  const secondaryActions = [onReplay, onRaceAgain, onChallengeRival, onCreateNewRace].filter(Boolean).length;
+  const secondaryActions = [onReplay, onChallengeRival, onCreateNewRace].filter(Boolean).length;
   const secondaryGrid =
     secondaryActions >= 3
-      ? "mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      ? "mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
       : secondaryActions === 2
         ? "mt-2 grid gap-2 sm:grid-cols-2"
         : "mt-2 grid gap-2";
@@ -138,13 +137,7 @@ export const ResultPanel = forwardRef<
           {onReplay ? (
             <button type="button" onClick={onReplay} className={ACTION_BUTTON}>
               <ReplayIcon />
-              Replay
-            </button>
-          ) : null}
-          {onRaceAgain ? (
-            <button type="button" onClick={onRaceAgain} className={ACTION_BUTTON}>
-              <RaceAgainIcon />
-              Race again
+              Replay Race
             </button>
           ) : null}
           {onChallengeRival ? (
@@ -203,16 +196,3 @@ function ReplayIcon() {
   );
 }
 
-function RaceAgainIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none">
-      <path
-        d="M4 10a6 6 0 1 0 1.8-4.3"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path d="M3.2 3.6v3.8h3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
