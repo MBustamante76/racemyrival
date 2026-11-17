@@ -1,7 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { TrackRenderer } from "@/components/TrackRenderer";
-import { athleteMarkerLayouts, distanceMarkViews, trackSurfacePath } from "@/components/trackView";
+import {
+  athleteMarkerLayouts,
+  DISPLAY_LANE_COUNT,
+  distanceMarkViews,
+  displayLaneCount,
+  trackSurfacePath,
+  visualLaneBoundaryOffsetsM,
+  visualLaneCount,
+} from "@/components/trackView";
 
 const twoAthletes = [
   { id: "A", name: "Marcelo", distanceCoveredM: 0 },
@@ -14,7 +22,9 @@ describe("Phase 2D track polish", () => {
     expect(screen.getByRole("img")).toHaveAttribute("data-course-type", "sprint-straight");
     expect(screen.getByTestId("sprint-chute")).toBeInTheDocument();
     expect(screen.getByTestId("sprint-start-label")).toHaveTextContent("START 100m");
-    expect(screen.getByRole("img").querySelectorAll('[data-testid^="sprint-chute-lane-"]')).toHaveLength(3);
+    expect(screen.getByRole("img").querySelectorAll('[data-testid^="sprint-chute-lane-"]')).toHaveLength(
+      DISPLAY_LANE_COUNT + 1,
+    );
     const startLabel = screen.getByTestId("sprint-start-label");
     const outerName = screen.getByTestId("athlete-label-B");
     expect(startLabel.getAttribute("x")).not.toBe(outerName.getAttribute("x"));
@@ -82,6 +92,18 @@ describe("Phase 2D track polish", () => {
     expect(screen.getByRole("img")).toHaveAttribute("data-runner-count", "3");
     expect(screen.getByTestId("runner-track-C")).toBeInTheDocument();
     expect(screen.getByRole("img").querySelectorAll('[data-testid^="runner-track-"]')).toHaveLength(3);
+  });
+
+  it("paints four display lanes while runners stay on the inner two", () => {
+    expect(displayLaneCount()).toBe(4);
+    expect(visualLaneCount(2)).toBe(2);
+    expect(visualLaneBoundaryOffsetsM(DISPLAY_LANE_COUNT)).toHaveLength(5);
+
+    render(<TrackRenderer raceDistanceM={800} athletes={twoAthletes} />);
+    const svg = screen.getByRole("img");
+    expect(svg).toHaveAttribute("data-display-lane-count", "4");
+    expect(svg).toHaveAttribute("data-runner-count", "2");
+    expect(svg.querySelectorAll('[data-testid^="runner-track-"]')).toHaveLength(2);
   });
 
   it("does not move oval 300m marks when 100m athletes start on the chute", () => {

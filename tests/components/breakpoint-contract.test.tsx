@@ -83,12 +83,10 @@ describe("James breakpoint and pin contracts", () => {
     expect(shell).toContain("sm:px-4 sm:py-3");
     expect(shell).toContain("md:px-6 md:py-3");
     expect(shell).toContain("lg:px-8");
-    expect(shell).toContain("text-3xl");
-    expect(shell).toContain("sm:text-4xl");
-    expect(shell).toContain("lg:text-5xl");
-    expect(shell).toContain("See what the difference really looks like.");
+    expect(shell).toContain("race-my-rival-with-tagline-colour.svg");
+    expect(shell).toContain("Turn times into races.");
     expect(shell).toContain(
-      "[@media(orientation:landscape)_and_(max-height:900px)]:text-xs",
+      "[@media(orientation:landscape)_and_(max-height:900px)]:max-w-[14rem]",
     );
     expect(shell).not.toContain(
       "[@media(orientation:landscape)_and_(max-height:900px)]:hidden",

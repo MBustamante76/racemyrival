@@ -21,8 +21,8 @@ import {
   trackOuterDiskPath,
   trackSurfacePath,
   trackViewBox,
+  displayLaneCount,
   visualLaneBoundaryOffsetsM,
-  visualLaneCount,
   visualLaneLinePoints,
 } from "./trackView";
 import type { TrackAthleteView } from "./trackView";
@@ -97,21 +97,22 @@ export function TrackRenderer({
   laneStrokeM?: number;
 }) {
   const viewBox = trackViewBox();
-  const laneCount = visualLaneCount(athletes.length);
-  const finish = finishLineSegment(laneCount);
-  const start = startTickSegment(raceDistanceM, laneCount);
+  const sceneryLanes = displayLaneCount();
+  const runnerCount = Math.max(1, athletes.length);
+  const finish = finishLineSegment(sceneryLanes);
+  const start = startTickSegment(raceDistanceM, sceneryLanes);
   const courseType = courseTypeForRace(raceDistanceM);
-  const chute = courseType === "sprint-straight" ? sprintChuteView(laneCount) : null;
+  const chute = courseType === "sprint-straight" ? sprintChuteView(sceneryLanes) : null;
   const laneOrderIds = athletes.map((athlete) => athlete.id);
   const markers = useSmoothedMarkerLayouts(raceDistanceM, athletes);
   const ghostMarkers = athleteMarkerLayouts(raceDistanceM, ghosts, laneOrderIds);
   const startIsFinish = start === null && chute === null;
-  const surfacePath = trackSurfacePath(laneCount);
+  const surfacePath = trackSurfacePath(sceneryLanes);
   const ovalScenery = (
     <>
       <g mask="url(#track-outer-shadow-mask)">
         <path
-          d={trackOuterDiskPath(laneCount)}
+          d={trackOuterDiskPath(sceneryLanes)}
           className="fill-track"
           filter="url(#track-outer-shadow)"
         />
@@ -156,7 +157,7 @@ export function TrackRenderer({
           filter="url(#infield-kerb-shadow)"
         />
       </g>
-      {visualLaneBoundaryOffsetsM(laneCount).map((offsetM) => (
+      {visualLaneBoundaryOffsetsM(sceneryLanes).map((offsetM) => (
         <polyline
           key={offsetM}
           points={visualLaneLinePoints(offsetM)}
@@ -193,7 +194,8 @@ export function TrackRenderer({
       preserveAspectRatio="xMidYMid meet"
       data-race-distance-m={raceDistanceM}
       data-course-type={courseType}
-      data-runner-count={laneCount}
+      data-runner-count={runnerCount}
+      data-display-lane-count={sceneryLanes}
       className="h-full w-full overflow-hidden"
     >
       <defs>

@@ -61,13 +61,15 @@ export function PartnerShell({
 
 export function BrandHeader() {
   return (
-    <div className="flex flex-col items-center gap-1 text-center [@media(orientation:landscape)_and_(max-height:900px)]:gap-0">
-      <h1 className="font-sans text-3xl font-extrabold uppercase tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xl sm:text-4xl lg:text-5xl">
-        Race <span className="text-brand-red">My</span> Rival
-      </h1>
-      <p className="max-w-xl text-balance font-sans text-sm font-extrabold tracking-[-0.02em] text-brand-navy [@media(orientation:landscape)_and_(max-height:900px)]:text-xs [@media(orientation:landscape)_and_(max-height:900px)]:leading-snug sm:text-base">
-        See what the difference really looks like.
-      </p>
+    <div className="flex flex-col items-center text-center">
+      <h1 className="sr-only">Race My Rival</h1>
+      {/* eslint-disable-next-line @next/next/no-img-element -- brand SVG from public/brand */}
+      <img
+        src="/brand/race-my-rival-with-tagline-colour.svg"
+        alt="Race My Rival — Turn times into races."
+        className="h-auto w-full max-w-[18rem] sm:max-w-[22rem] lg:max-w-[26rem] [@media(orientation:landscape)_and_(max-height:900px)]:max-w-[14rem]"
+        data-testid="brand-logo"
+      />
     </div>
   );
 }

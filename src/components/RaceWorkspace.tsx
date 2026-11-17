@@ -12,7 +12,6 @@ import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import {
   trackFollowOnRaceCreated,
   trackPlaybackSpeed,
-  trackRaceAgain,
   trackRaceCompleted,
   trackRaceStarted,
   trackReplay,
@@ -456,20 +455,6 @@ export function RaceWorkspace({
     ]);
   }
 
-  function handleRaceAgain(): void {
-    clearStartDelay();
-    clearResultReveal();
-    sessionRef.current?.reset();
-    sessionRef.current = null;
-    setTelemetry(null);
-    completedRaceKeyRef.current = null;
-    if (shared) {
-      // Keep shared inputs locked for another watch from this link context.
-      setSharedLocked(true);
-    }
-    trackRaceAgain(analyticsRace);
-  }
-
   function handleChallengeRival(): void {
     const rivalName = athletes[1]?.name?.trim() || athletes[0]?.name?.trim() || "";
     trackFollowOnRaceCreated({
@@ -607,7 +592,6 @@ export function RaceWorkspace({
           }))}
           sharePayload={sharePayload}
           onReplay={handleReplay}
-          onRaceAgain={handleRaceAgain}
           onChallengeRival={handleChallengeRival}
           onCreateNewRace={handleCreateNewRace}
         />

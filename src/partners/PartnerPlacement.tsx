@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   trackPartnerClick,
   trackPartnerImpression,
@@ -12,25 +12,20 @@ import { withPartnerUtm } from "./utm";
 
 export type PartnerSlot = "top" | "side" | "lower";
 
-function useContainerWidth(ref: RefObject<HTMLElement | null>): number {
-  const [width, setWidth] = useState(1280);
+/** Supplier bands are viewport-based, not the capped advert container (~1250px). */
+function useViewportWidth(): number {
+  const [width, setWidth] = useState(() =>
+    typeof window === "undefined" ? 1280 : window.innerWidth,
+  );
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node || typeof ResizeObserver === "undefined") {
+    function update(): void {
       setWidth(window.innerWidth);
-      return;
     }
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) {
-        setWidth(entry.contentRect.width);
-      }
-    });
-    observer.observe(node);
-    setWidth(node.getBoundingClientRect().width || window.innerWidth);
-    return () => observer.disconnect();
-  }, [ref]);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   return width;
 }
@@ -47,7 +42,7 @@ export function PartnerBanner({
   className?: string;
 }) {
   const containerRef = useRef<HTMLElement | null>(null);
-  const width = useContainerWidth(containerRef);
+  const width = useViewportWidth();
   const impressedRef = useRef(false);
   const src = pickPlacementAsset(placement, width);
   const href =

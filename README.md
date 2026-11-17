@@ -17,7 +17,7 @@ shows a zinc-styled presentation of the same engine.
 - Winner-gap ghost, oval 100/200/300 marks, 100m chute, offset starts
 - Infield clock with hundredths and last-finish clamp
 - Live distance / speed / gap strip
-- Replay (same config, locked form, auto-start) and Race again (idle, editable)
+- Replay Race (same config, locked form, auto-start); Create New Race / Challenge a Rival for a fresh setup
 - Result card from the frozen `RaceResult` snapshot
 
 Default 800m fixture: Marcelo `2:04.00` vs Josh `1:52.00` → Josh wins, 12.00s

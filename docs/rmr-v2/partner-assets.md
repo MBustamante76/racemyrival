@@ -4,7 +4,7 @@ Inventory of Marcelo’s Run-Lab advertising pack (updated 16 November 2026) and
 
 **Source folder:** `RUN-LAB-Advertising-Banners` (client Downloads pack).  
 **Destination URL (all placements):** `https://running-coach.uk/`  
-**Selection rule:** choose artwork by **advert container width**, not device UA. Do not stretch or cover-crop.
+**Selection rule:** choose artwork by **viewport width** (`window.innerWidth`), not device UA and not the capped advert container (~1250px). Do not stretch or cover-crop.
 
 Suggested width bands (from supplier README; adjust to live layout):
 

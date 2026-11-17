@@ -16,21 +16,22 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+const NEUTRAL_MISSING_METADATA: Metadata = {
+  title: "Race My Rival",
+  description: "Turn times into races.",
+  robots: { index: false, follow: false },
+};
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   if (!isOpaqueRaceId(id)) {
-    return {
-      title: "Race unavailable | Race My Rival",
-      robots: { index: false, follow: false },
-    };
+    return NEUTRAL_MISSING_METADATA;
   }
 
   const race = await getSharedRace(id);
   if (!race) {
-    return {
-      title: "Race unavailable | Race My Rival",
-      robots: { index: false, follow: false },
-    };
+    // Avoid "Race unavailable" in WhatsApp/OG titles when Redis lookup fails transiently.
+    return NEUTRAL_MISSING_METADATA;
   }
 
   const distanceLabel = raceDistanceById(race.distanceId)?.label ?? `${race.distanceM}m`;

@@ -24,8 +24,13 @@ export const MARKER_RADIUS_M = 3.4;
 export const PIN_STEM_M = 7;
 /** Extra vertical viewBox room so pins and name labels are not clipped at the bends. */
 export const MARKER_CLEARANCE_M = PIN_STEM_M + MARKER_RADIUS_M + 3;
-/** Horizontal room so the oval and outfield labels are not clipped at the stage edge. */
-export const SIDE_CLEARANCE_M = 18;
+/**
+ * Horizontal room so the oval and outfield labels are not clipped at the stage edge.
+ * Slightly larger than early V1 so four display lanes are not clipped (panel CSS unchanged).
+ */
+export const SIDE_CLEARANCE_M = 24;
+/** Painted athletics lanes (2 runner + 2 empty outer). Runners still use indices 0/1. */
+export const DISPLAY_LANE_COUNT = 4;
 export const LABEL_INFIELD_M = 13;
 export const LABEL_OUTFIELD_EXTRA_M = 6.5;
 /** Race-distance gap (m) at which labels enter close (above/below) mode. */
@@ -116,8 +121,14 @@ export function visualLaneLinePoints(offsetM: number): string {
   return value;
 }
 
+/** How many runner corridors are occupied (not decorative outer lanes). */
 export function visualLaneCount(athleteCount: number): number {
   return Math.max(1, athleteCount);
+}
+
+/** Fixed scenery lane count for surface / lines / finish (includes empty outer lanes). */
+export function displayLaneCount(): number {
+  return DISPLAY_LANE_COUNT;
 }
 
 export function visualLaneCenterOffsetM(laneIndex: number): number {
@@ -150,12 +161,13 @@ export function trackInnerOffsetM(): number {
   return LANE_HALF_WIDTH_M;
 }
 
-export function trackOuterOffsetM(laneCount = 2): number {
-  return visualLaneCenterOffsetM(visualLaneCount(laneCount) - 1) - LANE_HALF_WIDTH_M;
+export function trackOuterOffsetM(laneCount = DISPLAY_LANE_COUNT): number {
+  const count = Math.max(1, laneCount);
+  return visualLaneCenterOffsetM(count - 1) - LANE_HALF_WIDTH_M;
 }
 
-export function visualLaneBoundaryOffsetsM(laneCount = 2): number[] {
-  const count = visualLaneCount(laneCount);
+export function visualLaneBoundaryOffsetsM(laneCount = DISPLAY_LANE_COUNT): number[] {
+  const count = Math.max(1, laneCount);
   return Array.from({ length: count + 1 }, (_, index) => LANE_HALF_WIDTH_M - index * COMPARISON_LANE_SEPARATION_M);
 }
 
@@ -165,15 +177,15 @@ export function infieldPolygonPoints(): string {
     .join(" ");
 }
 
-export function trackSurfacePoints(laneCount = 2): string {
+export function trackSurfacePoints(laneCount = DISPLAY_LANE_COUNT): string {
   return trackSurfacePath(laneCount);
 }
 
-export function trackSurfacePath(laneCount = 2): string {
+export function trackSurfacePath(laneCount = DISPLAY_LANE_COUNT): string {
   return `${ringPath(closedRingPoints(trackOuterOffsetM(laneCount)))} ${ringPath(closedRingPoints(trackInnerOffsetM()))}`;
 }
 
-export function trackOuterDiskPath(laneCount = 2): string {
+export function trackOuterDiskPath(laneCount = DISPLAY_LANE_COUNT): string {
   return ringPath(closedRingPoints(trackOuterOffsetM(laneCount)));
 }
 
@@ -206,13 +218,13 @@ function ringPath(points: ScreenPoint[]): string {
   return `M ${first.x} ${first.y} ${rest.map((point) => `L ${point.x} ${point.y}`).join(" ")} Z`;
 }
 
-export function finishLineSegment(laneCount = 2): { x1: number; y1: number; x2: number; y2: number } {
+export function finishLineSegment(laneCount = DISPLAY_LANE_COUNT): { x1: number; y1: number; x2: number; y2: number } {
   return crossTrackFromOffsets(0, trackInnerOffsetM(), trackOuterOffsetM(laneCount));
 }
 
 export function startTickSegment(
   raceDistanceM: number,
-  laneCount = 2,
+  laneCount = DISPLAY_LANE_COUNT,
 ): {
   x1: number;
   y1: number;
@@ -248,7 +260,7 @@ export interface SprintChuteView {
   laneLines: SprintChuteLaneLine[];
 }
 
-export function sprintChuteView(laneCount = 2): SprintChuteView {
+export function sprintChuteView(laneCount = DISPLAY_LANE_COUNT): SprintChuteView {
   const finish = stadiumTrack.sampleAtDistanceAroundLap(0);
   const startWorld = add(finish.position, scale(finish.tangent, -SPRINT_CHUTE_M));
   const innerOffset = trackInnerOffsetM();

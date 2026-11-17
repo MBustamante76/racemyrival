@@ -62,12 +62,14 @@ export function RaceApp({
       >
         <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6">
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-center text-xl font-semibold tracking-tight text-zinc-950">
-              Race My Rival
-            </h1>
-            <p className="max-w-xl text-sm text-zinc-600">
-              See what the difference really looks like.
-            </p>
+            <h1 className="sr-only">Race My Rival</h1>
+            {/* eslint-disable-next-line @next/next/no-img-element -- brand SVG from public/brand */}
+            <img
+              src="/brand/race-my-rival-with-tagline-colour.svg"
+              alt="Race My Rival — Turn times into races."
+              className="h-auto w-full max-w-[16rem]"
+              data-testid="brand-logo-wireframe"
+            />
           </div>
           <RaceWorkspace
             loopDependencies={loopDependencies}

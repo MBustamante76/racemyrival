@@ -83,7 +83,7 @@ describe("Phase 2K viewport and injected journey", () => {
       4,
     );
 
-    await user.click(screen.getByRole("button", { name: "Replay" }));
+    await user.click(screen.getByRole("button", { name: "Replay Race" }));
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-controls")).toBeInTheDocument();
