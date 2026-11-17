@@ -48,8 +48,8 @@ Site metadata description: **Turn times into races.**
 | `public/brand/race-my-rival-with-tagline-colour.svg` | `BrandHeader` / wireframe header | Primary on-page brand |
 | `public/brand/race-my-rival-wordmark-colour.png` | Shared race OG image | Compact mark on social cards |
 | Black / white / reversed variants | `public/brand/` | Future dark / partner surfaces |
-| `public/RMR_new.png` | Favicon / apple icon via `layout.tsx` metadata | Browser chrome (keep until SVG favicon arrives) |
-| `src/app/icon.png` | App Router icon | Next icon route |
+| `public/brand/rmr-favicon-with-lines.svg` (+ PNG/ICO sizes) | Favicon / apple icon via `layout.tsx` | Browser chrome |
+| `src/app/icon.png` / `apple-icon.png` | App Router icon routes | Next file-based icons (512 / 180) |
 | `public/runner-pin-a.png`, `runner-pin-b.png` | Track markers | Athlete pins |
 
 `AppHeader` exists but is gated off (`SHOW_APP_HEADER = false`).
