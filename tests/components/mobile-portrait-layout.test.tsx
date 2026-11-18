@@ -62,7 +62,7 @@ describe("mobile portrait layout regressions", () => {
     const controls = screen.getByTestId("race-controls");
     expect(controls.className).toContain("flex-wrap");
     expect(controls.className).toContain("justify-center");
-    expect(controls.className).toContain("sm:justify-between");
+    expect(controls.className).not.toContain("justify-between");
     expect(controls.className).not.toMatch(/(?:^|\s)flex-col(?:\s|$)/);
     expect(controls.contains(screen.getByTestId("playback-speed"))).toBe(true);
     expect(controls.contains(screen.getByRole("button", { name: "Start race" }))).toBe(true);

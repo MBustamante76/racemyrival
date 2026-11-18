@@ -25,10 +25,10 @@ export function RaceControls({
   return (
     <div
       data-testid="race-controls"
-      className="flex w-full min-w-0 flex-wrap items-center justify-center gap-1.5 sm:justify-between sm:gap-2"
+      className="flex w-full min-w-0 flex-wrap items-center justify-center gap-1.5 sm:gap-2"
     >
       <PlaybackSpeedControls rate={playbackRate} onChange={onPlaybackRate} />
-      <div className="flex min-w-0 flex-wrap items-center justify-center gap-1.5 sm:justify-end sm:gap-2">
+      <div className="flex min-w-0 flex-wrap items-center justify-center gap-1.5 sm:gap-2">
         {status === "idle" ? (
           <button
             type="button"
