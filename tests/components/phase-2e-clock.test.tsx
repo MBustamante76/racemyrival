@@ -90,6 +90,7 @@ describe("Phase 2E infield clock", () => {
     expect(clock.className).toContain("md:text-6xl");
     expect(clock.className).toContain("lg:text-7xl");
     expect(clock.className).not.toContain("md:text-5xl");
+    expect(clock.className).not.toContain("!text-5xl");
     expect(clock.parentElement?.textContent ?? "").not.toMatch(/seconds/i);
   });
 });

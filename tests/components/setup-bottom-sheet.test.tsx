@@ -1,17 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { LANDSCAPE_FIT_MQ } from "@/components/landscapeFit";
+import {
+  LANDSCAPE_FIT_SHORT_EDGE_MAX,
+  LANDSCAPE_ORIENTATION_MQ,
+} from "@/components/landscapeFit";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 
-function mockMatchMedia(landscapeFitMatches: boolean): void {
+function mockLandscapeChrome(sheet: boolean): void {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     configurable: true,
     value: vi.fn().mockImplementation((query: string) => {
       const matches =
-        query === LANDSCAPE_FIT_MQ
-          ? landscapeFitMatches
+        query === LANDSCAPE_ORIENTATION_MQ
+          ? sheet
           : query === "(prefers-reduced-motion: reduce)"
             ? false
             : query.includes("min-width")
@@ -29,11 +32,19 @@ function mockMatchMedia(landscapeFitMatches: boolean): void {
       };
     }),
   });
+  Object.defineProperty(window.screen, "width", {
+    configurable: true,
+    value: sheet ? 844 : 1280,
+  });
+  Object.defineProperty(window.screen, "height", {
+    configurable: true,
+    value: sheet ? 390 : 900,
+  });
 }
 
 describe("landscape setup bottom sheet", () => {
   beforeEach(() => {
-    mockMatchMedia(false);
+    mockLandscapeChrome(false);
   });
 
   afterEach(() => {
@@ -41,20 +52,21 @@ describe("landscape setup bottom sheet", () => {
   });
 
   it("keeps inline setup without a sheet tab outside landscape-fit", () => {
-    mockMatchMedia(false);
+    mockLandscapeChrome(false);
     render(<RaceWorkspace />);
 
     expect(screen.getByTestId("setup-card")).toBeInTheDocument();
     expect(screen.queryByTestId("setup-sheet-tab")).not.toBeInTheDocument();
   });
 
-  it("uses a shorter landscape band than track chrome so roomy landscape keeps inline setup", () => {
-    expect(LANDSCAPE_FIT_MQ).toBe("(orientation: landscape) and (max-height: 700px)");
-    expect(LANDSCAPE_FIT_MQ).not.toContain("900px");
+  it("uses screen short-edge for sheet mode so the keyboard cannot flip the layout", () => {
+    expect(LANDSCAPE_ORIENTATION_MQ).toBe("(orientation: landscape)");
+    expect(LANDSCAPE_FIT_SHORT_EDGE_MAX).toBe(700);
+    expect(LANDSCAPE_FIT_SHORT_EDGE_MAX).toBeLessThan(900);
   });
 
   it("shows a closed Race setup tab in landscape-fit and opens the panel on tap", async () => {
-    mockMatchMedia(true);
+    mockLandscapeChrome(true);
     const user = userEvent.setup();
     render(<RaceWorkspace />);
 
@@ -76,7 +88,7 @@ describe("landscape setup bottom sheet", () => {
   });
 
   it("lets runners start from the open setup sheet without dismissing first", async () => {
-    mockMatchMedia(true);
+    mockLandscapeChrome(true);
     const user = userEvent.setup();
     render(<RaceWorkspace />);
 
@@ -90,5 +102,11 @@ describe("landscape setup bottom sheet", () => {
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
     expect(screen.queryByTestId("setup-sheet")).not.toBeInTheDocument();
     expect(screen.queryByTestId("setup-card")).not.toBeInTheDocument();
+  });
+
+  it("keeps the track on the sheet size band while landscape-fit is active", () => {
+    mockLandscapeChrome(true);
+    render(<RaceWorkspace />);
+    expect(screen.getByTestId("track-stage")).toHaveAttribute("data-landscape-band", "sheet");
   });
 });

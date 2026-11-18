@@ -26,7 +26,7 @@ import { RESULT_REVEAL_DELAY_MS, resolveResultRevealDelayMs } from "./resultReve
 import { ResultPanel } from "./ResultPanel";
 import { SetupBottomSheet } from "./SetupBottomSheet";
 import { SetupCard } from "./SetupCard";
-import { useLandscapeFit } from "./landscapeFit";
+import { useLandscapeBand, useLandscapeFit } from "./landscapeFit";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -87,6 +87,7 @@ export function RaceWorkspace({
   const [setupSheetOpen, setSetupSheetOpen] = useState(false);
   const [sharedLocked, setSharedLocked] = useState(Boolean(shared));
   const landscapeFit = useLandscapeFit();
+  const landscapeBand = useLandscapeBand();
   const sessionRef = useRef<ReturnType<typeof createRaceLoop> | null>(null);
   const completedRaceKeyRef = useRef<string | null>(null);
   const trackStageRef = useRef<HTMLElement | null>(null);
@@ -506,11 +507,13 @@ export function RaceWorkspace({
       <div className="w-full min-w-0 shrink-0">
         <TrackStage
           stageRef={trackStageRef}
+          landscapeBand={landscapeBand}
           clock={
             <RaceClockReadout
               distanceLabel={distanceLabel}
               timeText={formatRaceTime(telemetry?.raceTimeMs ?? 0)}
               lapText={lapText}
+              landscapeBand={landscapeBand}
             />
           }
           track={

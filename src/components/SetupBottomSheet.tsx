@@ -58,7 +58,7 @@ export function SetupBottomSheet({
             (open ? "setup-sheet-panel-open" : "setup-sheet-panel-closed")
           }
         >
-          <div className="max-h-[min(calc(70svh-4.5rem),23.5rem)] overflow-y-auto p-2 sm:p-3">
+          <div className="max-h-[min(calc(70lvh-4.5rem),23.5rem)] overflow-y-auto p-2 sm:p-3">
             {children}
           </div>
           {footer ? (

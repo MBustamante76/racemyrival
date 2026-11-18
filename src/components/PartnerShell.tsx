@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useLandscapeBand } from "@/components/landscapeFit";
 import { getActiveCampaign } from "@/partners/campaigns";
 import { PartnerBanner } from "@/partners/PartnerPlacement";
 
@@ -60,6 +61,9 @@ export function PartnerShell({
 }
 
 export function BrandHeader() {
+  const landscapeBand = useLandscapeBand();
+  const compactLandscape = landscapeBand !== "none";
+
   return (
     <div className="flex flex-col items-center text-center">
       <h1 className="sr-only">Race My Rival</h1>
@@ -67,7 +71,11 @@ export function BrandHeader() {
       <img
         src="/brand/race-my-rival-with-tagline-colour.svg"
         alt="Race My Rival — Turn times into races."
-        className="h-auto w-full max-w-[18rem] sm:max-w-[22rem] lg:max-w-[26rem] [@media(orientation:landscape)_and_(max-height:900px)]:max-w-[14rem]"
+        className={
+          compactLandscape
+            ? "h-auto w-full max-w-[14rem]"
+            : "h-auto w-full max-w-[18rem] sm:max-w-[22rem] lg:max-w-[26rem]"
+        }
         data-testid="brand-logo"
       />
     </div>
