@@ -36,8 +36,9 @@ Source of truth for the live V1 visual system. V2 sharing and partner layers mus
 | UI / body | Inter (`--font-inter`) | Body, controls, results |
 | Display | Montserrat (`--font-montserrat`) | Available via `--font-display` |
 | Wordmark | Brand SVG pack | Italic “Race My Rival” mark; tagline baked into header asset |
+| Share / OG display | Chewy (`src/fonts/Chewy-Regular.ttf`, Apache 2.0) | Dynamic share-card text via `next/og` |
 
-Defined in `src/app/layout.tsx` (Google fonts) and mirrored in `src/app/globals.css` / `src/styles/tokens.ts`.
+Defined in `src/app/layout.tsx` (Google fonts) and mirrored in `src/app/globals.css` / `src/styles/tokens.ts`. Site UI remains Inter / Montserrat; Chewy is for social share cards.
 
 Site metadata description: **Turn times into races.**
 
@@ -46,7 +47,8 @@ Site metadata description: **Turn times into races.**
 | Asset | Location | Role |
 |-------|----------|------|
 | `public/brand/race-my-rival-with-tagline-colour.svg` | `BrandHeader` / wireframe header | Primary on-page brand |
-| `public/brand/race-my-rival-wordmark-colour.png` | Shared race OG image | Compact mark on social cards |
+| `public/brand/share-card-background.png` | Shared race OG background | Coral oval race template |
+| `public/brand/race-my-rival-wordmark-colour.png` | Brand pack | Wordmark (also baked into share plate) |
 | Black / white / reversed variants | `public/brand/` | Future dark / partner surfaces |
 | `public/brand/rmr-favicon-with-lines.svg` (+ PNG/ICO sizes) | Favicon / apple icon via `layout.tsx` | Browser chrome |
 | `src/app/icon.png` / `apple-icon.png` | App Router icon routes | Next file-based icons (512 / 180) |
