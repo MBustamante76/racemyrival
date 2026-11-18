@@ -14,7 +14,9 @@ For shared race `/race/<id>`:
 - Route: `src/app/race/[id]/opengraph-image.tsx`
 - Generator: `next/og` `ImageResponse`
 - Size: 1200×630
-- Content: Race My Rival wordmark, names, distance, “Who won?”, optional campaign attribution from race `campaignId` (fallback: active campaign)
+- Background plate: `public/brand/share-card-background.png` (Coral Oval Race Template — clean; no baked-in names)
+- Dynamic overlay (Chewy): competitor name pills, `vs`, distance, “Who won?”
+- Static from plate: wordmark, tagline, coral track, pins, `racemyrival.com`
 - Never includes winner, times, or gaps
 
 ## Caching

@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { raceDistanceById } from "@/domain/race";
-import { getCampaignById, getActiveCampaign } from "@/partners/campaigns";
 import { getSharedRace, isOpaqueRaceId } from "@/server/sharedRace";
+import { shareNameFontSize, truncateShareName } from "./shareCardText";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
@@ -11,32 +11,54 @@ export const contentType = "image/png";
 
 type Props = { params: Promise<{ id: string }> };
 
-function truncateName(name: string, max = 18): string {
-  const trimmed = name.trim();
-  if (trimmed.length <= max) {
-    return trimmed;
-  }
-  return `${trimmed.slice(0, max - 1)}…`;
+/** Source plate is 1731×909; OG canvas is 1200×630. */
+const SX = 1200 / 1731;
+const SY = 630 / 909;
+
+const TEAL = "#00959B";
+const PURPLE = "#7250A4";
+const NAVY = "#0F182F";
+const CORAL = "#EF5B4C";
+
+const chewyRegular = readFile(join(process.cwd(), "src/fonts/Chewy-Regular.ttf"));
+const shareCardBackground = readFile(
+  join(process.cwd(), "public/brand/share-card-background.png"),
+);
+
+function plate(x: number, y: number, w: number, h: number) {
+  return {
+    left: Math.round(x * SX),
+    top: Math.round(y * SY),
+    width: Math.round(w * SX),
+    height: Math.round(h * SY),
+  };
 }
 
 export default async function OpenGraphImage({ params }: Props) {
   const { id } = await params;
   const race = isOpaqueRaceId(id) ? await getSharedRace(id) : null;
 
-  const nameA = truncateName(race?.competitorA.displayName || "Athlete A");
-  const nameB = truncateName(race?.competitorB.displayName || "Athlete B");
+  const nameA = truncateShareName(race?.competitorA.displayName || "Athlete A");
+  const nameB = truncateShareName(race?.competitorB.displayName || "Athlete B");
+  const fontA = shareNameFontSize(nameA);
+  const fontB = shareNameFontSize(nameB);
   const distanceLabel = race
     ? (raceDistanceById(race.distanceId)?.label ?? `${race.distanceM}m`)
     : "Race";
 
-  const campaign =
-    (race?.campaignId ? getCampaignById(race.campaignId) : null) ?? getActiveCampaign();
-  const attribution =
-    campaign?.placements.socialCard?.attribution ?? campaign?.attribution ?? null;
+  const [backgroundBytes, chewyBytes] = await Promise.all([
+    shareCardBackground,
+    chewyRegular,
+  ]);
+  const backgroundSrc = `data:image/png;base64,${backgroundBytes.toString("base64")}`;
 
-  const wordmarkSrc = `data:image/png;base64,${(
-    await readFile(join(process.cwd(), "public/brand/race-my-rival-wordmark-colour.png"))
-  ).toString("base64")}`;
+  // Stacked in the oval infield: names → distance → who won → Watch the race.
+  const leftPill = plate(270, 300, 450, 130);
+  const rightPill = plate(1010, 300, 450, 130);
+  const vsBox = plate(800, 330, 130, 80);
+  const distanceBox = plate(680, 460, 370, 90);
+  const whoWonBox = plate(720, 555, 290, 55);
+  const watchButton = plate(600, 625, 530, 95);
 
   return new ImageResponse(
     (
@@ -45,89 +67,141 @@ export default async function OpenGraphImage({ params }: Props) {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background: "linear-gradient(160deg, #0F182F 0%, #1a2744 55%, #0F182F 100%)",
-          color: "#FEFEFE",
-          padding: "40px 48px",
-          fontFamily: "sans-serif",
+          position: "relative",
+          fontFamily: "Chewy",
         }}
       >
-        <div
+        {/* eslint-disable-next-line @next/next/no-img-element -- next/og ImageResponse */}
+        <img
+          src={backgroundSrc}
+          width={1200}
+          height={630}
+          alt=""
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 8,
-            background: "#FEFEFE",
-            borderRadius: 16,
-            padding: "20px 36px",
-            alignSelf: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: 1200,
+            height: 630,
+            objectFit: "contain",
+            background: "#FFFFFF",
           }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- next/og ImageResponse */}
-          <img
-            src={wordmarkSrc}
-            width={380}
-            height={76}
-            alt="Race My Rival"
-            style={{ objectFit: "contain" }}
-          />
-          <div style={{ display: "flex", fontSize: 20, color: "#0F182F", fontWeight: 600 }}>
-            Turn times into races.
-          </div>
-        </div>
+        />
 
         <div
           style={{
+            position: "absolute",
+            ...leftPill,
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: 18,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 28,
-              fontSize: 56,
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            <span style={{ color: "#008C95" }}>{nameA}</span>
-            <span style={{ fontSize: 28, letterSpacing: "0.16em" }}>VS</span>
-            <span style={{ color: "#6A50A7" }}>{nameB}</span>
-          </div>
-          <div style={{ display: "flex", fontSize: 36, fontWeight: 700 }}>{distanceLabel}</div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 40,
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "#E10A1F",
-            }}
-          >
-            Who won?
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
             justifyContent: "center",
-            fontSize: 22,
-            color: "#A4A9B1",
+            paddingLeft: 18,
+            paddingRight: 18,
+            background: TEAL,
+            borderRadius: 999,
+            color: "#FFFFFF",
+            fontSize: fontA,
+            textTransform: "uppercase",
+            lineHeight: 1,
           }}
         >
-          {attribution || "racemyrival.com"}
+          {nameA}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            ...vsBox,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: NAVY,
+            fontSize: 40,
+            lineHeight: 1,
+          }}
+        >
+          vs
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            ...rightPill,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingLeft: 18,
+            paddingRight: 18,
+            background: PURPLE,
+            borderRadius: 999,
+            color: "#FFFFFF",
+            fontSize: fontB,
+            textTransform: "uppercase",
+            lineHeight: 1,
+          }}
+        >
+          {nameB}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            ...distanceBox,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: NAVY,
+            fontSize: 64,
+            lineHeight: 1,
+          }}
+        >
+          {distanceLabel}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            ...whoWonBox,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: NAVY,
+            fontSize: 34,
+            lineHeight: 1,
+          }}
+        >
+          Who won?
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            ...watchButton,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 14,
+            background: CORAL,
+            borderRadius: 999,
+            color: "#FFFFFF",
+            fontSize: 34,
+            lineHeight: 1,
+          }}
+        >
+          Watch the race ›
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: "Chewy",
+          data: chewyBytes,
+          weight: 400,
+          style: "normal",
+        },
+      ],
+    },
   );
 }
