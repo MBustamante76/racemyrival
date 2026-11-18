@@ -142,7 +142,8 @@ body {
 }
 
 .setup-sheet-panel-open {
-  max-height: min(70svh, 32rem);
+  /* lvh stays put when the soft keyboard opens — svh/dvh here bounced the sheet. */
+  max-height: min(70lvh, 32rem);
   opacity: 1;
 }
 

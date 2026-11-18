@@ -64,15 +64,14 @@ describe("James breakpoint and pin contracts", () => {
     expect(stage).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))]");
     expect(stage).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))]");
     expect(stage).toContain("xl:max-w-[min(100%,calc(min(50svh,30rem)*var(--track-aspect)))]");
-    expect(stage).toContain("max-height:700px");
+    expect(stage).toContain("landscapeBand");
     expect(stage).toContain("max-h-[calc(100svh-9.5rem)]");
     expect(stage).toContain("max-w-[min(100%,calc((100svh-9.5rem)*var(--track-aspect)))]");
-    expect(stage).toContain("min-height:701px");
-    expect(stage).toContain("max-height:900px");
     expect(stage).toContain("max-h-[calc(100svh-20rem)]");
     expect(stage).toContain("max-w-[min(100%,calc((100svh-20rem)*var(--track-aspect)))]");
     expect(stage).toContain("--track-aspect");
     expect(stage).not.toContain("max-height:500px");
+    expect(stage).not.toContain("max-height:700px");
     expect(stage).toContain("overflow-hidden");
     expect(stage).toContain("track-surface-frame");
     expect(stage).toContain("md:text-6xl");
@@ -85,9 +84,8 @@ describe("James breakpoint and pin contracts", () => {
     expect(shell).toContain("lg:px-8");
     expect(shell).toContain("race-my-rival-with-tagline-colour.svg");
     expect(shell).toContain("Turn times into races.");
-    expect(shell).toContain(
-      "[@media(orientation:landscape)_and_(max-height:900px)]:max-w-[14rem]",
-    );
+    expect(shell).toContain("useLandscapeBand");
+    expect(shell).toContain("max-w-[14rem]");
     expect(shell).not.toContain(
       "[@media(orientation:landscape)_and_(max-height:900px)]:hidden",
     );

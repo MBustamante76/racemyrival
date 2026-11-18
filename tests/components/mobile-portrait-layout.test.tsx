@@ -162,11 +162,10 @@ describe("mobile portrait layout regressions", () => {
     expect(trackSource).toContain("sm:max-w-[min(100%,calc(min(44svh,24rem)*var(--track-aspect)))]");
     expect(trackSource).toContain("md:max-w-[min(100%,calc(min(42svh,24rem)*var(--track-aspect)))]");
     expect(trackSource).toContain("lg:max-w-[min(100%,calc(min(46svh,26rem)*var(--track-aspect)))]");
-    expect(trackSource).toContain("max-height:700px");
+    expect(trackSource).toContain("landscapeBand");
     expect(trackSource).toContain("max-h-[calc(100svh-9.5rem)]");
-    expect(trackSource).toContain("min-height:701px");
-    expect(trackSource).toContain("max-height:900px");
     expect(trackSource).toContain("max-h-[calc(100svh-20rem)]");
+    expect(trackSource).not.toContain("max-height:700px");
     expect(trackSource).toContain("--track-aspect");
     expect(trackSource).not.toContain("max-height:500px");
     expect(trackSource).toContain("overflow-hidden");
