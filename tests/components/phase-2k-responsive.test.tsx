@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import Home from "@/app/page";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import { setFinishingTimes } from "../helpers/finishing-time";
@@ -42,14 +41,20 @@ function createFakeLoopClock() {
 }
 
 describe("Phase 2K viewport and injected journey", () => {
-  it("keeps primary actions at 44px and does not scale the page", () => {
+  it("keeps primary actions at 44px and does not scale the page", async () => {
     for (const width of [375, 390, 430, 768, 1280, 1440]) {
       Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
-      const { unmount } = render(<Home />);
+      const clock = createFakeLoopClock();
+      const user = userEvent.setup();
+      const { unmount } = render(<RaceWorkspace loopDependencies={clock.dependencies} />);
       expect(screen.getByRole("button", { name: "Start race" }).className).toContain("min-h-11");
-      expect(screen.getByTestId("playback-speed-1x").className).toContain("min-h-11");
       expect(screen.getByTestId("setup-card")).toBeInTheDocument();
       expect(screen.getByTestId("track-stage")).toBeInTheDocument();
+      expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
+
+      await setFinishingTimes(user, "2.00", "2.00");
+      await user.click(screen.getByRole("button", { name: "Start race" }));
+      expect(screen.getByTestId("playback-speed-1x").className).toContain("min-h-11");
       unmount();
     }
 

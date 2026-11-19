@@ -1,4 +1,4 @@
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
@@ -53,7 +53,7 @@ describe("James scroll and bookend FX", () => {
   });
 
   function startRaceButton(): HTMLElement {
-    return within(screen.getByTestId("race-controls")).getByRole("button", {
+    return screen.getByRole("button", {
       name: "Start race",
     });
   }

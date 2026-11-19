@@ -33,11 +33,10 @@ describe("Phase 2B page shell", () => {
 
     const markup = container.innerHTML;
     expect(markup.indexOf("data-testid=\"track-stage\"")).toBeLessThan(
-      markup.indexOf("data-testid=\"race-controls\""),
-    );
-    expect(markup.indexOf("data-testid=\"race-controls\"")).toBeLessThan(
       markup.indexOf("data-testid=\"setup-card\""),
     );
+    expect(markup.indexOf("data-testid=\"race-controls\"")).toBe(-1);
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
   });
 
   it("keeps every Phase 1 control on the polished shell", () => {
@@ -46,16 +45,16 @@ describe("Phase 2B page shell", () => {
     for (const name of REQUIRED_CONTROLS) {
       if (name === "Start race") {
         expect(screen.getByRole("button", { name })).toBeEnabled();
+        expect(screen.getByTestId("setup-card").contains(screen.getByRole("button", { name }))).toBe(
+          true,
+        );
       } else if (name === "Select race distance") {
         expect(screen.getByLabelText(name)).toBeEnabled();
       } else {
         expect(screen.getByLabelText(name)).toBeInTheDocument();
       }
     }
-    expect(screen.getByTestId("playback-speed-1x")).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-2x")).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-5x")).toBeInTheDocument();
-    expect(screen.getByTestId("playback-speed-10x")).toBeInTheDocument();
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
   });
 
   it("uses a wider presentation frame without changing athlete distances", () => {

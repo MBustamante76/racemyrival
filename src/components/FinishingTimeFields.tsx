@@ -14,6 +14,7 @@ type TimeField = keyof TimeParts;
 export function FinishingTimeFields({
   athleteId,
   label,
+  ariaLabelPrefix = label,
   time,
   locked,
   error,
@@ -21,6 +22,8 @@ export function FinishingTimeFields({
 }: {
   athleteId: string;
   label: string;
+  /** Prefix for part aria-labels (e.g. "Enter your time") when visible legend is just "Time". */
+  ariaLabelPrefix?: string;
   time: TimeParts;
   locked: boolean;
   error: string | null;
@@ -84,8 +87,8 @@ export function FinishingTimeFields({
         <TimePartInput
           id={`${athleteId}-minutes`}
           inputRef={minutesRef}
-          fieldLabel={`${label} minutes`}
-          caption="M"
+          fieldLabel={`${ariaLabelPrefix} minutes`}
+          caption="MIN"
           value={time.minutes}
           locked={locked}
           invalid={error !== null}
@@ -99,8 +102,8 @@ export function FinishingTimeFields({
         <TimePartInput
           id={`${athleteId}-seconds`}
           inputRef={secondsRef}
-          fieldLabel={`${label} seconds`}
-          caption="S"
+          fieldLabel={`${ariaLabelPrefix} seconds`}
+          caption="SEC"
           value={time.seconds}
           locked={locked}
           invalid={error !== null}
@@ -114,8 +117,8 @@ export function FinishingTimeFields({
         <TimePartInput
           id={`${athleteId}-hundredths`}
           inputRef={hundredthsRef}
-          fieldLabel={`${label} hundredths`}
-          caption="100THS"
+          fieldLabel={`${ariaLabelPrefix} hundredths`}
+          caption="HUNDREDTHS"
           value={time.hundredths}
           locked={locked}
           invalid={error !== null}
