@@ -26,6 +26,7 @@ import { RESULT_REVEAL_DELAY_MS, resolveResultRevealDelayMs } from "./resultReve
 import { ResultPanel } from "./ResultPanel";
 import { SetupBottomSheet } from "./SetupBottomSheet";
 import { SetupCard } from "./SetupCard";
+import { SetupKeyboardGuard } from "./setupKeyboardGuard";
 import { useLandscapeBand, useLandscapeFit } from "./landscapeFit";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
@@ -551,45 +552,47 @@ export function RaceWorkspace({
       </div>
 
       {showSetup ? (
-        landscapeFit ? (
-          <SetupBottomSheet
-            open={setupSheetOpen}
-            onOpenChange={setSetupSheetOpen}
-            footer={
-              <button
-                type="button"
-                disabled={!startEnabled}
-                aria-label="Start race"
-                data-testid="setup-sheet-start"
-                onClick={handleStart}
-                className="ui-transition inline-flex min-h-11 min-w-[12rem] shrink-0 items-center justify-center gap-1.5 rounded-[var(--rmr-radius-control)] bg-brand-red px-5 py-2 font-display text-sm font-light uppercase tracking-[0.18em] text-white disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[14rem] sm:tracking-[0.22em]"
-              >
-                Start race
-                <span aria-hidden="true">▶</span>
-              </button>
-            }
-          >
+        <SetupKeyboardGuard>
+          {landscapeFit ? (
+            <SetupBottomSheet
+              open={setupSheetOpen}
+              onOpenChange={setSetupSheetOpen}
+              footer={
+                <button
+                  type="button"
+                  disabled={!startEnabled}
+                  aria-label="Start race"
+                  data-testid="setup-sheet-start"
+                  onClick={handleStart}
+                  className="ui-transition inline-flex min-h-11 min-w-[12rem] shrink-0 items-center justify-center gap-1.5 rounded-[var(--rmr-radius-control)] bg-brand-red px-5 py-2 font-display text-sm font-light uppercase tracking-[0.18em] text-white disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-[14rem] sm:tracking-[0.22em]"
+                >
+                  Start race
+                  <span aria-hidden="true">▶</span>
+                </button>
+              }
+            >
+              <SetupCard
+                distanceId={distanceId}
+                athletes={athletes}
+                formLocked={formLocked}
+                onDistanceChange={handleDistanceChange}
+                onAthleteChange={updateAthlete}
+                onStart={handleStart}
+              />
+            </SetupBottomSheet>
+          ) : (
             <SetupCard
               distanceId={distanceId}
               athletes={athletes}
               formLocked={formLocked}
+              startEnabled={startEnabled}
+              showStartButton={startInSetupCard}
               onDistanceChange={handleDistanceChange}
               onAthleteChange={updateAthlete}
               onStart={handleStart}
             />
-          </SetupBottomSheet>
-        ) : (
-          <SetupCard
-            distanceId={distanceId}
-            athletes={athletes}
-            formLocked={formLocked}
-            startEnabled={startEnabled}
-            showStartButton={startInSetupCard}
-            onDistanceChange={handleDistanceChange}
-            onAthleteChange={updateAthlete}
-            onStart={handleStart}
-          />
-        )
+          )}
+        </SetupKeyboardGuard>
       ) : null}
 
       {showResult && telemetry?.result ? (
