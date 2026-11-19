@@ -19,17 +19,15 @@ export function PartnerShell({
 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-[1250px] flex-col gap-2 px-2 py-2 sm:gap-2 sm:px-4 sm:py-3 md:gap-3 md:px-6 md:py-3 lg:px-8">
-      {header ? <div data-rmr-keyboard-hide>{header}</div> : null}
+      {header}
 
       {campaign && top ? (
-        <div data-rmr-keyboard-hide>
-          <PartnerBanner
-            campaign={campaign}
-            slot="top"
-            placement={top}
-            className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
-          />
-        </div>
+        <PartnerBanner
+          campaign={campaign}
+          slot="top"
+          placement={top}
+          className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
+        />
       ) : null}
 
       <div
@@ -41,26 +39,22 @@ export function PartnerShell({
       >
         <div className="flex min-w-0 flex-col gap-2 sm:gap-3">{children}</div>
         {campaign && side ? (
-          <div data-rmr-keyboard-hide>
-            <PartnerBanner
-              campaign={campaign}
-              slot="side"
-              placement={side}
-              className="overflow-hidden rounded-[var(--rmr-radius-control)]"
-            />
-          </div>
+          <PartnerBanner
+            campaign={campaign}
+            slot="side"
+            placement={side}
+            className="overflow-hidden rounded-[var(--rmr-radius-control)]"
+          />
         ) : null}
       </div>
 
       {campaign && lower ? (
-        <div data-rmr-keyboard-hide>
-          <PartnerBanner
-            campaign={campaign}
-            slot="lower"
-            placement={lower}
-            className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
-          />
-        </div>
+        <PartnerBanner
+          campaign={campaign}
+          slot="lower"
+          placement={lower}
+          className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
+        />
       ) : null}
     </div>
   );

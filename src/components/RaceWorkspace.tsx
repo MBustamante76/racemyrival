@@ -507,7 +507,7 @@ export function RaceWorkspace({
         {status}
       </p>
 
-      <div className="w-full min-w-0 shrink-0" data-rmr-keyboard-hide>
+      <div className="w-full min-w-0 shrink-0">
         <TrackStage
           stageRef={trackStageRef}
           landscapeBand={landscapeBand}
