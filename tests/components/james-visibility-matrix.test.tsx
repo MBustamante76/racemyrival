@@ -47,10 +47,10 @@ describe("James visibility matrix", () => {
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
     const markup = container.innerHTML;
     const trackAt = markup.indexOf('data-testid="track-stage"');
-    const controlsAt = markup.indexOf('data-testid="race-controls"');
     const setupAt = markup.indexOf('data-testid="setup-card"');
-    expect(trackAt).toBeLessThan(controlsAt);
-    expect(controlsAt).toBeLessThan(setupAt);
+    expect(trackAt).toBeLessThan(setupAt);
+    expect(markup.indexOf('data-testid="race-controls"')).toBe(-1);
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
   });
 
   it("shows track only while running or paused, with live race controls", async () => {

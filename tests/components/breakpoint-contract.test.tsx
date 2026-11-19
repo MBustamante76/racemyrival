@@ -91,8 +91,9 @@ describe("James breakpoint and pin contracts", () => {
     );
 
     render(<RaceWorkspace />);
-    expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
+    expect(screen.getByTestId("setup-card").className).not.toContain("lg:grid-cols-");
     expect(within(screen.getByTestId("setup-athlete-A")).getByLabelText("Enter your name")).toBeInTheDocument();
+    expect(within(screen.getByTestId("setup-athlete-A")).queryByText("YN")).not.toBeInTheDocument();
     expect(screen.getByTestId("track-stage").getAttribute("style") ?? "").toMatch(/aspect-ratio/i);
   });
 });

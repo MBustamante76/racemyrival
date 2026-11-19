@@ -48,16 +48,18 @@ async function renderWorkspace() {
 }
 
 describe("playback speed controls", () => {
-  it("defaults to 1x and can switch to 5x before start", async () => {
+  it("hides speed until start, then defaults to 1x and can switch to 5x", async () => {
     const { clock, user } = await renderWorkspace();
-    expect(screen.getByTestId("playback-speed-1x")).toHaveAttribute("aria-checked", "true");
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
+    await user.click(screen.getByRole("button", { name: "Start race" }));
+
+    expect(screen.getByTestId("playback-speed-1x")).toHaveAttribute("aria-checked", "true");
     await user.click(screen.getByTestId("playback-speed-5x"));
     expect(screen.getByTestId("playback-speed-5x")).toHaveAttribute("aria-checked", "true");
 
-    await user.click(screen.getByRole("button", { name: "Start race" }));
     clock.advance(200);
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");
     expect(screen.getByTestId("race-status")).toHaveTextContent("running");
@@ -67,8 +69,8 @@ describe("playback speed controls", () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "2.00", "2.00");
-    await user.click(screen.getByTestId("playback-speed-5x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));
+    await user.click(screen.getByTestId("playback-speed-5x"));
     clock.advance(200);
     expect(screen.getByTestId("race-clock")).toHaveTextContent("1.00");
 
@@ -82,8 +84,8 @@ describe("playback speed controls", () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
-    await user.click(screen.getByTestId("playback-speed-10x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));
+    await user.click(screen.getByTestId("playback-speed-10x"));
     clock.advance(100);
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");

@@ -111,6 +111,8 @@ export function RaceWorkspace({
   const formLocked = status !== "idle" || pendingStart || sharedLocked;
   const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
   const showSetup = status === "idle" && !pendingStart && !sharedLocked;
+  // One Start CTA: landscape sheet footer or under the setup form (all viewports).
+  const startInSetupCard = showSetup && !landscapeFit;
   const hasResult = Boolean(telemetry?.result);
   const showResult = hasResult && resultsRevealed;
   const raceWon = Boolean(telemetry?.winnerSnapshot);
@@ -530,16 +532,20 @@ export function RaceWorkspace({
             </>
           }
           controls={
-            <RaceControls
-              status={status}
-              startEnabled={startEnabled}
-              playbackRate={playbackRate}
-              onStart={handleStart}
-              onPause={handlePause}
-              onResume={handleResume}
-              onReset={handleReset}
-              onPlaybackRate={handlePlaybackRate}
-            />
+            status !== "idle" ? (
+              <RaceControls
+                status={status}
+                startEnabled={startEnabled}
+                playbackRate={playbackRate}
+                showStart={false}
+                showSpeed
+                onStart={handleStart}
+                onPause={handlePause}
+                onResume={handleResume}
+                onReset={handleReset}
+                onPlaybackRate={handlePlaybackRate}
+              />
+            ) : undefined
           }
         />
       </div>
@@ -577,6 +583,8 @@ export function RaceWorkspace({
             distanceId={distanceId}
             athletes={athletes}
             formLocked={formLocked}
+            startEnabled={startEnabled}
+            showStartButton={startInSetupCard}
             onDistanceChange={handleDistanceChange}
             onAthleteChange={updateAthlete}
             onStart={handleStart}

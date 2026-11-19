@@ -49,10 +49,10 @@ describe("finishing time fields", () => {
     expect(screen.getByLabelText("Enter your name")).toHaveValue("Your Name");
     expect(screen.getByLabelText("Enter rival's name")).toHaveValue("Your Rival");
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
-    expect(within(screen.getByTestId("setup-athlete-A")).getByText("M")).toBeInTheDocument();
-    expect(within(screen.getByTestId("setup-athlete-B")).getByText("M")).toBeInTheDocument();
-    expect(screen.getAllByText("S")).toHaveLength(2);
-    expect(screen.getAllByText("100THS")).toHaveLength(2);
+    expect(within(screen.getByTestId("setup-athlete-A")).getByText("MIN")).toBeInTheDocument();
+    expect(within(screen.getByTestId("setup-athlete-B")).getByText("MIN")).toBeInTheDocument();
+    expect(screen.getAllByText("SEC")).toHaveLength(2);
+    expect(screen.getAllByText("HUNDREDTHS")).toHaveLength(2);
     expect(screen.queryByText("Use SS.ff or M:SS.ff")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Enter your time minutes").className).toContain("border-input-border");
     expect(screen.getByLabelText("Enter your time minutes").className).toContain("bg-surface-alt");

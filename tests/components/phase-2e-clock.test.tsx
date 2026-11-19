@@ -68,8 +68,8 @@ describe("Phase 2E infield clock", () => {
     render(<RaceWorkspace loopDependencies={clock.dependencies} />);
     await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
-    await user.click(screen.getByTestId("playback-speed-5x"));
     await user.click(screen.getByRole("button", { name: "Start race" }));
+    await user.click(screen.getByTestId("playback-speed-5x"));
     clock.advance(200);
 
     expect(screen.getByTestId("race-status")).toHaveTextContent("finished");

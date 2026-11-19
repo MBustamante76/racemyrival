@@ -58,8 +58,8 @@ describe("Phase 2G playback fixture", () => {
         clock.resetNow();
       }
 
-      await user.click(screen.getByTestId(`playback-speed-${rate}x`));
       await user.click(screen.getByRole("button", { name: "Start race" }));
+      await user.click(screen.getByTestId(`playback-speed-${rate}x`));
       clock.advance(Math.ceil(124_000 / rate / 100) * 100);
 
       expect(screen.getByTestId("result-winner")).toHaveTextContent("Your Rival wins");

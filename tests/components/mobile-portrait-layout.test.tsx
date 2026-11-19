@@ -2,10 +2,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 import type { RaceLoopDependencies } from "@/runtime/createRaceLoop";
 import { setFinishingTimes } from "../helpers/finishing-time";
+import { mockLayoutMedia } from "../helpers/match-media";
 
 function createFakeLoopClock() {
   let now = 0;
@@ -41,33 +42,56 @@ function createFakeLoopClock() {
 }
 
 describe("mobile portrait layout regressions", () => {
-  it("places race controls under the track and above setup on idle", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("places setup under the track on idle without a live control strip", () => {
+    mockLayoutMedia({ desktop: false });
     const { container } = render(<RaceWorkspace />);
     const markup = container.innerHTML;
     const trackAt = markup.indexOf('data-testid="track-stage"');
-    const controlsAt = markup.indexOf('data-testid="race-controls"');
     const setupAt = markup.indexOf('data-testid="setup-card"');
-    expect(screen.getByTestId("track-controls").contains(screen.getByTestId("race-controls"))).toBe(
-      true,
-    );
-    expect(screen.getByTestId("setup-card").contains(screen.getByTestId("race-controls"))).toBe(
-      false,
-    );
-    expect(trackAt).toBeLessThan(controlsAt);
-    expect(controlsAt).toBeLessThan(setupAt);
+    expect(screen.queryByTestId("race-controls")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("track-controls")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
+    expect(trackAt).toBeLessThan(setupAt);
   });
 
-  it("keeps speed and start actions on one compact horizontal control row", () => {
-    render(<RaceWorkspace />);
+  it("puts Start under setup and hides speed until the race is live", async () => {
+    mockLayoutMedia({ desktop: false });
+    const clock = createFakeLoopClock();
+    const user = userEvent.setup();
+    render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    const start = screen.getByRole("button", { name: "Start race" });
+    expect(screen.getByTestId("setup-card").contains(start)).toBe(true);
+    expect(start.className).toContain("w-full");
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
+
+    await setFinishingTimes(user, "2.00", "2.00");
+    await user.click(start);
+
     const controls = screen.getByTestId("race-controls");
-    expect(controls.className).toContain("flex-wrap");
     expect(controls.className).toContain("justify-center");
     expect(controls.className).not.toContain("justify-between");
-    expect(controls.className).not.toMatch(/(?:^|\s)flex-col(?:\s|$)/);
     expect(controls.contains(screen.getByTestId("playback-speed"))).toBe(true);
-    expect(controls.contains(screen.getByRole("button", { name: "Start race" }))).toBe(true);
     expect(screen.getByTestId("playback-speed").className).toContain("justify-center");
-    expect(screen.getByRole("button", { name: "Start race" }).className).not.toContain("w-full");
+  });
+
+  it("keeps Start under setup on desktop with speed only after Start", async () => {
+    mockLayoutMedia({ desktop: true });
+    const clock = createFakeLoopClock();
+    const user = userEvent.setup();
+    render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    const start = screen.getByRole("button", { name: "Start race" });
+    expect(screen.getByTestId("setup-card").contains(start)).toBe(true);
+    expect(screen.queryByTestId("playback-speed")).not.toBeInTheDocument();
+
+    await setFinishingTimes(user, "2.00", "2.00");
+    await user.click(start);
+    expect(screen.getByTestId("race-controls").contains(screen.getByTestId("playback-speed"))).toBe(
+      true,
+    );
   });
 
   it("keeps the track panel from flex-shrinking under the setup card", () => {
@@ -76,8 +100,13 @@ describe("mobile portrait layout regressions", () => {
     expect(workspace).not.toMatch(/min-h-0 w-full flex-1/);
   });
 
-  it("stacks track controls below a clipped stage instead of under the SVG", () => {
-    render(<RaceWorkspace />);
+  it("stacks track controls below a clipped stage instead of under the SVG once racing", async () => {
+    const clock = createFakeLoopClock();
+    const user = userEvent.setup();
+    render(<RaceWorkspace loopDependencies={clock.dependencies} />);
+    await setFinishingTimes(user, "2.00", "2.00");
+    await user.click(screen.getByRole("button", { name: "Start race" }));
+
     const stage = screen.getByTestId("track-stage");
     const controls = screen.getByTestId("track-controls");
     expect(stage.className).toContain("overflow-hidden");
@@ -90,13 +119,14 @@ describe("mobile portrait layout regressions", () => {
   });
 
   it("keeps finishing-time captions visible and times on their own row under the athlete identity", () => {
+    mockLayoutMedia({ desktop: false });
     render(<RaceWorkspace />);
 
     const athleteA = screen.getByTestId("setup-athlete-A");
     expect(athleteA.className).toContain("flex-col");
-    expect(within(athleteA).getByText("M")).toBeVisible();
-    expect(within(athleteA).getByText("S")).toBeVisible();
-    expect(within(athleteA).getByText("100THS")).toBeVisible();
+    expect(within(athleteA).getByText("MIN")).toBeVisible();
+    expect(within(athleteA).getByText("SEC")).toBeVisible();
+    expect(within(athleteA).getByText("HUNDREDTHS")).toBeVisible();
 
     const minutes = within(athleteA).getByLabelText("Enter your time minutes");
     const timeGroup = minutes.closest("div");
@@ -104,18 +134,18 @@ describe("mobile portrait layout regressions", () => {
     expect(timeGroup?.className).toContain("min-w-0");
     expect(athleteA.contains(timeGroup)).toBe(true);
 
-    const identityRow = athleteA.querySelector(":scope > div");
-    expect(identityRow?.className).toContain("items-center");
-    expect(identityRow?.contains(minutes)).toBe(false);
+    const identityBlock = athleteA.querySelector(":scope > div");
+    expect(identityBlock?.contains(minutes)).toBe(false);
   });
 
-  it("defers the dense setup row until the large breakpoint", () => {
+  it("keeps You/Rival as a simple one-then-two column grid without the old dense lg row", () => {
+    mockLayoutMedia({ desktop: false });
     render(<RaceWorkspace />);
-    expect(screen.getByTestId("setup-card").className).toContain("lg:grid-cols-");
+    expect(screen.getByTestId("setup-card").className).not.toContain("lg:grid-cols-");
     expect(screen.getByTestId("setup-card").className).not.toMatch(/(?:^|\s)md:grid-cols-/);
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("grid-cols-1");
     expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("sm:grid-cols-2");
-    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).toContain("lg:contents");
+    expect(screen.getByTestId("setup-athlete-A").parentElement?.className).not.toContain("lg:contents");
   });
 
   it("hides telemetry while racing and keeps live controls on the track", async () => {

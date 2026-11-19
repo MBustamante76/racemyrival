@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DESKTOP_LAYOUT_MQ } from "@/components/desktopLayout";
 import {
   LANDSCAPE_FIT_SHORT_EDGE_MAX,
   LANDSCAPE_ORIENTATION_MQ,
@@ -15,11 +16,13 @@ function mockLandscapeChrome(sheet: boolean): void {
       const matches =
         query === LANDSCAPE_ORIENTATION_MQ
           ? sheet
-          : query === "(prefers-reduced-motion: reduce)"
-            ? false
-            : query.includes("min-width")
-              ? true
-              : false;
+          : query === DESKTOP_LAYOUT_MQ
+            ? !sheet
+            : query === "(prefers-reduced-motion: reduce)"
+              ? false
+              : query.includes("min-width")
+                ? !sheet
+                : false;
       return {
         matches,
         media: query,
