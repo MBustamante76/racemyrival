@@ -154,6 +154,22 @@ body {
   padding: 0;
 }
 
+/*
+ * While a setup field is focused, collapse track/partner chrome so iOS has
+ * nothing tall to pan into when the keyboard opens (stops the bounce).
+ */
+html[data-rmr-setup-keyboard] [data-rmr-keyboard-hide] {
+  max-height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  border-width: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden;
+}
+
 [data-presentation="wireframe"] {
   --rmr-navy: #18181b;
   --rmr-red: #18181b;
