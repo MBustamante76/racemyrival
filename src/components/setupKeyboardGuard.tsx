@@ -64,7 +64,7 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
     function onFocusOut(): void {
       requestAnimationFrame(() => {
         const active = document.activeElement;
-        if (active instanceof Node && root.contains(active)) {
+        if (active instanceof Node && root?.contains(active)) {
           return;
         }
         unlock();
