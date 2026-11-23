@@ -476,21 +476,6 @@ export function RaceWorkspace({
     ]);
   }
 
-  function handleChallengeRival(): void {
-    const rivalName = athletes[1]?.name?.trim() || athletes[0]?.name?.trim() || "";
-    trackFollowOnRaceCreated({
-      ...analyticsRace,
-      sourceRaceId: shared?.raceId,
-    });
-    if (shared) {
-      // Full navigation keeps shared-page client state from leaking into home.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- unit tests render without App Router
-      window.location.assign(`/?challenge=${encodeURIComponent(rivalName)}`);
-      return;
-    }
-    unlockForNewSetup({ keepRivalName: rivalName });
-  }
-
   function handleCreateNewRace(): void {
     trackFollowOnRaceCreated({
       ...analyticsRace,
@@ -625,7 +610,6 @@ export function RaceWorkspace({
           }))}
           sharePayload={sharePayload}
           onReplay={handleReplay}
-          onChallengeRival={handleChallengeRival}
           onCreateNewRace={handleCreateNewRace}
         />
       ) : null}

@@ -155,10 +155,25 @@ body {
 }
 
 /*
- * While a setup field is focused, tuck the lower partner banner so iOS
- * scroll-into-view has less tall content below the form to overshoot into.
- * Do not freeze/transform body — that fights the iOS keyboard/autofill bar.
+ * While a setup field is focused, pin the setup block above the keyboard as its
+ * own scroll surface (see SetupKeyboardGuard). Do not freeze/transform body.
  */
+[data-testid="setup-keyboard-guard"][data-kb-pinned="true"] {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  max-height: min(70svh, 34rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  background: var(--rmr-page);
+  box-shadow: 0 -10px 28px rgba(15, 24, 47, 0.14);
+}
+
 html[data-rmr-setup-keyboard] [data-testid="partner-placement-lower"] {
   visibility: hidden;
   max-height: 0 !important;

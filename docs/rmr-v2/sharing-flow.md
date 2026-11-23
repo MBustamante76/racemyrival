@@ -13,7 +13,7 @@
 9. Landing shows both names and distance; **not** the winner.
 10. Recipient chooses **Watch Race**.
 11. Exact race plays via the same race engine.
-12. After watching: Replay, Race Again, Challenge a Rival, Create New Race, Share Race.
+12. After watching: Replay, Race Again, Create New Race, Share Race.
 
 Shared experience must feel personal — never dump the recipient on the generic homepage without race context.
 

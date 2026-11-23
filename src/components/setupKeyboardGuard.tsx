@@ -3,13 +3,11 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
 /**
- * Soft marker while a setup field is focused.
+ * While a setup field is focused, pin the setup block to the bottom of the
+ * visual viewport as its own scroll surface.
  *
- * Important: do NOT freeze body with position:fixed or counteract visualViewport
- * with transforms. On iOS that fights the keyboard/autofill chrome, floats the
- * accessory bar mid-page, and feels like a crash (see Glitch recordings).
- *
- * Layout stability comes from viewport interactive-widget=overlays-content.
+ * Avoid body position:fixed / visualViewport transforms — on iOS those fight
+ * the keyboard and autofill bar and feel like a crash.
  */
 export const SETUP_KEYBOARD_ATTR = "data-rmr-setup-keyboard";
 
@@ -22,13 +20,34 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
       return;
     }
     const setupRoot: HTMLDivElement = el;
+    let spacer: HTMLDivElement | null = null;
+    let pinned = false;
+    let blurTimer: number | null = null;
 
-    function setOpen(open: boolean): void {
-      if (open) {
-        document.documentElement.setAttribute(SETUP_KEYBOARD_ATTR, "true");
-      } else {
-        document.documentElement.removeAttribute(SETUP_KEYBOARD_ATTR);
+    function pin(): void {
+      if (pinned) {
+        return;
       }
+      pinned = true;
+      const height = Math.ceil(setupRoot.getBoundingClientRect().height);
+      spacer = document.createElement("div");
+      spacer.style.height = `${height}px`;
+      spacer.setAttribute("data-testid", "setup-keyboard-spacer");
+      spacer.setAttribute("aria-hidden", "true");
+      setupRoot.parentElement?.insertBefore(spacer, setupRoot);
+      setupRoot.setAttribute("data-kb-pinned", "true");
+      document.documentElement.setAttribute(SETUP_KEYBOARD_ATTR, "true");
+    }
+
+    function unpin(): void {
+      if (!pinned) {
+        return;
+      }
+      pinned = false;
+      setupRoot.removeAttribute("data-kb-pinned");
+      document.documentElement.removeAttribute(SETUP_KEYBOARD_ATTR);
+      spacer?.remove();
+      spacer = null;
     }
 
     function onFocusIn(event: FocusEvent): void {
@@ -39,18 +58,30 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
       if (target.tagName !== "INPUT" && target.tagName !== "SELECT" && target.tagName !== "TEXTAREA") {
         return;
       }
-      setOpen(true);
+      if (blurTimer !== null) {
+        window.clearTimeout(blurTimer);
+        blurTimer = null;
+      }
+      pin();
+      // Keep the field visible inside the pinned panel only — not the document.
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ block: "nearest", inline: "nearest" });
+      });
     }
 
     function onFocusOut(): void {
-      // Delay so iOS autofill / accessory bar focus blips do not thrash the flag.
-      window.setTimeout(() => {
+      if (blurTimer !== null) {
+        window.clearTimeout(blurTimer);
+      }
+      // Delay so iOS autofill / accessory focus blips do not unpin mid-keystroke.
+      blurTimer = window.setTimeout(() => {
+        blurTimer = null;
         const active = document.activeElement;
         if (active instanceof Node && setupRoot.contains(active)) {
           return;
         }
-        setOpen(false);
-      }, 50);
+        unpin();
+      }, 120);
     }
 
     setupRoot.addEventListener("focusin", onFocusIn);
@@ -58,7 +89,10 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
     return () => {
       setupRoot.removeEventListener("focusin", onFocusIn);
       setupRoot.removeEventListener("focusout", onFocusOut);
-      setOpen(false);
+      if (blurTimer !== null) {
+        window.clearTimeout(blurTimer);
+      }
+      unpin();
     };
   }, []);
 
