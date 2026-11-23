@@ -44,7 +44,7 @@ export function PartnerShell({
             campaign={campaign}
             slot="side"
             placement={side}
-            className="rounded-xl"
+            className="hidden rounded-xl lg:block"
           />
         ) : null}
       </div>

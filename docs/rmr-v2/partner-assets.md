@@ -1,78 +1,51 @@
 # Race My Rival V2 — Partner Assets
 
-Inventory of Marcelo’s Run-Lab advertising pack (updated 16 November 2026) and the placement mapping used for V2.
+Inventory of the simplified Run-Lab advertising pack (6 creatives) and the placement mapping used for V2.
 
-**Source folder:** `RUN-LAB-Advertising-Banners` (client Downloads pack).  
+**Source folder:** `NEW_-_BANNERS.zip` (client Downloads pack).  
 **Destination URL (all placements):** `https://running-coach.uk/`  
-**Selection rule:** choose artwork by **viewport width** (`window.innerWidth`), not device UA and not the capped advert container (~1250px). Do not stretch or cover-crop.
+**Selection rule:** choose artwork by **viewport width** (`window.innerWidth` / `<picture>` media), not device UA and not the capped advert container (~1250px). Do not stretch or cover-crop.
 
-Suggested width bands (from supplier README; adjust to live layout):
+Suggested width bands:
 
-| Band | Width |
-|------|-------|
-| Mobile portrait | &lt; 600px |
-| Mobile landscape | 600–899px |
-| Tablet portrait | 900–1199px |
-| Tablet landscape | 1200–1599px |
-| Desktop | ≥ 1600px |
+| Band | Width | Top | Bottom |
+|------|-------|-----|--------|
+| Compact / mobile portrait | ≤ 599px | Mobile portrait | Compact (stacked) |
+| Mobile landscape | 600–899px | Mobile landscape | Wide |
+| Wide (tablet + desktop) | ≥ 900px | Desktop | Wide |
 
-Use WebP for bottom banners on the web; keep PNG as lossless reference.
+## Inventory (6 creatives)
 
-## Inventory
+### Top (3)
 
-### 01 — Top banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `top/run-lab-banner-mobile-portrait-430.png` | 1254×1254 | 1:1 | Yes | Top — compact / mobile portrait |
+| `top/run-lab-banner-mobile-landscape-844.png` | 2172×724 | ~3:1 | No | Top — mobile landscape |
+| `top/run-lab-banner-desktop-1920.png` | 1920×269 | ~7.14:1 | Yes | Top — tablet + desktop |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-banner-desktop-1920.png` | PNG | 1920×269 | ~7.14:1 | No | Top — desktop |
-| `run-lab-banner-tablet-landscape-1366.png` | PNG | 1366×204 | ~6.70:1 | No | Top — tablet landscape |
-| `run-lab-banner-tablet-portrait-1024.png` | PNG | 1024×183 | ~5.60:1 | No | Top — tablet portrait |
-| `run-lab-banner-mobile-landscape-844.png` | PNG | 844×155 | ~5.45:1 | No | Top — mobile landscape |
-| `run-lab-banner-mobile-portrait-430.png` | PNG | 1254×1254 | 1:1 | Yes | Top — mobile portrait (square; filename kept for config stability) |
+### Side (1)
 
-### 02 — Side banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `side/run-lab-side-banner-desktop-portrait.png` | 1024×1536 | ~0.67:1 | No | Side skyscraper — `lg+` only |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-side-banner-desktop-landscape.png` | PNG | 1968×799 | ~2.46:1 | No | Side / wide |
-| `run-lab-side-banner-desktop-portrait.png` | PNG | 1024×1536 | ~0.67:1 | No | Side skyscraper — desktop |
-| `run-lab-side-banner-tablet-landscape.png` | PNG | 1672×941 | ~1.78:1 | No | Side — tablet landscape |
-| `run-lab-side-banner-tablet-portrait.png` | PNG | 1024×1536 | ~0.67:1 | No | Side / inline — tablet |
-| `run-lab-side-banner-iphone-landscape.png` | PNG | 1851×849 | ~2.18:1 | No | Inline below race — mobile landscape |
-| `run-lab-side-banner-iphone-portrait.png` | PNG | 941×1672 | ~0.56:1 | No | Inline below race — mobile portrait |
+### Bottom (2)
 
-### 03 — Bottom banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `bottom/run-lab-bottom-compact.png` | 1374×1145 | ~1.2:1 | No | Lower — mobile portrait / narrow |
+| `bottom/run-lab-bottom-wide.png` | 2172×724 | ~3:1 | No | Lower — landscape + tablet + desktop |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-bottom-desktop-1920x320.webp` (+ PNG) | WebP/PNG | 1920×320 | 6:1 | No | Lower — desktop |
-| `run-lab-bottom-tablet-landscape-1366x280.webp` (+ PNG) | WebP/PNG | 1366×280 | ~4.88:1 | No | Lower — tablet landscape |
-| `run-lab-bottom-tablet-portrait-1024x300.webp` (+ PNG) | WebP/PNG | 1024×300 | ~3.41:1 | No | Lower — tablet portrait |
-| `run-lab-bottom-mobile-landscape-844x260.webp` (+ PNG) | WebP/PNG | 844×260 | ~3.25:1 | No | Lower — mobile landscape |
-| `run-lab-bottom-mobile-portrait-430x360.webp` (+ PNG) | WebP/PNG | 430×360 | ~1.19:1 | No | Lower — mobile portrait |
+### Logo
 
-### 04 — Logo
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `run-lab-official-hires-logo.png` | 1024×512 | 2:1 | Yes | Social-card attribution / optional mark |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-official-hires-logo.png` | PNG | 1024×512 | 2:1 | Yes | Social-card attribution / optional mark |
+## Placement notes
 
-## Placement mapping
-
-| V2 slot | Assets | Notes |
-|---------|--------|-------|
-| Top banner — desktop | Top desktop / tablet-landscape | Under RmR identity, above race |
-| Top banner — mobile | Top mobile portrait/landscape | Full width; avoid pushing race too far below fold |
-| Side panel — desktop | Side portrait skyscraper preferred | Beside track only when viewport has room |
-| Side → inline mobile | Side iPhone / tablet portrait | Move **below** the race; do not keep a narrow sidebar |
-| Lower banner | Bottom WebP set | Below primary interaction |
-| Shared social-card attribution | Text “Powered by Run-Lab” ± logo | Restrained; RmR remains primary |
-
-## Missing / gaps
-
-- No separate OG-sized (1200×630) Run-Lab background plate; social card will be generated by `next/og` with text attribution rather than a supplied composite.
-- Top mobile-portrait asset is square (1254×1254, RGBA); render at width 100% with auto height — do not force a short horizontal crop that clips branding. Keep container `overflow-hidden` + radius so corners match the creative. Prefer `<picture>` media queries so phones do not flash the desktop creative on first paint.
-
-## Copy into the app (Phase 6/7)
-
-Copy selected files into `public/partners/run-lab/` preserving role-based names. Race My Rival must remain the primary identity; Run-Lab is the partner/advertiser only.
+- Prefer `<picture>` media queries so phones do not flash the wide creative on first paint.
+- Keep container `overflow-hidden` + radius so square black corners outside baked white borders are clipped.
+- Side banner is desktop-only (`hidden lg:block`); no mobile side creative in this pack.
+- Race My Rival remains the primary identity; Run-Lab is the partner/advertiser only.

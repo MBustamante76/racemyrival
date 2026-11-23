@@ -21,11 +21,10 @@ export const RUN_LAB_CAMPAIGN: PartnerCampaign = {
       destinationUrl: RUN_LAB_DESTINATION,
       altText: "Run-Lab — Helping people run better",
       accessibleLabel: "Visit Run-Lab coaching partner website",
+      // 3 creatives: portrait / landscape / wide (tablet + desktop)
       assetsByMaxWidth: [
         { maxWidth: 599, src: "/partners/run-lab/top/run-lab-banner-mobile-portrait-430.png" },
         { maxWidth: 899, src: "/partners/run-lab/top/run-lab-banner-mobile-landscape-844.png" },
-        { maxWidth: 1199, src: "/partners/run-lab/top/run-lab-banner-tablet-portrait-1024.png" },
-        { maxWidth: 1599, src: "/partners/run-lab/top/run-lab-banner-tablet-landscape-1366.png" },
         { maxWidth: Number.POSITIVE_INFINITY, src: "/partners/run-lab/top/run-lab-banner-desktop-1920.png" },
       ],
     },
@@ -33,10 +32,9 @@ export const RUN_LAB_CAMPAIGN: PartnerCampaign = {
       destinationUrl: RUN_LAB_DESTINATION,
       altText: "Run-Lab — better movement, better performance",
       accessibleLabel: "Discover Run-Lab",
+      // Desktop skyscraper only — PartnerShell hides this slot below lg.
       desktopAsset: "/partners/run-lab/side/run-lab-side-banner-desktop-portrait.png",
-      mobileAsset: "/partners/run-lab/side/run-lab-side-banner-iphone-portrait.png",
       assetsByMaxWidth: [
-        { maxWidth: 767, src: "/partners/run-lab/side/run-lab-side-banner-iphone-portrait.png" },
         { maxWidth: Number.POSITIVE_INFINITY, src: "/partners/run-lab/side/run-lab-side-banner-desktop-portrait.png" },
       ],
     },
@@ -44,12 +42,10 @@ export const RUN_LAB_CAMPAIGN: PartnerCampaign = {
       destinationUrl: RUN_LAB_DESTINATION,
       altText: "Run-Lab — Running is a skill. Visit running-coach.uk",
       accessibleLabel: "Visit running-coach.uk",
+      // Compact = mobile portrait / narrow; Wide = landscape + tablet + desktop
       assetsByMaxWidth: [
-        { maxWidth: 599, src: "/partners/run-lab/bottom/run-lab-bottom-mobile-portrait-430x360.webp" },
-        { maxWidth: 899, src: "/partners/run-lab/bottom/run-lab-bottom-mobile-landscape-844x260.webp" },
-        { maxWidth: 1199, src: "/partners/run-lab/bottom/run-lab-bottom-tablet-portrait-1024x300.webp" },
-        { maxWidth: 1599, src: "/partners/run-lab/bottom/run-lab-bottom-tablet-landscape-1366x280.webp" },
-        { maxWidth: Number.POSITIVE_INFINITY, src: "/partners/run-lab/bottom/run-lab-bottom-desktop-1920x320.webp" },
+        { maxWidth: 599, src: "/partners/run-lab/bottom/run-lab-bottom-compact.png" },
+        { maxWidth: Number.POSITIVE_INFINITY, src: "/partners/run-lab/bottom/run-lab-bottom-wide.png" },
       ],
     },
     socialCard: {
