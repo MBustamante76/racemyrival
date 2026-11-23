@@ -4,6 +4,7 @@ import {
   getActiveCampaign,
   getCampaignById,
   pickPlacementAsset,
+  placementPictureSources,
   RUN_LAB_CAMPAIGN,
   TEST_PARTNER_CAMPAIGN,
 } from "@/partners/campaigns";
@@ -28,6 +29,14 @@ describe("partner campaigns", () => {
     expect(pickPlacementAsset(top, 1920)).toContain("desktop-1920");
     expect(pickPlacementAsset(lower, 1280)).toContain("tablet-landscape");
     expect(pickPlacementAsset(lower, 1920)).toContain("desktop-1920");
+  });
+
+  it("exposes picture sources with mobile portrait first and desktop as fallback", () => {
+    const top = placementPictureSources(RUN_LAB_CAMPAIGN.placements.top!);
+    expect(top).not.toBeNull();
+    expect(top!.sources[0]?.src).toContain("mobile-portrait");
+    expect(top!.sources[0]?.maxWidth).toBe(599);
+    expect(top!.fallbackSrc).toContain("desktop-1920");
   });
 
   it("allowlists partner destinations", () => {

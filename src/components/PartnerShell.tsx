@@ -26,7 +26,8 @@ export function PartnerShell({
           campaign={campaign}
           slot="top"
           placement={top}
-          className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
+          /* 12px clears ~15px baked black corners at the ~1250px content width */
+          className="w-full rounded-xl"
         />
       ) : null}
 
@@ -43,7 +44,7 @@ export function PartnerShell({
             campaign={campaign}
             slot="side"
             placement={side}
-            className="overflow-hidden rounded-[var(--rmr-radius-control)]"
+            className="rounded-xl"
           />
         ) : null}
       </div>
@@ -53,7 +54,7 @@ export function PartnerShell({
           campaign={campaign}
           slot="lower"
           placement={lower}
-          className="w-full overflow-hidden rounded-[var(--rmr-radius-control)]"
+          className="w-full rounded-xl"
         />
       ) : null}
     </div>

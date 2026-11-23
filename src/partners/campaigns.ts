@@ -125,13 +125,19 @@ export function getActiveCampaign(): PartnerCampaign | null {
   return campaign;
 }
 
+type PlacementAssets = {
+  desktopAsset?: string;
+  mobileAsset?: string;
+  assetsByMaxWidth?: Array<{ maxWidth: number; src: string }>;
+};
+
 /**
  * Pick a creative for the given **viewport** width (window.innerWidth).
  * Do not pass the partner slot's layout container width — the shell caps at ~1250px,
  * which would incorrectly select tablet bands on typical desktop monitors.
  */
 export function pickPlacementAsset(
-  placement: { desktopAsset?: string; mobileAsset?: string; assetsByMaxWidth?: Array<{ maxWidth: number; src: string }> } | undefined,
+  placement: PlacementAssets | undefined,
   viewportWidthPx: number,
 ): string | null {
   if (!placement) {
@@ -150,4 +156,35 @@ export function pickPlacementAsset(
     return placement.mobileAsset ?? placement.desktopAsset ?? null;
   }
   return placement.desktopAsset ?? placement.mobileAsset ?? null;
+}
+
+/**
+ * Browser-native picture sources so the correct creative paints on first load
+ * (JS width defaults to desktop during SSR and was flashing the wrong banner on phones).
+ */
+export function placementPictureSources(
+  placement: PlacementAssets | undefined,
+): { sources: Array<{ maxWidth: number; src: string }>; fallbackSrc: string } | null {
+  if (!placement) {
+    return null;
+  }
+  if (placement.assetsByMaxWidth?.length) {
+    const sorted = [...placement.assetsByMaxWidth].sort((a, b) => a.maxWidth - b.maxWidth);
+    const sources = sorted.filter((entry) => Number.isFinite(entry.maxWidth));
+    const fallback =
+      sorted.find((entry) => !Number.isFinite(entry.maxWidth))?.src ??
+      sorted[sorted.length - 1]?.src;
+    if (!fallback) {
+      return null;
+    }
+    return { sources, fallbackSrc: fallback };
+  }
+  if (placement.mobileAsset && placement.desktopAsset) {
+    return {
+      sources: [{ maxWidth: 767, src: placement.mobileAsset }],
+      fallbackSrc: placement.desktopAsset,
+    };
+  }
+  const only = placement.desktopAsset ?? placement.mobileAsset;
+  return only ? { sources: [], fallbackSrc: only } : null;
 }
