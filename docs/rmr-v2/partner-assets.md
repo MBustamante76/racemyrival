@@ -49,3 +49,34 @@ Suggested width bands:
 - Keep container `overflow-hidden` + radius so square black corners outside baked white borders are clipped.
 - Side banner is desktop-only (`hidden lg:block`); no mobile side creative in this pack.
 - Race My Rival remains the primary identity; Run-Lab is the partner/advertiser only.
+
+## Swap a banner (no admin)
+
+Images live under `public/partners/run-lab/`. Paths are fixed in `src/partners/campaigns.ts`. To change a creative without touching app code: **replace the file (same name) → commit on GitHub → wait for the Vercel deploy.** Prefer RGBA if you need transparent corners. Hard-refresh the phone if the old image is cached.
+
+| Slot | File to replace |
+|------|-----------------|
+| Top portrait | `public/partners/run-lab/top/run-lab-banner-mobile-portrait-430.png` |
+| Top landscape | `public/partners/run-lab/top/run-lab-banner-mobile-landscape-844.png` |
+| Top desktop/tablet | `public/partners/run-lab/top/run-lab-banner-desktop-1920.png` |
+| Side desktop | `public/partners/run-lab/side/run-lab-side-banner-desktop-portrait.png` |
+| Bottom compact | `public/partners/run-lab/bottom/run-lab-bottom-compact.png` |
+| Bottom wide | `public/partners/run-lab/bottom/run-lab-bottom-wide.png` |
+
+Do not rename these files unless you also update `campaigns.ts`. Only people with GitHub write access can change creatives — there is no public upload endpoint.
+
+## Change partner links (no admin)
+
+All Run-Lab placements share one destination constant in `src/partners/campaigns.ts`:
+
+```ts
+const RUN_LAB_DESTINATION = "https://running-coach.uk/";
+```
+
+**Same partner domain:** edit that string (path/query is fine, e.g. `https://running-coach.uk/coaching`), commit, wait for Vercel. Top / side / lower that use the constant all update together.
+
+**Per-slot links:** set each placement’s `destinationUrl` separately instead of sharing the constant — still a GitHub text edit.
+
+**Different domain:** also add the new hostname to `ALLOWED_HOSTS` in `src/partners/safeUrl.ts`. Without that allowlist update, the app refuses the link (open-redirect protection) and the banner will not navigate.
+
+Clicks also receive UTM tags via `src/partners/utm.ts` (`utm_source=racemyrival`, `utm_medium=banner`, campaign tracking code, placement as `utm_content`).
