@@ -24,7 +24,7 @@ Platform: Vercel Web Analytics (`@vercel/analytics`). Never send competitor name
 | shared_race_opened | Shared landing mounted | Yes | raceId, distanceId, distanceM |
 | shared_race_started | Shared watch begins | Yes | raceId, distanceId, distanceM, playbackRate |
 | shared_race_completed | Shared race finished | Yes | raceId, distanceId, distanceM, playbackRate |
-| follow_on_race_created | Challenge / Create New Race | Yes | distanceId, distanceM, sourceRaceId? |
+| follow_on_race_created | Create New Race | Yes | distanceId, distanceM, sourceRaceId? |
 | follow_on_race_shared | Reserved for follow-on share | Yes | distanceId, distanceM, sourceRaceId?, raceId? |
 
 **Important:** Opening or completing the browser share sheet does **not** prove the recipient received the race. Cancelled shares must not fire `share_completed`.

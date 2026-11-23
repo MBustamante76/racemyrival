@@ -28,11 +28,10 @@ export const ResultPanel = forwardRef<
     athletes: readonly ResultAthleteView[];
     sharePayload?: ShareRacePayload;
     onReplay?: () => void;
-    onChallengeRival?: () => void;
     onCreateNewRace?: () => void;
   }
 >(function ResultPanel(
-  { result, athletes, sharePayload, onReplay, onChallengeRival, onCreateNewRace },
+  { result, athletes, sharePayload, onReplay, onCreateNewRace },
   ref,
 ) {
   const winner = athletes.find((athlete) => athlete.id === result.winnerId);
@@ -41,13 +40,9 @@ export const ResultPanel = forwardRef<
   const winnerName = winner?.name ?? "Winner";
   const winnerAccent =
     winner?.id === "B" ? "text-athlete-b" : winner?.id === "A" ? "text-athlete-a" : "text-near-black";
-  const secondaryActions = [onReplay, onChallengeRival, onCreateNewRace].filter(Boolean).length;
+  const secondaryActions = [onReplay, onCreateNewRace].filter(Boolean).length;
   const secondaryGrid =
-    secondaryActions >= 3
-      ? "mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
-      : secondaryActions === 2
-        ? "mt-2 grid gap-2 sm:grid-cols-2"
-        : "mt-2 grid gap-2";
+    secondaryActions === 2 ? "mt-2 grid gap-2 sm:grid-cols-2" : "mt-2 grid gap-2";
 
   return (
     <section
@@ -138,16 +133,6 @@ export const ResultPanel = forwardRef<
             <button type="button" onClick={onReplay} className={ACTION_BUTTON}>
               <ReplayIcon />
               Replay Race
-            </button>
-          ) : null}
-          {onChallengeRival ? (
-            <button
-              type="button"
-              onClick={onChallengeRival}
-              className={ACTION_BUTTON}
-              data-testid="challenge-rival-button"
-            >
-              Challenge a Rival
             </button>
           ) : null}
           {onCreateNewRace ? (

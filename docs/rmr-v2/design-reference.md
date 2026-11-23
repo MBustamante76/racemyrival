@@ -74,7 +74,7 @@ Site metadata description: **Turn times into races.**
 
 - Card with border, shadow (`--rmr-shadow-card`), radius 8px.
 - Winner name, times VS, time gap, distance gap at finish.
-- CTAs: Replay Race, Challenge a Rival, Create New Race; Share Race is primary.
+- CTAs: Replay Race, Create New Race; Share Race is primary.
 
 ## Cards / spacing
 

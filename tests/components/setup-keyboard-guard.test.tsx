@@ -8,7 +8,7 @@ describe("SetupKeyboardGuard", () => {
     document.documentElement.removeAttribute(SETUP_KEYBOARD_ATTR);
   });
 
-  it("marks the document while a setup input is focused without freezing the body", async () => {
+  it("pins the setup block without freezing the document body", async () => {
     const user = userEvent.setup();
     render(
       <SetupKeyboardGuard>
@@ -18,12 +18,18 @@ describe("SetupKeyboardGuard", () => {
 
     const input = screen.getByLabelText("Enter your name");
     await user.click(input);
+
+    const guard = screen.getByTestId("setup-keyboard-guard");
+    expect(guard).toHaveAttribute("data-kb-pinned", "true");
     expect(document.documentElement.getAttribute(SETUP_KEYBOARD_ATTR)).toBe("true");
+    expect(screen.getByTestId("setup-keyboard-spacer")).toBeInTheDocument();
     expect(document.body.style.position).toBe("");
     expect(document.body.style.transform).toBe("");
 
     input.blur();
-    await new Promise((resolve) => setTimeout(resolve, 80));
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(guard).not.toHaveAttribute("data-kb-pinned");
     expect(document.documentElement.hasAttribute(SETUP_KEYBOARD_ATTR)).toBe(false);
+    expect(screen.queryByTestId("setup-keyboard-spacer")).not.toBeInTheDocument();
   });
 });
