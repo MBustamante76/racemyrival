@@ -12,9 +12,9 @@ Central typed campaigns live in `src/partners/campaigns.ts`.
 
 | Slot | Desktop | Mobile |
 |------|---------|--------|
-| top | Under RmR header | Full-width under header |
-| side | Beside race (≥ lg) | Below race column |
-| lower | Below primary race UI | Same |
+| top | Under RmR header (wide creative) | Portrait / landscape creatives |
+| side | Beside race (≥ lg) | Hidden (no mobile side creative) |
+| lower | Wide bottom creative | Compact on portrait; wide on landscape |
 | socialCard | OG attribution text | Same |
 
 ## No-campaign mode

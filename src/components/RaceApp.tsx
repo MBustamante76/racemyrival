@@ -63,13 +63,25 @@ export function RaceApp({
         <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center gap-4 px-4 py-6">
           <div className="flex flex-col items-center gap-1 text-center">
             <h1 className="sr-only">Race My Rival</h1>
-            {/* eslint-disable-next-line @next/next/no-img-element -- brand SVG from public/brand */}
-            <img
-              src="/brand/race-my-rival-with-tagline-colour.svg"
-              alt="Race My Rival — Turn times into races."
-              className="h-auto w-full max-w-[16rem]"
-              data-testid="brand-logo-wireframe"
-            />
+            <a
+              href="/"
+              data-testid="brand-logo-wireframe-link"
+              aria-label="Race My Rival — create a new race"
+              className="inline-flex focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              onClick={(event) => {
+                event.preventDefault();
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- logo home reset outside App Router tests
+                window.location.assign("/");
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- brand SVG from public/brand */}
+              <img
+                src="/brand/race-my-rival-with-tagline-colour.svg"
+                alt=""
+                className="h-auto w-full max-w-[16rem]"
+                data-testid="brand-logo-wireframe"
+              />
+            </a>
           </div>
           <RaceWorkspace
             loopDependencies={loopDependencies}

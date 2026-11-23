@@ -1,78 +1,82 @@
 # Race My Rival V2 — Partner Assets
 
-Inventory of Marcelo’s Run-Lab advertising pack (updated 16 November 2026) and the placement mapping used for V2.
+Inventory of the simplified Run-Lab advertising pack (6 creatives) and the placement mapping used for V2.
 
-**Source folder:** `RUN-LAB-Advertising-Banners` (client Downloads pack).  
+**Source folder:** `NEW_-_BANNERS.zip` (client Downloads pack).  
 **Destination URL (all placements):** `https://running-coach.uk/`  
-**Selection rule:** choose artwork by **viewport width** (`window.innerWidth`), not device UA and not the capped advert container (~1250px). Do not stretch or cover-crop.
+**Selection rule:** choose artwork by **viewport width** (`window.innerWidth` / `<picture>` media), not device UA and not the capped advert container (~1250px). Do not stretch or cover-crop.
 
-Suggested width bands (from supplier README; adjust to live layout):
+Suggested width bands:
 
-| Band | Width |
-|------|-------|
-| Mobile portrait | &lt; 600px |
-| Mobile landscape | 600–899px |
-| Tablet portrait | 900–1199px |
-| Tablet landscape | 1200–1599px |
-| Desktop | ≥ 1600px |
+| Band | Width | Top | Bottom |
+|------|-------|-----|--------|
+| Compact / mobile portrait | ≤ 599px | Mobile portrait | Compact (stacked) |
+| Mobile landscape | 600–899px | Mobile landscape | Wide |
+| Wide (tablet + desktop) | ≥ 900px | Desktop | Wide |
 
-Use WebP for bottom banners on the web; keep PNG as lossless reference.
+## Inventory (6 creatives)
 
-## Inventory
+### Top (3)
 
-### 01 — Top banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `top/run-lab-banner-mobile-portrait-430.png` | 1254×1254 | 1:1 | Yes | Top — compact / mobile portrait |
+| `top/run-lab-banner-mobile-landscape-844.png` | 2172×724 | ~3:1 | No | Top — mobile landscape |
+| `top/run-lab-banner-desktop-1920.png` | 1920×269 | ~7.14:1 | Yes | Top — tablet + desktop |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-banner-desktop-1920.png` | PNG | 1920×269 | ~7.14:1 | No | Top — desktop |
-| `run-lab-banner-tablet-landscape-1366.png` | PNG | 1366×204 | ~6.70:1 | No | Top — tablet landscape |
-| `run-lab-banner-tablet-portrait-1024.png` | PNG | 1024×183 | ~5.60:1 | No | Top — tablet portrait |
-| `run-lab-banner-mobile-landscape-844.png` | PNG | 844×155 | ~5.45:1 | No | Top — mobile landscape |
-| `run-lab-banner-mobile-portrait-430.png` | PNG | 430×645 | ~0.67:1 | No | Top — mobile portrait (tall) |
+### Side (1)
 
-### 02 — Side banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `side/run-lab-side-banner-desktop-portrait.png` | 1024×1536 | ~0.67:1 | No | Side skyscraper — `lg+` only |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-side-banner-desktop-landscape.png` | PNG | 1968×799 | ~2.46:1 | No | Side / wide |
-| `run-lab-side-banner-desktop-portrait.png` | PNG | 1024×1536 | ~0.67:1 | No | Side skyscraper — desktop |
-| `run-lab-side-banner-tablet-landscape.png` | PNG | 1672×941 | ~1.78:1 | No | Side — tablet landscape |
-| `run-lab-side-banner-tablet-portrait.png` | PNG | 1024×1536 | ~0.67:1 | No | Side / inline — tablet |
-| `run-lab-side-banner-iphone-landscape.png` | PNG | 1851×849 | ~2.18:1 | No | Inline below race — mobile landscape |
-| `run-lab-side-banner-iphone-portrait.png` | PNG | 941×1672 | ~0.56:1 | No | Inline below race — mobile portrait |
+### Bottom (2)
 
-### 03 — Bottom banners
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `bottom/run-lab-bottom-compact.png` | 1374×1145 | ~1.2:1 | No | Lower — mobile portrait / narrow |
+| `bottom/run-lab-bottom-wide.png` | 2172×724 | ~3:1 | No | Lower — landscape + tablet + desktop |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-bottom-desktop-1920x320.webp` (+ PNG) | WebP/PNG | 1920×320 | 6:1 | No | Lower — desktop |
-| `run-lab-bottom-tablet-landscape-1366x280.webp` (+ PNG) | WebP/PNG | 1366×280 | ~4.88:1 | No | Lower — tablet landscape |
-| `run-lab-bottom-tablet-portrait-1024x300.webp` (+ PNG) | WebP/PNG | 1024×300 | ~3.41:1 | No | Lower — tablet portrait |
-| `run-lab-bottom-mobile-landscape-844x260.webp` (+ PNG) | WebP/PNG | 844×260 | ~3.25:1 | No | Lower — mobile landscape |
-| `run-lab-bottom-mobile-portrait-430x360.webp` (+ PNG) | WebP/PNG | 430×360 | ~1.19:1 | No | Lower — mobile portrait |
+### Logo
 
-### 04 — Logo
+| Filename | Size | Aspect | Alpha | Placement |
+|----------|------|--------|-------|-----------|
+| `run-lab-official-hires-logo.png` | 1024×512 | 2:1 | Yes | Social-card attribution / optional mark |
 
-| Filename | Type | Size | Aspect | Alpha | Likely placement |
-|----------|------|------|--------|-------|------------------|
-| `run-lab-official-hires-logo.png` | PNG | 1024×512 | 2:1 | Yes | Social-card attribution / optional mark |
+## Placement notes
 
-## Placement mapping
+- Prefer `<picture>` media queries so phones do not flash the wide creative on first paint.
+- Keep container `overflow-hidden` + radius so square black corners outside baked white borders are clipped.
+- Side banner is desktop-only (`hidden lg:block`); no mobile side creative in this pack.
+- Race My Rival remains the primary identity; Run-Lab is the partner/advertiser only.
 
-| V2 slot | Assets | Notes |
-|---------|--------|-------|
-| Top banner — desktop | Top desktop / tablet-landscape | Under RmR identity, above race |
-| Top banner — mobile | Top mobile portrait/landscape | Full width; avoid pushing race too far below fold |
-| Side panel — desktop | Side portrait skyscraper preferred | Beside track only when viewport has room |
-| Side → inline mobile | Side iPhone / tablet portrait | Move **below** the race; do not keep a narrow sidebar |
-| Lower banner | Bottom WebP set | Below primary interaction |
-| Shared social-card attribution | Text “Powered by Run-Lab” ± logo | Restrained; RmR remains primary |
+## Swap a banner (no admin)
 
-## Missing / gaps
+Images live under `public/partners/run-lab/`. Paths are fixed in `src/partners/campaigns.ts`. To change a creative without touching app code: **replace the file (same name) → commit on GitHub → wait for the Vercel deploy.** Prefer RGBA if you need transparent corners. Hard-refresh the phone if the old image is cached.
 
-- No separate OG-sized (1200×630) Run-Lab background plate; social card will be generated by `next/og` with text attribution rather than a supplied composite.
-- Top mobile-portrait asset is tall (430×645); render at width 100% with auto height — do not force a short horizontal crop that clips branding.
+| Slot | File to replace |
+|------|-----------------|
+| Top portrait | `public/partners/run-lab/top/run-lab-banner-mobile-portrait-430.png` |
+| Top landscape | `public/partners/run-lab/top/run-lab-banner-mobile-landscape-844.png` |
+| Top desktop/tablet | `public/partners/run-lab/top/run-lab-banner-desktop-1920.png` |
+| Side desktop | `public/partners/run-lab/side/run-lab-side-banner-desktop-portrait.png` |
+| Bottom compact | `public/partners/run-lab/bottom/run-lab-bottom-compact.png` |
+| Bottom wide | `public/partners/run-lab/bottom/run-lab-bottom-wide.png` |
 
-## Copy into the app (Phase 6/7)
+Do not rename these files unless you also update `campaigns.ts`. Only people with GitHub write access can change creatives — there is no public upload endpoint.
 
-Copy selected files into `public/partners/run-lab/` preserving role-based names. Race My Rival must remain the primary identity; Run-Lab is the partner/advertiser only.
+## Change partner links (no admin)
+
+All Run-Lab placements share one destination constant in `src/partners/campaigns.ts`:
+
+```ts
+const RUN_LAB_DESTINATION = "https://running-coach.uk/";
+```
+
+**Same partner domain:** edit that string (path/query is fine, e.g. `https://running-coach.uk/coaching`), commit, wait for Vercel. Top / side / lower that use the constant all update together.
+
+**Per-slot links:** set each placement’s `destinationUrl` separately instead of sharing the constant — still a GitHub text edit.
+
+**Different domain:** also add the new hostname to `ALLOWED_HOSTS` in `src/partners/safeUrl.ts`. Without that allowlist update, the app refuses the link (open-redirect protection) and the banner will not navigate.
+
+Clicks also receive UTM tags via `src/partners/utm.ts` (`utm_source=racemyrival`, `utm_medium=banner`, campaign tracking code, placement as `utm_content`).

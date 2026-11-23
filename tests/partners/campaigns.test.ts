@@ -4,6 +4,7 @@ import {
   getActiveCampaign,
   getCampaignById,
   pickPlacementAsset,
+  placementPictureSources,
   RUN_LAB_CAMPAIGN,
   TEST_PARTNER_CAMPAIGN,
 } from "@/partners/campaigns";
@@ -23,11 +24,25 @@ describe("partner campaigns", () => {
     const lower = RUN_LAB_CAMPAIGN.placements.lower!;
     expect(pickPlacementAsset(top, 390)).toContain("mobile-portrait");
     expect(pickPlacementAsset(top, 800)).toContain("mobile-landscape");
-    // Content column (~1186) must not drive selection — typical desktop viewport wins desktop creatives.
-    expect(pickPlacementAsset(top, 1280)).toContain("tablet-landscape");
+    expect(pickPlacementAsset(top, 1024)).toContain("desktop-1920");
     expect(pickPlacementAsset(top, 1920)).toContain("desktop-1920");
-    expect(pickPlacementAsset(lower, 1280)).toContain("tablet-landscape");
-    expect(pickPlacementAsset(lower, 1920)).toContain("desktop-1920");
+    expect(pickPlacementAsset(lower, 390)).toContain("bottom-compact");
+    expect(pickPlacementAsset(lower, 800)).toContain("bottom-wide");
+    expect(pickPlacementAsset(lower, 1920)).toContain("bottom-wide");
+  });
+
+  it("exposes picture sources with mobile portrait first and desktop as fallback", () => {
+    const top = placementPictureSources(RUN_LAB_CAMPAIGN.placements.top!);
+    expect(top).not.toBeNull();
+    expect(top!.sources[0]?.src).toContain("mobile-portrait");
+    expect(top!.sources[0]?.maxWidth).toBe(599);
+    expect(top!.fallbackSrc).toContain("desktop-1920");
+
+    const lower = placementPictureSources(RUN_LAB_CAMPAIGN.placements.lower!);
+    expect(lower!.sources).toEqual([
+      { maxWidth: 599, src: "/partners/run-lab/bottom/run-lab-bottom-compact.png" },
+    ]);
+    expect(lower!.fallbackSrc).toContain("bottom-wide");
   });
 
   it("allowlists partner destinations", () => {

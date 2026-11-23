@@ -75,7 +75,7 @@ describe("Test gate I", () => {
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 1:52.00");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("12.00 seconds faster");
     expect(screen.getByTestId("result-distance-gap")).toHaveTextContent(
-      "Josh was approximately 77 metres ahead when they crossed the finish line",
+      "Josh was approximately 77 metres ahead at the finish line",
     );
     expect(screen.getByTestId("result-panel")).toHaveAttribute(
       "data-snapshot-race-time-ms",
@@ -136,7 +136,7 @@ describe("Test gate I", () => {
     expect(screen.getByTestId("result-winning-time")).toHaveTextContent("Winning time 0.50");
     expect(screen.getByTestId("result-time-gap")).toHaveTextContent("0.50 seconds faster");
     expect(screen.getByTestId("result-distance-gap")).toHaveTextContent(
-      "Your Rival was approximately 200 metres ahead when they crossed the finish line",
+      "Your Rival was approximately 200 metres ahead at the finish line",
     );
     expect(Number(screen.getByTestId("result-panel").getAttribute("data-snapshot-lead-m"))).toBeCloseTo(
       200,
