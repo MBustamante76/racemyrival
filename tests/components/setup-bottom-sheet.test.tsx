@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DESKTOP_LAYOUT_MQ } from "@/components/desktopLayout";
 import {
   LANDSCAPE_FIT_SHORT_EDGE_MAX,
-  LANDSCAPE_ORIENTATION_MQ,
+  LANDSCAPE_INLINE_SHORT_EDGE_MAX,
+  isLandscapeScreen,
 } from "@/components/landscapeFit";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
 
@@ -14,15 +15,13 @@ function mockLandscapeChrome(sheet: boolean): void {
     configurable: true,
     value: vi.fn().mockImplementation((query: string) => {
       const matches =
-        query === LANDSCAPE_ORIENTATION_MQ
-          ? sheet
-          : query === DESKTOP_LAYOUT_MQ
-            ? !sheet
-            : query === "(prefers-reduced-motion: reduce)"
-              ? false
-              : query.includes("min-width")
-                ? !sheet
-                : false;
+        query === DESKTOP_LAYOUT_MQ
+          ? !sheet
+          : query === "(prefers-reduced-motion: reduce)"
+            ? false
+            : query.includes("min-width")
+              ? !sheet
+              : false;
       return {
         matches,
         media: query,
@@ -35,13 +34,22 @@ function mockLandscapeChrome(sheet: boolean): void {
       };
     }),
   });
+  // Sheet: phone landscape. Non-sheet: tall desktop (short edge above inline max).
   Object.defineProperty(window.screen, "width", {
     configurable: true,
-    value: sheet ? 844 : 1280,
+    value: sheet ? 844 : 1440,
   });
   Object.defineProperty(window.screen, "height", {
     configurable: true,
-    value: sheet ? 390 : 900,
+    value: sheet ? 390 : 1024,
+  });
+  Object.defineProperty(window.screen, "orientation", {
+    configurable: true,
+    value: {
+      type: sheet ? "landscape-primary" : "landscape-primary",
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
   });
 }
 
@@ -62,10 +70,22 @@ describe("landscape setup bottom sheet", () => {
     expect(screen.queryByTestId("setup-sheet-tab")).not.toBeInTheDocument();
   });
 
-  it("uses screen short-edge for sheet mode so the keyboard cannot flip the layout", () => {
-    expect(LANDSCAPE_ORIENTATION_MQ).toBe("(orientation: landscape)");
+  it("uses screen axes (not viewport orientation) so the keyboard cannot flip the layout", () => {
     expect(LANDSCAPE_FIT_SHORT_EDGE_MAX).toBe(700);
-    expect(LANDSCAPE_FIT_SHORT_EDGE_MAX).toBeLessThan(900);
+    expect(LANDSCAPE_FIT_SHORT_EDGE_MAX).toBeLessThan(LANDSCAPE_INLINE_SHORT_EDGE_MAX);
+
+    // Portrait phone screen stays portrait even if the layout viewport is short/wide.
+    Object.defineProperty(window.screen, "width", { configurable: true, value: 390 });
+    Object.defineProperty(window.screen, "height", { configurable: true, value: 844 });
+    Object.defineProperty(window.screen, "orientation", {
+      configurable: true,
+      value: {
+        type: "portrait-primary",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      },
+    });
+    expect(isLandscapeScreen()).toBe(false);
   });
 
   it("shows a closed Race setup tab in landscape-fit and opens the panel on tap", async () => {

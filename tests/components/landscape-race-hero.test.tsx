@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DESKTOP_LAYOUT_MQ } from "@/components/desktopLayout";
 import {
   LANDSCAPE_FIT_SHORT_EDGE_MAX,
-  LANDSCAPE_ORIENTATION_MQ,
   LANDSCAPE_RACE_ATTR,
 } from "@/components/landscapeFit";
 import { RaceWorkspace } from "@/components/RaceWorkspace";
@@ -17,13 +16,11 @@ function mockPhoneLandscape(): void {
     configurable: true,
     value: vi.fn().mockImplementation((query: string) => {
       const matches =
-        query === LANDSCAPE_ORIENTATION_MQ
-          ? true
-          : query === DESKTOP_LAYOUT_MQ
+        query === DESKTOP_LAYOUT_MQ
+          ? false
+          : query === "(prefers-reduced-motion: reduce)"
             ? false
-            : query === "(prefers-reduced-motion: reduce)"
-              ? false
-              : false;
+            : false;
       return {
         matches,
         media: query,
@@ -43,6 +40,14 @@ function mockPhoneLandscape(): void {
   Object.defineProperty(window.screen, "height", {
     configurable: true,
     value: 390,
+  });
+  Object.defineProperty(window.screen, "orientation", {
+    configurable: true,
+    value: {
+      type: "landscape-primary",
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
   });
   expect(Math.min(window.screen.width, window.screen.height)).toBeLessThanOrEqual(
     LANDSCAPE_FIT_SHORT_EDGE_MAX,
