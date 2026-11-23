@@ -116,7 +116,7 @@ export const ResultPanel = forwardRef<
             <span className={`block font-sans text-xl font-extrabold uppercase tracking-[-0.02em] sm:text-2xl ${winnerAccent}`}>
               {distanceGapM} metres ahead
             </span>{" "}
-            when they crossed the finish line
+            at the finish line
           </p>
         )}
       </div>
