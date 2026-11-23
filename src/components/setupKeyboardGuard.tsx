@@ -3,12 +3,16 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
 /**
- * iOS Safari/Chrome pans the visual viewport (and often the document) when focusing
- * setup inputs, which bounces the track and can jump to the partner lower banner.
+ * Soft marker while a setup field is focused.
  *
- * Freeze document scroll in place and counteract visualViewport offset so the form
- * does not slide up when a field is focused.
+ * Important: do NOT freeze body with position:fixed or counteract visualViewport
+ * with transforms. On iOS that fights the keyboard/autofill chrome, floats the
+ * accessory bar mid-page, and feels like a crash (see Glitch recordings).
+ *
+ * Layout stability comes from viewport interactive-widget=overlays-content.
  */
+export const SETUP_KEYBOARD_ATTR = "data-rmr-setup-keyboard";
+
 export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -19,47 +23,12 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
     }
     const setupRoot: HTMLDivElement = el;
 
-    let lockedY: number | null = null;
-    const vv = window.visualViewport;
-
-    function applyViewportPin(): void {
-      if (lockedY === null) {
-        return;
+    function setOpen(open: boolean): void {
+      if (open) {
+        document.documentElement.setAttribute(SETUP_KEYBOARD_ATTR, "true");
+      } else {
+        document.documentElement.removeAttribute(SETUP_KEYBOARD_ATTR);
       }
-      const offsetTop = vv?.offsetTop ?? 0;
-      // Counter iOS visualViewport pan so fixed body content stays visually put.
-      document.body.style.transform = offsetTop ? `translateY(${offsetTop}px)` : "";
-      window.scrollTo(0, 0);
-    }
-
-    function lock(): void {
-      if (lockedY !== null) {
-        return;
-      }
-      lockedY = window.scrollY;
-      const { body } = document;
-      body.style.position = "fixed";
-      body.style.top = `-${lockedY}px`;
-      body.style.left = "0";
-      body.style.right = "0";
-      body.style.width = "100%";
-      applyViewportPin();
-    }
-
-    function unlock(): void {
-      if (lockedY === null) {
-        return;
-      }
-      const y = lockedY;
-      lockedY = null;
-      const { body } = document;
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
-      body.style.transform = "";
-      window.scrollTo(0, y);
     }
 
     function onFocusIn(event: FocusEvent): void {
@@ -70,39 +39,26 @@ export function SetupKeyboardGuard({ children }: { children: ReactNode }) {
       if (target.tagName !== "INPUT" && target.tagName !== "SELECT" && target.tagName !== "TEXTAREA") {
         return;
       }
-      lock();
+      setOpen(true);
     }
 
     function onFocusOut(): void {
-      requestAnimationFrame(() => {
+      // Delay so iOS autofill / accessory bar focus blips do not thrash the flag.
+      window.setTimeout(() => {
         const active = document.activeElement;
         if (active instanceof Node && setupRoot.contains(active)) {
           return;
         }
-        unlock();
-      });
-    }
-
-    function onViewportShift(): void {
-      if (lockedY === null) {
-        return;
-      }
-      applyViewportPin();
+        setOpen(false);
+      }, 50);
     }
 
     setupRoot.addEventListener("focusin", onFocusIn);
     setupRoot.addEventListener("focusout", onFocusOut);
-    window.addEventListener("scroll", onViewportShift, { passive: true });
-    vv?.addEventListener("scroll", onViewportShift);
-    vv?.addEventListener("resize", onViewportShift);
-
     return () => {
       setupRoot.removeEventListener("focusin", onFocusIn);
       setupRoot.removeEventListener("focusout", onFocusOut);
-      window.removeEventListener("scroll", onViewportShift);
-      vv?.removeEventListener("scroll", onViewportShift);
-      vv?.removeEventListener("resize", onViewportShift);
-      unlock();
+      setOpen(false);
     };
   }, []);
 

@@ -155,6 +155,20 @@ body {
 }
 
 /*
+ * While a setup field is focused, tuck the lower partner banner so iOS
+ * scroll-into-view has less tall content below the form to overshoot into.
+ * Do not freeze/transform body — that fights the iOS keyboard/autofill bar.
+ */
+html[data-rmr-setup-keyboard] [data-testid="partner-placement-lower"] {
+  visibility: hidden;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/*
  * Phone landscape race mode: collapse brand + partner chrome so the track
  * can fill the short viewport (setup stays portrait-first).
  */
