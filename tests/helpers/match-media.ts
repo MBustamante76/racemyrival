@@ -1,8 +1,7 @@
 import { vi } from "vitest";
 import { DESKTOP_LAYOUT_MQ } from "@/components/desktopLayout";
-import { LANDSCAPE_ORIENTATION_MQ } from "@/components/landscapeFit";
 
-/** jsdom matchMedia helper for layout hooks (desktop lg + landscape orientation). */
+/** jsdom matchMedia + screen axes helper for layout hooks. */
 export function mockLayoutMedia({
   desktop = false,
   landscape = false,
@@ -17,13 +16,11 @@ export function mockLayoutMedia({
       const matches =
         query === DESKTOP_LAYOUT_MQ
           ? desktop
-          : query === LANDSCAPE_ORIENTATION_MQ
-            ? landscape
-            : query === "(prefers-reduced-motion: reduce)"
-              ? false
-              : query.includes("min-width")
-                ? desktop || query.includes("768")
-                : false;
+          : query === "(prefers-reduced-motion: reduce)"
+            ? false
+            : query.includes("min-width")
+              ? desktop || query.includes("768")
+              : false;
       return {
         matches,
         media: query,
@@ -35,5 +32,23 @@ export function mockLayoutMedia({
         dispatchEvent: vi.fn(),
       };
     }),
+  });
+
+  // Landscape fit uses physical screen axes (not CSS orientation / viewport).
+  Object.defineProperty(window.screen, "width", {
+    configurable: true,
+    value: landscape ? 844 : desktop ? 1440 : 390,
+  });
+  Object.defineProperty(window.screen, "height", {
+    configurable: true,
+    value: landscape ? 390 : desktop ? 900 : 844,
+  });
+  Object.defineProperty(window.screen, "orientation", {
+    configurable: true,
+    value: {
+      type: landscape ? "landscape-primary" : "portrait-primary",
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
   });
 }

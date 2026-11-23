@@ -6,9 +6,12 @@ import { useSyncExternalStore } from "react";
  * Setup bottom-sheet only — short phone/tablet landscape where inline setup
  * fights the track. Roomy landscape (laptop / large iPad) keeps inline SetupCard.
  *
- * Uses the device screen short edge (not live layout height) so the soft keyboard
- * cannot flip sheet ↔ inline mid-typing and bounce the track frame.
+ * Landscape is detected from the **device screen** (width/height or
+ * screen.orientation), never from CSS `(orientation: landscape)`. The latter
+ * follows the layout viewport, so an iPhone soft keyboard can make portrait
+ * look like landscape and rebuild the setup form (dropping focus).
  */
+/** @deprecated Not used for detection — kept so older tests/docs still import a name. */
 export const LANDSCAPE_ORIENTATION_MQ = "(orientation: landscape)";
 
 /** Short edge ≤ this → landscape setup sheet + tight track budget. */
@@ -17,7 +20,7 @@ export const LANDSCAPE_FIT_SHORT_EDGE_MAX = 700;
 /** Short edge ≤ this (and above sheet max) → roomy landscape track budget, inline setup. */
 export const LANDSCAPE_INLINE_SHORT_EDGE_MAX = 900;
 
-/** @deprecated Alias for tests/docs — detection is orientation + screen short edge, not layout max-height. */
+/** @deprecated Alias for tests/docs — detection is screen axes + short edge, not layout max-height. */
 export const LANDSCAPE_FIT_MQ = `${LANDSCAPE_ORIENTATION_MQ} and (max-height: ${LANDSCAPE_FIT_SHORT_EDGE_MAX}px)`;
 
 export type LandscapeBand = "none" | "sheet" | "inline";
@@ -40,6 +43,15 @@ function screenShortEdge(): number {
   return Math.min(window.screen.width, window.screen.height);
 }
 
+/** True when the device is held/rotated landscape — stable while the keyboard is open. */
+export function isLandscapeScreen(): boolean {
+  const type = window.screen?.orientation?.type;
+  if (typeof type === "string") {
+    return type.startsWith("landscape");
+  }
+  return window.screen.width > window.screen.height;
+}
+
 function bandFor(landscape: boolean, shortEdge: number): LandscapeBand {
   if (!landscape) {
     return "none";
@@ -54,10 +66,10 @@ function bandFor(landscape: boolean, shortEdge: number): LandscapeBand {
 }
 
 function computeSnapshot(): LandscapeSnapshot {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  if (typeof window === "undefined") {
     return serverSnapshot;
   }
-  const landscape = window.matchMedia(LANDSCAPE_ORIENTATION_MQ).matches;
+  const landscape = isLandscapeScreen();
   const shortEdge = screenShortEdge();
   const band = bandFor(landscape, shortEdge);
   if (
@@ -72,25 +84,27 @@ function computeSnapshot(): LandscapeSnapshot {
 }
 
 function subscribeLandscape(onStoreChange: () => void): () => void {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  if (typeof window === "undefined") {
     return () => {};
   }
-  const media = window.matchMedia(LANDSCAPE_ORIENTATION_MQ);
   const onChange = () => {
     computeSnapshot();
     onStoreChange();
   };
-  // Prime cache so the first getSnapshot is stable.
   computeSnapshot();
-  if (typeof media.addEventListener === "function") {
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+
+  const orientation = window.screen?.orientation;
+  if (orientation && typeof orientation.addEventListener === "function") {
+    orientation.addEventListener("change", onChange);
   }
-  if (typeof media.addListener === "function") {
-    media.addListener(onChange);
-    return () => media.removeListener(onChange);
-  }
-  return () => {};
+  window.addEventListener("orientationchange", onChange);
+
+  return () => {
+    if (orientation && typeof orientation.removeEventListener === "function") {
+      orientation.removeEventListener("change", onChange);
+    }
+    window.removeEventListener("orientationchange", onChange);
+  };
 }
 
 function getSnapshot(): LandscapeSnapshot {
