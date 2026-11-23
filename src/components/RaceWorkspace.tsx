@@ -33,6 +33,7 @@ import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
 import {
   DEFAULT_DISTANCE_ID,
+  PLACEHOLDER_ATHLETE_NAMES,
   canStartRace,
   createConfiguredRace,
   createDefaultAthleteDrafts,
@@ -152,7 +153,10 @@ export function RaceWorkspace({
 
     return athletes.map((athlete) => ({
       id: athlete.id,
-      name: athlete.name.trim() || athlete.id,
+      name:
+        athlete.name.trim() ||
+        PLACEHOLDER_ATHLETE_NAMES[athlete.id as keyof typeof PLACEHOLDER_ATHLETE_NAMES] ||
+        athlete.id,
       distanceCoveredM: 0,
     }));
   }, [athletes, telemetry]);

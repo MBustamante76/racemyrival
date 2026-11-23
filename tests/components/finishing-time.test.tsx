@@ -46,8 +46,10 @@ describe("finishing time fields", () => {
     expect(screen.getByLabelText("Enter rival's time minutes")).toHaveValue("1");
     expect(screen.getByLabelText("Enter rival's time seconds")).toHaveValue("45");
     expect(screen.getByLabelText("Enter rival's time hundredths")).toHaveValue("00");
-    expect(screen.getByLabelText("Enter your name")).toHaveValue("Your Name");
-    expect(screen.getByLabelText("Enter rival's name")).toHaveValue("Your Rival");
+    expect(screen.getByLabelText("Enter your name")).toHaveValue("");
+    expect(screen.getByLabelText("Enter your name")).toHaveAttribute("placeholder", "Your Name");
+    expect(screen.getByLabelText("Enter rival's name")).toHaveValue("");
+    expect(screen.getByLabelText("Enter rival's name")).toHaveAttribute("placeholder", "Rival's Name");
     expect(screen.getByRole("button", { name: "Start race" })).toBeEnabled();
     expect(within(screen.getByTestId("setup-athlete-A")).getByText("MIN")).toBeInTheDocument();
     expect(within(screen.getByTestId("setup-athlete-B")).getByText("MIN")).toBeInTheDocument();

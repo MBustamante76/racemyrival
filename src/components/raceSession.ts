@@ -10,10 +10,14 @@ import type { AthleteInput, ParseRaceTimeError } from "@/domain/race";
 
 export const DEFAULT_DISTANCE_ID = "800";
 
-export const DEFAULT_ATHLETE_NAMES = {
+/** Shown as input placeholders and idle track labels — not as filled values. */
+export const PLACEHOLDER_ATHLETE_NAMES = {
   A: "Your Name",
   B: "Your Rival",
 } as const;
+
+/** Alias kept for older imports; drafts start empty and use placeholders instead. */
+export const DEFAULT_ATHLETE_NAMES = PLACEHOLDER_ATHLETE_NAMES;
 
 /** Sensible default finishing times (ms) per distance: [you, rival]. */
 export const DEFAULT_TIMES_BY_DISTANCE_MS: Record<string, readonly [number, number]> = {
@@ -68,16 +72,25 @@ export function defaultTimesForDistance(distanceId: string): [TimeParts, TimePar
 export function createDefaultAthleteDrafts(distanceId = DEFAULT_DISTANCE_ID): [AthleteDraft, AthleteDraft] {
   const [timeA, timeB] = defaultTimesForDistance(distanceId);
   return [
-    { id: "A", name: DEFAULT_ATHLETE_NAMES.A, time: timeA },
-    { id: "B", name: DEFAULT_ATHLETE_NAMES.B, time: timeB },
+    { id: "A", name: "", time: timeA },
+    { id: "B", name: "", time: timeB },
   ];
 }
 
 export const DEFAULT_ATHLETE_DRAFTS: [AthleteDraft, AthleteDraft] =
   createDefaultAthleteDrafts(DEFAULT_DISTANCE_ID);
 
-export function nameFieldError(name: string): string | null {
-  return name.trim() === "" ? "Enter a name" : null;
+/** Blank fields are allowed; placeholders become the race names on start. */
+export function nameFieldError(_name: string): string | null {
+  return null;
+}
+
+export function resolveAthleteName(id: string, name: string): string {
+  const trimmed = name.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  return PLACEHOLDER_ATHLETE_NAMES[id as keyof typeof PLACEHOLDER_ATHLETE_NAMES] ?? id;
 }
 
 export function timePartsFromMilliseconds(milliseconds: number): TimeParts {
@@ -131,10 +144,6 @@ export function parseRaceForm(draft: RaceFormDraft): ParsedRaceForm | null {
 
   const athletes: AthleteInput[] = [];
   for (const athlete of draft.athletes) {
-    if (nameFieldError(athlete.name)) {
-      return null;
-    }
-
     const parsedTime = parseRaceTime(composeTimeText(athlete.time));
     if (!parsedTime.ok) {
       return null;
@@ -142,7 +151,7 @@ export function parseRaceForm(draft: RaceFormDraft): ParsedRaceForm | null {
 
     athletes.push({
       id: athlete.id,
-      name: athlete.name.trim(),
+      name: resolveAthleteName(athlete.id, athlete.name),
       finishTimeMs: parsedTime.milliseconds,
     });
   }

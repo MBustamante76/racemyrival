@@ -8,7 +8,7 @@ const ATHLETE_COLUMN = {
   A: {
     visualLabel: "You",
     accessibleLabel: "Athlete A",
-    namePlaceholder: "Your name",
+    namePlaceholder: "Your Name",
     nameAriaLabel: "Enter your name",
     /** Visible legend; aria field labels still use "Enter your time …". */
     timeLabel: "Time",
@@ -18,7 +18,7 @@ const ATHLETE_COLUMN = {
   B: {
     visualLabel: "Rival",
     accessibleLabel: "Athlete B",
-    namePlaceholder: "Rival's name",
+    namePlaceholder: "Rival's Name",
     nameAriaLabel: "Enter rival's name",
     timeLabel: "Time",
     timeAriaLabel: "Enter rival's time",
