@@ -110,3 +110,9 @@ export function useLandscapeFit(): boolean {
 export function useLandscapeBand(): LandscapeBand {
   return useSyncExternalStore(subscribeLandscape, getSnapshot, getServerSnapshot).band;
 }
+
+/**
+ * Set on documentElement while a short-edge phone landscape race is live so
+ * partner/brand chrome can collapse and the track can become the hero.
+ */
+export const LANDSCAPE_RACE_ATTR = "data-rmr-landscape-race";

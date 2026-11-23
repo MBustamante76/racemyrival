@@ -154,6 +154,20 @@ body {
   padding: 0;
 }
 
+/*
+ * Phone landscape race mode: collapse brand + partner chrome so the track
+ * can fill the short viewport (setup stays portrait-first).
+ */
+html[data-rmr-landscape-race] [data-rmr-landscape-race-hide] {
+  display: none !important;
+}
+
+html[data-rmr-landscape-race] [data-rmr-partner-shell] {
+  gap: 0.25rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 [data-presentation="wireframe"] {
   --rmr-navy: #18181b;
   --rmr-red: #18181b;

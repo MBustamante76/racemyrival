@@ -27,7 +27,7 @@ import { ResultPanel } from "./ResultPanel";
 import { SetupBottomSheet } from "./SetupBottomSheet";
 import { SetupCard } from "./SetupCard";
 import { SetupKeyboardGuard } from "./setupKeyboardGuard";
-import { useLandscapeBand, useLandscapeFit } from "./landscapeFit";
+import { LANDSCAPE_RACE_ATTR, useLandscapeBand, useLandscapeFit } from "./landscapeFit";
 import { RaceClockReadout, TrackStage } from "./TrackStage";
 import { TrackRenderer } from "./TrackRenderer";
 import { ghostAthletesFromSnapshot } from "./ghostFromSnapshot";
@@ -110,6 +110,8 @@ export function RaceWorkspace({
   const distanceLabel = raceDistanceById(distanceId)?.label ?? "800m";
   const analyticsRace = useMemo(() => ({ distanceId, distanceM }), [distanceId, distanceM]);
   const status: RaceStatus = telemetry?.status ?? "idle";
+  // Phone landscape + live race: track becomes the hero (chrome collapses via html attr).
+  const landscapeRaceHero = landscapeBand === "sheet" && status !== "idle";
   const formLocked = status !== "idle" || pendingStart || sharedLocked;
   const startEnabled = status === "idle" && !pendingStart && canStartRace(draft);
   const showSetup = status === "idle" && !pendingStart && !sharedLocked;
@@ -178,6 +180,17 @@ export function RaceWorkspace({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (landscapeRaceHero) {
+      document.documentElement.setAttribute(LANDSCAPE_RACE_ATTR, "true");
+    } else {
+      document.documentElement.removeAttribute(LANDSCAPE_RACE_ATTR);
+    }
+    return () => {
+      document.documentElement.removeAttribute(LANDSCAPE_RACE_ATTR);
+    };
+  }, [landscapeRaceHero]);
 
   const autoStartRef = useRef(false);
 
@@ -515,6 +528,7 @@ export function RaceWorkspace({
         <TrackStage
           stageRef={trackStageRef}
           landscapeBand={landscapeBand}
+          raceHero={landscapeRaceHero}
           clock={
             <RaceClockReadout
               distanceLabel={distanceLabel}
@@ -544,6 +558,7 @@ export function RaceWorkspace({
                 playbackRate={playbackRate}
                 showStart={false}
                 showSpeed
+                layout={landscapeRaceHero ? "stack" : "row"}
                 onStart={handleStart}
                 onPause={handlePause}
                 onResume={handleResume}
