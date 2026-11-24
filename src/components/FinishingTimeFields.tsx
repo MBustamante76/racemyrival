@@ -136,6 +136,16 @@ export function FinishingTimeFields({
   );
 }
 
+/** Mobile taps often land left of the digit; park the caret at the end for backspace-and-type. */
+function placeCaretAtEnd(input: HTMLInputElement): void {
+  const length = input.value.length;
+  try {
+    input.setSelectionRange(length, length);
+  } catch {
+    // Some engines reject selection APIs on certain input modes.
+  }
+}
+
 function TimePartInput({
   id,
   inputRef,
@@ -175,6 +185,12 @@ function TimePartInput({
         aria-invalid={invalid}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
+        onFocus={(event) => {
+          const input = event.currentTarget;
+          // Defer so this wins over the browser's tap caret placement.
+          requestAnimationFrame(() => placeCaretAtEnd(input));
+        }}
+        onClick={(event) => placeCaretAtEnd(event.currentTarget)}
         className="h-9 w-full min-w-0 rounded-[var(--rmr-radius-control)] border border-input-border bg-surface-alt px-1 text-center text-base font-semibold tabular-nums text-brand-navy outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
       />
       <span aria-hidden="true" className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
