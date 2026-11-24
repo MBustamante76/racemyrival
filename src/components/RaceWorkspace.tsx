@@ -441,6 +441,12 @@ export function RaceWorkspace({
   });
 
   function handleReset(): void {
+    // After finish (and on shared links), Reset must not leave a locked idle
+    // screen with no setup — same escape hatch as Create New Race.
+    if (status === "finished" || Boolean(shared)) {
+      handleCreateNewRace();
+      return;
+    }
     clearStartDelay();
     clearResultReveal();
     sessionRef.current?.reset();
