@@ -6,12 +6,11 @@ import { RaceWorkspace } from "@/components/RaceWorkspace";
 import { mockLayoutMedia } from "../helpers/match-media";
 
 describe("SetupKeyboardGuard — iOS keyboard regression", () => {
-  let scrollIntoView: ReturnType<typeof vi.fn>;
+  let scrollIntoView: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     mockLayoutMedia({ desktop: false, landscape: false });
-    scrollIntoView = vi.fn();
-    Element.prototype.scrollIntoView = scrollIntoView;
+    scrollIntoView = vi.spyOn(Element.prototype, "scrollIntoView").mockImplementation(() => {});
   });
 
   afterEach(() => {
