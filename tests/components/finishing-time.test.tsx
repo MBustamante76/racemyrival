@@ -106,4 +106,21 @@ describe("finishing time fields", () => {
     await user.type(seconds, "60");
     expect(seconds).toHaveValue("6");
   });
+
+  it("places the caret at the end when a time part is focused so backspace edits the last digit", async () => {
+    const user = userEvent.setup();
+    render(<RaceWorkspace />);
+    const seconds = screen.getByLabelText("Enter your time seconds") as HTMLInputElement;
+
+    await user.click(seconds);
+    await Promise.resolve();
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+
+    expect(seconds).toHaveFocus();
+    expect(seconds.selectionStart).toBe(seconds.value.length);
+    expect(seconds.selectionEnd).toBe(seconds.value.length);
+
+    await user.keyboard("{Backspace}");
+    expect(seconds).toHaveValue("2");
+  });
 });
