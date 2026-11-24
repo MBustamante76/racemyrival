@@ -150,7 +150,7 @@ describe("Test gate I", () => {
     ).toBe("400");
   });
 
-  it("removes the previous result on reset", async () => {
+  it("removes the previous result on reset and unlocks a fresh setup", async () => {
     const { clock, user } = await renderWorkspace();
     await user.selectOptions(screen.getByLabelText("Select race distance"), "400");
     await setFinishingTimes(user, "1.00", "0.50");
@@ -161,6 +161,9 @@ describe("Test gate I", () => {
     await user.click(screen.getByRole("button", { name: "Reset" }));
     expect(screen.queryByTestId("result-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("race-status")).toHaveTextContent("idle");
+    expect(screen.getByTestId("setup-card")).toBeInTheDocument();
+    expect(screen.getByLabelText("Select race distance")).toBeEnabled();
+    expect(screen.getByLabelText("Enter your time minutes")).toBeEnabled();
   });
 
   it("does not recalculate the result in the panel", () => {
